@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Faculty, AdminCredentials, Timetable, TimetableEntry, Subject, ClassDuration, Room, TimeTableRollouts
+from .models import Faculty, AdminCredentials, Timetable,Subject, ClassDuration, Room, TimeTableRollouts
 
 class AdminCredentialsInline(admin.StackedInline):
     model = AdminCredentials
@@ -9,9 +9,6 @@ class AdminCredentialsInline(admin.StackedInline):
 class FacultyAdmin(admin.ModelAdmin):
     inlines = (AdminCredentialsInline,)
 
-@admin.register(TimetableEntry)
-class TimetableEntryAdmin(admin.ModelAdmin):
-    pass  # You can customize this admin class as needed
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
