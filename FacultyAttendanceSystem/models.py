@@ -29,7 +29,9 @@ class Semester(models.Model):
     end_date = models.DateField(verbose_name='end term date')
     
     def __str__(self):
-        return f'{self.name}-{self.start_date}-{self.end_date}'
+        start_date_str = self.start_date.strftime('%d-%m-%Y')
+        end_date_str = self.end_date.strftime('%d-%m-%Y')
+        return f'{self.name}-{start_date_str} TO {end_date_str}'
     
 class Subject(models.Model):
     name = models.CharField(max_length=200, unique=True)
@@ -54,25 +56,29 @@ class Room(models.Model):
     def __str__(self):
         return self.room_name
 
-#main Timetable
+# main Timetable
 class Timetable(models.Model):
     CLASS_TYPE_CHOICES = (
         ('lecture', 'lecture'),
         ('lab', 'lab')
     )
-    class_type = models.CharField('Class Type', max_length=200, null = True, blank = True, choices=CLASS_TYPE_CHOICES, default='scheduled')
-    semester = models.ForeignKey(Semester, on_delete=models.SET_NULL,null=True)
-    faculty = models.ForeignKey(Faculty, verbose_name='faculty_id', null=True,on_delete=models.SET_NULL)
-    subject = models.ForeignKey(Subject, verbose_name='subject', related_name='subject',on_delete=models.SET_NULL,null=True)
-    room = models.ForeignKey(Room, verbose_name='Room', related_name='room',on_delete=models.SET_NULL,blank= True,null= True)
-    duration = models.ForeignKey(ClassDuration, related_name='class_definition_duration',on_delete=models.SET_NULL,null=True)
-    create_date = models.DateTimeField('Class definition create date',auto_now_add=True,null=True)
-    created_by_user = models.ForeignKey(User,null=True, on_delete=models.SET_NULL, related_name='class_definition_creator')
-    modified_date = models.DateTimeField('Class definition modified date',auto_now=True,null=True)
-    modified_by_user = models.ForeignKey(User,null=True, on_delete=models.SET_NULL, related_name='class_definition_modifier')
+    class_type = models.CharField('Class Type', max_length=200, null=True, blank=True, choices=CLASS_TYPE_CHOICES, default='scheduled')
+    semester = models.ForeignKey(Semester, on_delete=models.SET_NULL, null=True)
+    faculty = models.ForeignKey(Faculty, verbose_name='faculty_id', null=True, on_delete=models.SET_NULL)
+    subject = models.ForeignKey(Subject, verbose_name='subject', related_name='subject', on_delete=models.SET_NULL, null=True)
+    room = models.ForeignKey(Room, verbose_name='Room', related_name='room', on_delete=models.SET_NULL, blank=True, null=True)
+    duration = models.ForeignKey(ClassDuration, related_name='class_definition_duration', on_delete=models.SET_NULL, null=True)
+    create_date = models.DateTimeField('Class definition create date', auto_now_add=True, null=True)
+    created_by_user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='class_definition_creator')
+    modified_date = models.DateTimeField('Class definition modified date', auto_now=True, null=True)
+    modified_by_user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='class_definition_modifier')
     
     def __str__(self):
-        return f'{self.semester}-{self.subject.short_name}-{self.faculty}-{self.room}'
+        semester_name = self.semester.name if self.semester else ""
+        subject_short_name = self.subject.short_name if self.subject else ""
+        faculty_name = self.faculty.name if self.faculty else ""
+        room_name = self.room.room_name if self.room else ""
+        return f'{semester_name}-{subject_short_name}-{faculty_name}-{room_name}'
 
 class TimeTableRollouts(models.Model):
     STATUSES_CHOICES = (
@@ -102,4 +108,3 @@ class TimeTableRollouts(models.Model):
         subject = self.subject.name if self.subject else ""
         return "Class for: {} at {}".format(subject, self.class_date)
     
-
