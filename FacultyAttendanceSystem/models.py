@@ -64,6 +64,7 @@ class Timetable(models.Model):
     )
     class_type = models.CharField('Class Type', max_length=200, null=True, blank=True, choices=CLASS_TYPE_CHOICES, default='scheduled')
     semester = models.ForeignKey(Semester, on_delete=models.SET_NULL, null=True)
+    first_class_date = models.DateField(verbose_name='First Class of the semester')
     faculty = models.ForeignKey(Faculty, verbose_name='faculty_id', null=True, on_delete=models.SET_NULL)
     subject = models.ForeignKey(Subject, verbose_name='subject', related_name='subject', on_delete=models.SET_NULL, null=True)
     room = models.ForeignKey(Room, verbose_name='Room', related_name='room', on_delete=models.SET_NULL, blank=True, null=True)
@@ -72,6 +73,8 @@ class Timetable(models.Model):
     created_by_user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='class_definition_creator')
     modified_date = models.DateTimeField('Class definition modified date', auto_now=True, null=True)
     modified_by_user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='class_definition_modifier')
+    start_time = models.TimeField(null=True, blank=True, verbose_name="Class Start Time")
+    end_time = models.TimeField(null=True, blank=True, verbose_name="Class End Time")
     
     def __str__(self):
         semester_name = self.semester.name if self.semester else ""
@@ -95,8 +98,8 @@ class TimeTableRollouts(models.Model):
     class_id = models.ForeignKey(Timetable, null = True, blank = True, related_name='class_rollout',on_delete=models.SET_NULL,verbose_name='Class definition')
     class_status = models.CharField('Class status', max_length=200, null = True, blank = True, choices=STATUSES_CHOICES, default='scheduled')
     class_attedance = models.BooleanField(default=False,verbose_name='Faculty Attedance')
-    created_by = models.ForeignKey(Faculty, related_name='class_created_by',null=True,on_delete=models.SET_NULL)
-    modified_by = models.ForeignKey(Faculty, related_name='class_modified_by', null=True,on_delete=models.SET_NULL)
+    created_by = models.ForeignKey(User, related_name='class_created_by',null=True,on_delete=models.SET_NULL)
+    modified_by = models.ForeignKey(User, related_name='class_modified_by', null=True, blank=True, on_delete=models.SET_NULL)
     create_date = models.DateTimeField(default=timezone.now)
     modified_date = models.DateTimeField(default=timezone.now, null=True)
     start_time = models.TimeField('Start time',null = True, blank = True)
@@ -106,5 +109,7 @@ class TimeTableRollouts(models.Model):
     
     def __str__(self):
         subject = self.subject.name if self.subject else ""
-        return "Class for: {} at {}".format(subject, self.class_date)
-    
+        start_time_str = self.start_time.strftime("%H:%M") if self.start_time else ""
+        end_time_str = self.end_time.strftime("%H:%M") if self.end_time else ""
+        return f"Class for: {subject} at {self.class_date} from {start_time_str} to {end_time_str}"
+
