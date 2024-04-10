@@ -12,9 +12,9 @@ def create_rollouts_for_timetable(sender, instance, created, **kwargs):
         class_definition = instance
 
         while first_class_date <= semester_end_date:
-            # Ensure the loop does not become infinite by checking if the first_class_date is less than or equal to the semester_end_date
+          
             if first_class_date > semester_end_date:
-                break  # Exit the loop if first_class_date exceeds the semester_end_date
+                break  
 
             class_rollout = TimeTableRollouts(
                 faculty=class_definition.faculty,
