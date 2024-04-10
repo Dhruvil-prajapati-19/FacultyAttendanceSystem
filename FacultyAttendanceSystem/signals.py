@@ -12,7 +12,6 @@ def create_rollouts_for_timetable(sender, instance, created, **kwargs):
         class_definition = instance
 
         while first_class_date <= semester_end_date:
-          
             if first_class_date > semester_end_date:
                 break  
 
