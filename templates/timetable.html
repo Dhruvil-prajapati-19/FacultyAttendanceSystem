@@ -642,41 +642,7 @@ button > svg {
   </div>
   <div id="top-of-site-pixel-anchor"></div>
   <script src="./index.js"></script>
-<!---  <script>
-    const weekpicker = document.getElementById("weekpicker");
-    const dayNumbers = document.querySelector(".daynumbers");
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    
-    function displayCalendar() {
-      const selectedDate = new Date(weekpicker.value);
-      
-      // Clear previous days
-      document.querySelector(".scroller").innerHTML = "";
 
-      for (let i = 0; i < 7; i++) {
-        const currentDate = new Date(selectedDate);
-        currentDate.setDate(selectedDate.getDate() + i);
-        
-        // Format the date as DD/MM/YYYY
-        const formattedDate = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
-
-        const track = document.createElement("div");
-        track.className = "track";
-        const dayHeading = document.createElement("div");
-        dayHeading.className = "heading";
-        dayHeading.textContent = daysOfWeek[currentDate.getDay()];
-        track.appendChild(dayHeading);
-        const dateHeading = document.createElement("div");
-        dateHeading.className = "heading";
-        dateHeading.textContent = formattedDate;
-        track.appendChild(dateHeading);
-        document.querySelector(".scroller").appendChild(track);
-      }
-    }
-
-    weekpicker.addEventListener("change", displayCalendar);
-    displayCalendar(); // Display calendar on page load
-  </script> -->
   <script>
     const weekpicker = document.getElementById("weekpicker");
     const dayNumbers = document.querySelector(".daynumbers");
