@@ -1,8 +1,7 @@
 from django.shortcuts import render,redirect
-from .models import Faculty, Timetable,AdminCredentials
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
+from .models import AdminCredentials
+
+
 
 def login(request):
     if request.method == 'POST':
@@ -23,10 +22,8 @@ def login(request):
 
 def index(request):
     # Add your view logic here
-    return render(request, 'index.html')  # Assuming you have an 'index.html' template
+    return render(request, 'index.html') 
 
-def timetable(request, faculty_id):
-    faculty = Faculty.objects.get(pk=faculty_id)
-    timetable_data = Timetable.objects.filter(faculty=faculty)
-    return render(request, 'timetable.html', {'timetable_data': timetable_data})
+
+
 

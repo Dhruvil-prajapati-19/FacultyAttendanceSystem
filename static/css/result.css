@@ -1,0 +1,111 @@
+
+/* General styling */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    }
+    
+    .container-fluid {
+    padding-top: 50px;
+    }
+    
+    .col-md-8 {
+    background-color: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1, h2 {
+    color: #333;
+    }
+    
+    /* Attendance Sheet styling */
+    .attendance-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    }
+    
+    .attendance-entry {
+    width: 200px;
+    height: 200px;
+    background-color: #fafafa;
+    border-radius: 15px;
+    margin: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    }
+    
+    .attendance-entry:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    
+    .attendance-entry:before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.2));
+    border-radius: 15px;
+    z-index: -1;
+    }
+    
+    .time {
+    font-weight: bold;
+    font-size: 20px;
+    color: #333;
+    }
+    
+    .subject-name,
+    .class-name {
+    margin-top: 10px;
+    font-size: 16px;
+    color: #555;
+    }
+    
+    .attendance-checkbox {
+    margin-top: 20px;
+    }
+    
+    /* Checkbox styling */
+    input[type="checkbox"] {
+    display: none;
+    }
+    
+    .attendance-checkbox input[type="checkbox"] + label::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    margin-right: 10px;
+    vertical-align: middle;
+    transition: background-color 0.3s ease;
+    }
+    
+    .attendance-checkbox input[type="checkbox"]:checked + label::before {
+    background-color: #007bff;
+    }
+    
+    .attendance-checkbox input[type="checkbox"] + label::after {
+    content: 'Present';
+    display: inline-block;
+    color: #007bff;
+    font-size: 16px;
+    vertical-align: middle;
+    cursor: pointer;
+    }
+    
+    /* Text color for checkbox label when checked */
+    .attendance-checkbox input[type="checkbox"]:checked + label::after {
+    color: #333;
+    }
+    

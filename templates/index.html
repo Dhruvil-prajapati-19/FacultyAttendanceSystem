@@ -1,344 +1,26 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timetable</title>
-    <style>
-        :root {
-  --body-bg: #FDFDFD;
-  --thead-bg: #F7F9FB;
-  --thead-color: hsl(210, 5%, 40%);
-  --bd-color: #ebebeb;
-  --time-color: hsl(210, 5%, 70%);
-  
-  --time-width: 75px;
-  --sticky-height: 40px;
-}
-
-body {
-  background: var(--body-bg);
-  overflow-x: hidden;
-}
-
-.wrapper {
-  padding: 15px;
-  margin: 10em auto 30em;
-  max-width: 1080px;
-}
-
-h1 {
-  font-size: 9vmin;
-  text-align: center;
-  line-height: 1;
-  color: #333;
-  font-family: 'Courgette', cursive;
-}
-
-.sticky-header {
-  height: var(--sticky-height);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--body-bg);
-  z-index: 7;
-  position: sticky;
-  top: 0;
-  font-weight: 700;
-  overflow: hidden;
-}
-
-.sticky-header span {
-  opacity: 0;
-  transform: translateY(-100%);
-  transition: .4s;
-}
-
-.reveal .sticky-header span {
-  opacity: 1;
-  transform: none;
-}
-
-.table {
-  position: relative;
-  border: solid var(--bd-color);
-  border-width: 0 1px 0 0;
-  overscroll-behavior: contain;
-}
-
-.headers {
-  top: var(--sticky-height);
-  position: -webkit-sticky;
-  position: sticky;
-  display: flex;
-  justify-content: flex-end;
-  z-index: 1;
-  box-shadow: 0 10px 50px rgba(0, 0, 0, 0.04);
-}
-
-.tracks,
-.scroller {
-  display: flex;
-  overflow-x: auto;  /* Enable horizontal scrolling */
-  overflow-y: hidden;  /* Maintain hidden vertical scrollbar */
-  scroll-behavior: smooth;  /* Enable smooth scrolling animation */
-}
-
-
-.scroller {
-  overflow-x: hidden;
-  flex: 1;
-}
-
-.tracks {
-  overflow: auto;
-}
-
-.tracks::-webkit-scrollbar,
-.scroller::-webkit-scrollbar {
-  display: none;
-}
-
-.track {
-  flex: 1 0 22%;
-}
-
-.track + .track {
-  margin-left: -1px;
-}
-.time {
-  flex: 0 0 var(--time-width);
-  position: -webkit-sticky;
-  position: sticky;
-  left: 0;
-  z-index: 2; /* Increase the z-index to ensure it's above other elements */
-}
-
-.headers .time {
-  z-index: 5;
-}
-
-.tracks .time {
-  box-shadow: 20px 0 50px rgba(0, 0, 0, 0.05);
-}
-
-time {
-  font-weight: 600;
-  font-size: 12px;
-  letter-spacing: .03em;
-}
-
-time {
-  color: hsl(210, 5%, 70%);
-  text-align: right;
-}
-
-.time .heading {
-  justify-content: flex-end;
-  padding-right: 1em;
-  font-weight: 500;
-  background: #F9F9F9;
-}
-
-.heading {
-  height: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: -webkit-sticky;
-  position: sticky;
-  top: 0;
-  border: solid var(--bd-color);
-  border-width: 1px;
-  color: hsla(210, 5%, 40%, 1);
-  z-index: 1;
-  background: var(--thead-bg);
-  font-weight: 700;
-}
-
-.entry {
-  border: 1px solid #ebebeb;
-  border-top: 0;
-  background: var(--body-bg);
-  height: 9em;
-  padding: 1em;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.entry:not(:last-of-type) {
-  border-bottom-style: dashed;
-}
-
-.track:last-of-type > div {
-  border-right: 0;
-}
-
-.time .entry,
-.time .heading {
-  position: relative;
-  border-color: transparent var(--bd-color) var(--bd-color) transparent;
-  border-color: transparent var(--bd-color) transparent transparent;
-}
-
-.time .entry:after,
-.time .heading:after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  right: -1px;
-  width: 50%;
-  height: 1px;
-  z-index: 3;
-  background: linear-gradient(to left, var(--bd-color), var(--body-bg));
-}
-
-.double {
-  height: 18em;
-}
-.treble {
-  height: 27em;
-}
-
-.details {
-  border-radius: 4px;
-  background: #fff;
-  box-shadow: 0 15px 30px -10px rgba(0,0,0,0.50);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-  border: 1px solid #EBECEE;
-  padding: 10px;
-  border-left: 5px solid var(--theme-bg);
-  height: 100%;
-}
-
-h3 {
-  font-size: 12px;
-  background: var(--theme-bg);
-  padding: 2px 5px;
-  font-weight: 600;
-  line-height: 1.4;
-  border-radius: 2px;
-  color: var(--theme-color);
-  width: max-content;
-}
-
-.yellow {
-  --theme-color: hsl(40, 50%, 30%);
-  --theme-bg: #ffd800;
-}
-
-.turq {
-  --theme-color: hsl(180, 50%, 30%);
-  --theme-bg: #00facd;
-}
-
-.blue {
-  --theme-color: hsl(200, 50%, 30%);
-  --theme-bg: #52F0FA;
-}
-
-.purple {
-  --theme-color: hsl(235, 75%, 90%);
-  --theme-bg: #473BBE;
-}
-
-.green {
-  --theme-color: #2d4710;
-  --theme-bg: #86F250;
-}
-
-.gray {
-  --theme-color: var(--thead-bg);
-  --theme-bg: #BBBCBC;
-}
-
-p {
-  font-size: 12px;
-  color: #333;
-  font-weight: 500;
-  margin: 0;
-}
-
-p + p {
-  color: #858585;
-  margin-top: 5px;
-  font-weight: 400;
-}
-
-.buttons {
-  display: flex;
-  justify-content: space-between;
-  position: absolute;
-  z-index: 6;
-  top: 10px; /* Adjust the top position for better visibility */
-  padding: 10px 0;
-  width: calc(100% - var(--time-width));
-  margin-top: 20px; /* Add margin to create space between the buttons and the calendar */
-}
-
-
-
-
-button {
-  border-radius: 0;
-  border: 0;
-  padding: 5px;
-  font: inherit;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  outline: none !important;
-  cursor: pointer;
-  background: var(--thead-bg);
-}
-
-button > svg {
-
-  width: 15px;
-  height: 10px;
-  fill: var(--thead-color);
-  pointer-events: none;
-}
-
-.btn-left {
-  transform: scaleX(-1);
-}
-
-
-#top-of-site-pixel-anchor {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  top: 15em;
-  left: 0;
-}
-
-@media (max-width: 767px) {
-  .track:not(.time) {
-    flex: 1 0 calc(50% + 7px);
-  }
-}
-    </style>
-</head>
-<body>
-    <h1>Timetable</h1>
-</body>
-</html>
-<!--new html of calander-->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/quill/quill.snow.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/quill/quill.bubble.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/remixicon/remixicon.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/simple-datatables/style.css' %}" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Courgette" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap-reboot.css">
   <script src="http://asvd.github.io/syncscroll/syncscroll.js"></script>
-  <title></title>
+  <link href="{% static/css/styles.css}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/result.css' %}">
+  <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+  <title>Result</title>  
 </head>
 <body>
-
-  <!--datepicker-->
+    <!--datepicker-->
   <div class="container-sm">
     <div class="row mb-2">
       <div class="col">
@@ -349,23 +31,18 @@ button > svg {
 
   <!--end-->
   <div class="wrapper">
-    <h1>Calendar</h1>
+    <h1>attendance sheet</h1>
     <div class="sticky-header">
       <span>Calendar</span>
     </div>
     <div class="table">
       <div class="headers">
-        <div class="buttons">
-          <button class="btn-left">
-            <svg><use xlink:href="#icon-arrow"></use></svg>
-          </button>
-          <button class="btn-right">
-            <svg><use xlink:href="#icon-arrow"></use></svg>
-          </button>
-        </div>
+
         <div class="scroller syncscroll" name="myElements">
           <div class="track time">
             <div class="heading">Time</div>
+
+          </div>
           </div>
           <!-- Day tracks will be dynamically generated here -->
         </div>
@@ -373,312 +50,293 @@ button > svg {
       </div>
       <div class="tracks syncscroll" name="myElements">
         <div class="track time">
-          <div class="entry">
-            <time>09.00</time>
-          </div>
-          <div class="entry">
-            <time>10.00</time>
-          </div>
-          <div class="entry">
-            <time>11.00</time>
-          </div>
-          <div class="entry">
-            <time>12.00</time>
-          </div>
-          <div class="entry">
-            <time>13.00</time>
-          </div>
-          <div class="entry">
-            <time>14.00</time>
-          </div>
-          <div class="entry">
-            <time>15.00</time>
-          </div>
-          <div class="entry">
-            <time>16.00</time>
-          </div>
-          <div class="entry">
-            <time>17.00</time>
-          </div>
-        </div>
-        <div class="track yellow">
-          <div class="entry">
-            <div class="details">
-              <h3>First Lecture</h3>
-              <p>Computer Template</p>
-            </div>
-          </div>
-          <div class="entry double">
-            <div class="details">
-              <h3>Second Lecture.</h3>
-              <p>Lec.</p>
-              <p>This is new</p>
-            </div>
-          </div>
-
-          <div class="entry">
-            <div class="details">
-              <h3>Third Lecture.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Forth Lecture.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Fifth Lecture.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-        </div>
-        <div class="track turq">
-          <div class="entry">
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-        </div>
-        <div class="track blue">
   
-          <div class="entry">
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry double">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
         </div>
-        <div class="track green">
-          <div class="entry treble">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus, omnis voluptas?</p>
-            </div>
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-          </div>
-        </div>
-        <div class="track purple">
-  
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry double">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-        </div>
-        <div class="track gray">
-  
-          <div class="entry">
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry treble">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-        </div>
-        <div class="track">
-  
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-        </div>
-      </div>
+       <!-- Monday -->
+<div class="track yellow">
+  <div class="entry double">
+    <div class="details">
+     <h3>Lec 1</h3>
+     <p>IWD</p>
     </div>
   </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>2nd Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>3rd Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>4th Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>5th Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+</div>
+
+<!-- Tuesday -->
+<div class="track turq">
+  <div class="entry double">
+    <div class="details">
+      <h3>1st Lecture.</h3>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Culpa, animi possimus pariatur corporis impedit esse dolorem repellat similique praesentium natus eligendi, quasi nisi ab harum quos tempore, accusantium amet delectus.</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>2nd Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>3rd Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>4th Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>5th Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+</div>
+
+<!-- Wednesday -->
+<div class="track blue">
+  <div class="entry double">
+    <div class="details">
+      <h3>1st Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>2nd Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>3rd Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>4th Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>5th Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+</div>
+
+<!-- Thursday -->
+<div class="track green">
+  <div class="entry double">
+    <div class="details">
+      <h3>1st Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>2nd Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>3rd Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>4th Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>5th Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+</div>
+
+<!-- Friday -->
+<div class="track purple">
+  <div class="entry double">
+    <div class="details">
+      <h3>1st Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>2nd Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>3rd Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>4th Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>5th Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+</div>
+
+<!-- Saturday -->
+<div class="track gray">
+  <div class="entry double">
+    <div class="details">
+      <h3>1st Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>2nd Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>3rd Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>4th Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>5th Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+</div>
+
+<!-- Sunday -->
+<div class="track">
+  <div class="entry double">
+    <div class="details">
+      <h3>1st Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>2nd Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>3rd Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>4th Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+  <div class="entry double">
+    <div class="details">
+      <h3>5th Lecture.</h3>
+      <p>IWD</p>
+    </div>
+  </div>
+</div>
+
   <div id="top-of-site-pixel-anchor"></div>
   <script src="./index.js"></script>
 
   <script>
-    const weekpicker = document.getElementById("weekpicker");
-    const dayNumbers = document.querySelector(".daynumbers");
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  
-    function displayCalendar() {
-      const selectedDate = new Date(weekpicker.value);
-      
-      // Clear previous days
-      document.querySelector(".scroller").innerHTML = "";
-  
-      // Get the start of the week (Sunday)
-      const startOfWeek = new Date(selectedDate);
-      startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
-  
-      // Generate days for the week
-      for (let i = 0; i < 7; i++) {
-        const currentDate = new Date(startOfWeek);
-        currentDate.setDate(startOfWeek.getDate() + i);
-  
-        // Format the date as DD/MM/YYYY
-        const formattedDate = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
-  
-        const track = document.createElement("div");
-        track.className = "track";
-        const dayHeading = document.createElement("div");
-        dayHeading.className = "heading";
-        dayHeading.textContent = daysOfWeek[i]; // Use daysOfWeek array to get the day name
-        track.appendChild(dayHeading);
-        const dateHeading = document.createElement("div");
-        dateHeading.className = "heading";
-        dateHeading.textContent = formattedDate;
-        track.appendChild(dateHeading);
-        document.querySelector(".scroller").appendChild(track);
-      }
-    }
-  
-    weekpicker.addEventListener("change", displayCalendar);
-    displayCalendar(); // Display calendar on page load
+
+const weekpicker = document.getElementById("weekpicker");
+const dayNumbers = document.querySelector(".daynumbers");
+const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ,'Sunday'];
+
+function displayCalendar() {
+  const selectedDate = new Date(weekpicker.value);
+
+  // Clear previous days
+  document.querySelector(".scroller").innerHTML = "";
+
+  // Get the start of the week (Monday)
+  const startOfWeek = new Date(selectedDate);
+  startOfWeek.setDate(selectedDate.getDate() - (selectedDate.getDay() - 1 + 7) % 7);
+
+  // Generate days for the week
+  for (let i = 0; i < 7; i++) {
+      const currentDate = new Date(startOfWeek);
+      currentDate.setDate(startOfWeek.getDate() + i);
+
+      // Format the date as DD/MM/YYYY
+      const formattedDate = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
+
+      const track = document.createElement("div");
+      track.className = "track";
+      const dayHeading = document.createElement("div");
+      dayHeading.className = "heading";
+      dayHeading.textContent = daysOfWeek[i]; // Use daysOfWeek array to get the day name
+      track.appendChild(dayHeading);
+      const dateHeading = document.createElement("div");
+      dateHeading.className = "heading";
+      dateHeading.textContent = formattedDate;
+      track.appendChild(dateHeading);
+      document.querySelector(".scroller").appendChild(track);
+  }
+}
+
+weekpicker.addEventListener("change", displayCalendar);
+displayCalendar(); // Display calendar on page load
+
+
   </script>
-  
 </body>
 </html>
+
 
