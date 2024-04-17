@@ -146,7 +146,6 @@ time {
   z-index: 1;
   background: var(--thead-bg);
   font-weight: 700;
-padding-left:1em;
 }
 
 .entry {
@@ -154,10 +153,11 @@ padding-left:1em;
   border-top: 0;
   background: var(--body-bg);
   height: 9em;
-  padding: 1em;
+  padding-left: 1em;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
 }
 
 .entry:not(:last-of-type) {
