@@ -32,7 +32,7 @@ def calendar(request):
             try:
                 selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d')
             except ValueError:
-                selected_date = datetime.now().date()  # Default to today's date if invalid date format
+                selected_date = datetime.now().date()  
         else:
             selected_date = datetime.now().date()  # Default to today's date if no date is selected
 
