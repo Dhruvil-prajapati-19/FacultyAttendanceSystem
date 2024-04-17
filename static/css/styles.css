@@ -151,11 +151,18 @@ time {
   border: 1px solid #ebebeb;
   border-top: 0;
   background: var(--body-bg);
-  height: 400px;
+  height: 9em;
   padding: 1em;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.double {
+  height: 20em;
+}
+.treble {
+  height: 22em;
 }
 
 .entry:not(:last-of-type) {
