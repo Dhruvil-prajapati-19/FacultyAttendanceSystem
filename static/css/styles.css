@@ -1,4 +1,4 @@
-  :root {
+:root {
   --body-bg: #FDFDFD;
   --thead-bg: #F7F9FB;
   --thead-color: hsl(210, 5%, 40%);
@@ -67,7 +67,6 @@ h1 {
   justify-content: flex-end;
   z-index: 1;
   box-shadow: 0 10px 50px rgba(0, 0, 0, 0.04);
-
 }
 
 .tracks,
@@ -153,11 +152,10 @@ time {
   border-top: 0;
   background: var(--body-bg);
   height: 9em;
-  padding-left: 1em;
+  padding: 1em;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-
 }
 
 .entry:not(:last-of-type) {
