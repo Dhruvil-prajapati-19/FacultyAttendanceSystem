@@ -1,4 +1,4 @@
-:root {
+  :root {
   --body-bg: #FDFDFD;
   --thead-bg: #F7F9FB;
   --thead-color: hsl(210, 5%, 40%);
@@ -67,6 +67,7 @@ h1 {
   justify-content: flex-end;
   z-index: 1;
   box-shadow: 0 10px 50px rgba(0, 0, 0, 0.04);
+
 }
 
 .tracks,
@@ -77,9 +78,8 @@ h1 {
 }
 
 .scroller {
-  overflow-x: auto; /* Change to horizontal scrolling */
+  overflow-x: hidden;
   flex: 1;
-  white-space: nowrap; /* Prevent wrapping of content */
 }
 
 .tracks {
@@ -135,9 +135,9 @@ time {
 .heading {
   height: 50px;
   display: flex;
-  justify-content: center; /* Center the content horizontally */
-  align-items: center; /* Center the content vertically */
-  position: -webkit-static;
+  justify-content: center;
+  align-items: center;
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
   border: solid var(--bd-color);
@@ -146,9 +146,7 @@ time {
   z-index: 1;
   background: var(--thead-bg);
   font-weight: 700;
-  width: 100%; /* Ensure the width spans the entire parent container */
-  max-width: 100%; /* Optionally set a maximum width to prevent it from becoming too wide */
-  margin-left: 5em;
+padding-left:1em;
 }
 
 .entry {
@@ -160,7 +158,6 @@ time {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  
 }
 
 .entry:not(:last-of-type) {
@@ -206,7 +203,6 @@ time {
   padding: 10px;
   border-left: 5px solid var(--theme-bg);
   height: 100%;
-
 }
 
 h3 {
@@ -217,6 +213,7 @@ h3 {
   line-height: 1.4;
   border-radius: 2px;
   color: var(--theme-color);
+  width: max-content;
 }
 
 .yellow {
@@ -297,6 +294,7 @@ button > svg {
   transform: scaleX(-1);
 }
 
+
 #top-of-site-pixel-anchor {
   position: absolute;
   width: 1px;
@@ -305,7 +303,6 @@ button > svg {
   left: 0;
 }
 
-/* Optional: Adjustments for smaller screens */
 @media (max-width: 767px) {
   .track:not(.time) {
     flex: 1 0 calc(50% + 7px);

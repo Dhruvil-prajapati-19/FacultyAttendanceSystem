@@ -56,6 +56,9 @@ class Room(models.Model):
         return self.room_name
 
 # main Timetable
+from django.db import models
+from django.contrib.auth.models import User
+
 class Timetable(models.Model):
     CLASS_TYPE_CHOICES = (
         ('lecture', 'lecture'),
@@ -80,7 +83,8 @@ class Timetable(models.Model):
         subject_short_name = self.subject.short_name if self.subject else ""
         faculty_name = self.faculty.name if self.faculty else ""
         room_name = self.room.room_name if self.room else ""
-        return f'{semester_name}-{subject_short_name}-{faculty_name}-{room_name}'
+        time_range = f"{self.start_time.strftime('%I:%M %p')} TO {self.end_time.strftime('%I:%M %p')}"
+        return f'{semester_name}-{subject_short_name}-{faculty_name}-{room_name}-{time_range}'
 
 class TimeTableRollouts(models.Model):
     STATUSES_CHOICES = (
