@@ -151,7 +151,7 @@ time {
   border: 1px solid #ebebeb;
   border-top: 0;
   background: var(--body-bg);
-  height: 9em;
+  height: 400px;
   padding: 1em;
   display: flex;
   flex-direction: column;
@@ -185,12 +185,7 @@ time {
   background: linear-gradient(to left, var(--bd-color), var(--body-bg));
 }
 
-.double {
-  height: 18em;
-}
-.treble {
-  height: 27em;
-}
+
 
 .details {
   border-radius: 4px;

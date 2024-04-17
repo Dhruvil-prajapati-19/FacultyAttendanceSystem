@@ -16,7 +16,15 @@
   <script src="http://asvd.github.io/syncscroll/syncscroll.js"></script>
   <link rel="stylesheet" href="{% static 'css/result.css' %}">
   <link href="{% static 'css/styles.css' %}" rel="stylesheet">
-  <title>Result</title>  
+  <title>Result</title> 
+  <style>
+    .double {
+  height: 20em;
+}
+.treble {
+  height: 27em;
+}
+  </style> 
 </head>
 <body>
   <form method="GET" action="{% url 'calendar' %}">
@@ -95,250 +103,413 @@
       <div class="tracks syncscroll" name="myElements">
         <div class="track time">
           <div class="entry">
-            <time>09.00</time>
+            <time>09:00</time>
+            <time>10:30</time>
           </div>
           <div class="entry">
-            <time>10.00</time>
+            <time>10:30</time>
+            <time>11:30</time>
           </div>
           <div class="entry">
-            <time>11.00</time>
+            <time>11:30</time>
+            <time>12:30</time>
           </div>
           <div class="entry">
-            <time>12.00</time>
+            <time>01:00</time>
+            <time>02:00</time>
           </div>
           <div class="entry">
-            <time>13.00</time>
+            <time>02:00</time>
+            <time>03:00</time>
           </div>
           <div class="entry">
-            <time>14.00</time>
+            <time>03:10</time>
+            <time>04:10</time>
           </div>
           <div class="entry">
-            <time>15.00</time>
+            <time>04:10</time>
+            <time>05:10</time>
           </div>
           <div class="entry">
-            <time>16.00</time>
+            <time>05:10</time>
+            <time>06:10</time>
           </div>
           <div class="entry">
-            <time>17.00</time>
           </div>
         </div>
+  <!--Monday-->
         <div class="track yellow">
           <div class="entry">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
+              <h3>Punching time:</h3>
+              <p>Time:</p>
             </div>
           </div>
-          <div class="entry double">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-              <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Facere!</p>
-            </div>
-          </div>
-          <div class="entry">
-          </div>
+  
           <div class="entry">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
+              <h3>LECT - 1ST At {classroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject</p>
+              <p>duration:</p>
+              <p>checkbox of present</p>
             </div>
           </div>
+  
           <div class="entry">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
+            <h3>No lecture assign</h3>
+            <p>at this Time</p>
             </div>
           </div>
-          <div class="entry">
-          </div>
+  
           <div class="entry">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
+              <h3>No lecture assign</h3>
+              <p>at this Time</p>
+              </div>
           </div>
+  
           <div class="entry">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
+              <h3>LECT - 2ST At {classroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject</p>
+              <p>duration:</p>
+              <p>checkbox of present</p>
             </div>
           </div>
-        </div>
-        <div class="track turq">
-          <div class="entry">
+  
+          <div class="entry treble">
+            <div class="details">
+              <h3>1st LAB  At {LABroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject:IWD</p>
+              <p>duration:2H</p>
+              <p>checkbox of present</p>
+            </div>
           </div>
+  
           <div class="entry">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
+              <h3>Punching out</h3>
+              <p>Time</p>
             </div>
           </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-        </div>
-        <div class="track blue">
   
           <div class="entry">
           </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry double">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
+          
         </div>
-        <div class="track green">
+  
+        <!--TUESDAY-->
+        <div class="track turq">
+          <div class="entry">
+            <div class="details">
+              <h3>Punching time:</h3>
+              <p>Time:</p>
+            </div>
+          </div>
+  
           <div class="entry treble">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus, omnis voluptas?</p>
+              <h3> 1st LAB  At {LABroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject:IWD</p>
+              <p>duration:2H</p>
+              <p>checkbox of present</p>
             </div>
           </div>
-          <div class="entry">
-          </div>
+  
           <div class="entry">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
+              <h3>No lecture assign</h3>
+              <p>at this Time</p>
+              </div>
           </div>
+  
           <div class="entry">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
+              <h3>No lecture assign</h3>
+              <p>at this Time</p>
+              </div>
+          </div>
+  
+          <div class="entry">
+          <div class="details">
+              <h3>LECT - 2nd At {classroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject</p>
+              <p>duration:</p>
+              <p>checkbox of present</p>
             </div>
           </div>
+  
           <div class="entry">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
+              <h3>LECT - 3ed At {classroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject</p>
+              <p>duration:</p>
+              <p>checkbox of present</p>
             </div>
           </div>
+          
           <div class="entry">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
+              <h3>Punching out time:</h3>
+              <p>Time:</p>
             </div>
           </div>
-          <div class="entry">
-          </div>
+  
+      <!--Wednesday-->    
         </div>
+        <div class="track blue">
+  
+          <div class="entry"> 
+            <div class="details">
+              <h3>Punching time:</h3>
+              <p>Time:</p>
+            </div>
+          </div>
+  
+          <div class="entry">
+            <div class="details">
+              <h3>LECT - 1ST At {classroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject</p>
+              <p>duration:</p>
+              <p>checkbox of present</p>
+            </div>
+          </div>
+  
+          <div class="entry">
+            <div class="details">
+              <h3>LECT - 2nd At {classroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject</p>
+              <p>duration:</p>
+              <p>checkbox of present</p>
+            </div>
+          </div>
+  
+          <div class="entry treble"> 
+            <div class="details">
+              <h3>LAB  At {LABroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject:IWD</p>
+              <p>duration:2H</p>
+              <p>checkbox of present</p>
+            </div>
+          </div>
+  
+             <div class="entry treble"> 
+            <div class="details">
+              <h3>LAB  At {LABroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject:IWD</p>
+              <p>duration:2H</p>
+              <p>checkbox of present</p>
+            </div>
+          </div>
+  
+          <div class="entry">
+            <div class="details">
+              <h3>Punching out time:</h3>
+              <p>Time:</p>
+            </div>
+          </div>
+  
+        </div>
+  
+      <!--thursday-->  
+        <div class="track green">
+       
+          <div class="entry"> 
+            <div class="details">
+              <h3>Punching time:</h3>
+              <p>Time:</p>
+            </div>
+          </div>
+  
+          <div class="entry">
+            <div class="details">
+              <h3>LECT - 1ST At {classroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject</p>
+              <p>duration:</p>
+              <p>checkbox of present</p>
+            </div>
+          </div>
+  
+          <div class="entry">
+            <div class="details">
+              <h3>LECT - 2nd At {classroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject</p>
+              <p>duration:</p>
+              <p>checkbox of present</p>
+            </div>
+          </div>
+  
+          <div class="entry treble"> 
+            <div class="details">
+              <h3>LAB  At {LABroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject:IWD</p>
+              <p>duration:2H</p>
+              <p>checkbox of present</p>
+            </div>
+          </div>
+  
+             <div class="entry treble"> 
+            <div class="details">
+              <h3>LAB  At {LABroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject:IWD</p>
+              <p>duration:2H</p>
+              <p>checkbox of present</p>
+            </div>
+          </div>
+  
+          <div class="entry">
+            <div class="details">
+              <h3>Punching out time:</h3>
+              <p>Time:</p>
+            </div>
+          </div>
+  
+        </div>
+      <!--friday-->
         <div class="track purple">
   
           <div class="entry">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
+              <h3>Punching time:</h3>
+              <p>Time:</p>
             </div>
           </div>
-          <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry double">
-            <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div>
+  
           <div class="entry">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
+              <h3>LECT - 1ST At {classroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject</p>
+              <p>duration:</p>
+              <p>checkbox of present</p>
             </div>
           </div>
+  
           <div class="entry">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
+            <h3>No lecture assign</h3>
+            <p>at this Time</p>
             </div>
           </div>
+  
+          <div class="entry">
+            <div class="details">
+              <h3>No lecture assign</h3>
+              <p>at this Time</p>
+              </div>
+          </div>
+  
+          <div class="entry">
+            <div class="details">
+              <h3>LECT - 2ST At {classroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject</p>
+              <p>duration:</p>
+              <p>checkbox of present</p>
+            </div>
+          </div>
+  
+          <div class="entry treble">
+            <div class="details">
+              <h3>1st LAB  At {LABroom}</h3>
+              <p>SEM-4</p>
+              <p>Subject:IWD</p>
+              <p>duration:2H</p>
+              <p>checkbox of present</p>
+            </div>
+          </div>
+  
+          <div class="entry">
+            <div class="details">
+              <h3>Punching out</h3>
+              <p>Time</p>
+            </div>
+          </div>
+  
           <div class="entry">
           </div>
-          <div class="entry">
-          </div>
+          
         </div>
+  
+        <!--Saturday-->
         <div class="track gray">
   
           <div class="entry">
-          </div>
-          <div class="entry">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
+              <h3>Punching time:</h3>
+              <p>Time:</p>
             </div>
           </div>
           <div class="entry">
-          </div>
-          <div class="entry">
-          </div>
-          <div class="entry treble">
             <div class="details">
-              <h3>Lorem ipsum dolor sit.</h3>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
+              <h3>No lecture assign</h3>
+              <p>at this Time</p>
+              </div>
           </div>
           <div class="entry">
+            <div class="details">
+              <h3>No lecture assign</h3>
+              <p>at this Time</p>
+              </div>
+          </div>
+  
+          <div class="entry">
+            <div class="details">
+              <h3>No lecture assign</h3>
+              <p>at this Time</p>
+              </div>
+          </div>
+  
+          <div class="entry">
+            <div class="details">
+              <h3>No lecture assign</h3>
+              <p>at this Time</p>
+              </div>
           </div>
           <div class="entry">
+            <div class="details">
+              <h3>No lecture assign</h3>
+              <p>at this Time</p>
+              </div>
           </div>
+          <div class="entry">
+            <div class="details">
+              <h3>No lecture assign</h3>
+              <p>at this Time</p>
+              </div>
+          </div>
+  
+          <div class="entry">
+            <div class="details">
+              <h3>Punching out time:</h3>
+              <p>Time:</p>
+              </div>
+          </div>
+  
         </div>
+        <div class="track gray">
         <div class="track">
   
           <div class="entry">
+            <div class="details">
+            <h2 >holiday</h2>
           </div>
-          <div class="entry">
-          </div>
+        </div>
           <div class="entry">
           </div>
           <div class="entry">
@@ -355,6 +526,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
   <div id="top-of-site-pixel-anchor"></div>
