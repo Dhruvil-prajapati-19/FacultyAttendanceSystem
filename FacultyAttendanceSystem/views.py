@@ -1,7 +1,8 @@
 from django.shortcuts import render,redirect
 from .models import AdminCredentials
 from datetime import datetime, timedelta
-
+from .models import TimeTableRollouts
+from django.urls import reverse
 
 
 def login(request):
@@ -24,9 +25,6 @@ def login(request):
 def index(request):
     return render(request, 'index.html') 
 
-from django.shortcuts import render
-from datetime import datetime, timedelta
-
 def calendar(request):
     if request.method == 'GET':
         # Default to today's date if no date is selected
@@ -45,20 +43,29 @@ def calendar(request):
         # Calculate the end date of the week (Sunday)
         end_date = start_date + timedelta(days=6)
 
-        # Pass the dates to the template
+        # Fetch class rollouts for the selected week
+        class_rollouts = TimeTableRollouts.objects.filter(class_date__range=[start_date, end_date])
+
+        # Pass the dates and class rollouts to the template
         return render(request, 'index.html', {
             'success': True,
             'selected_date': selected_date.strftime('%Y-%m-%d'),
             'monday_date': start_date.strftime('%d-%m-%Y'),
-            'tuesday_date': (start_date + timedelta(days=1)).strftime('%d-%m-%Y'),
-            'wednesday_date': (start_date + timedelta(days=2)).strftime('%d-%m-%Y'),
-            'thursday_date': (start_date + timedelta(days=3)).strftime('%d-%m-%Y'),
-            'friday_date': (start_date + timedelta(days=4)).strftime('%d-%m-%Y'),
-            'saturday_date': (start_date + timedelta(days=5)).strftime('%d-%m-%Y'),
             'sunday_date': end_date.strftime('%d-%m-%Y'),
+            'class_rollouts': class_rollouts,
         })
 
     return render(request, 'index.html', {'success': False})
+
+
+def toggle_attendance(request, class_rollout_id):
+    if request.method == 'POST':
+        class_rollout = TimeTableRollouts.objects.get(pk=class_rollout_id)
+        # Toggle the attendance status
+        class_rollout.class_attendance = not class_rollout.class_attendance
+        class_rollout.save()
+        # Redirect back to the index page or wherever appropriate
+        return redirect('index')
 
 
 
