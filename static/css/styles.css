@@ -147,24 +147,6 @@ time {
   font-weight: 700;
 }
 
-.entry {
-  border: 1px solid #ebebeb;
-  border-top: 0;
-  background: var(--body-bg);
-  height: 9em;
-  padding: 1em;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.double {
-  height: 20em;
-}
-.treble {
-  height: 22em;
-}
-
 .entry:not(:last-of-type) {
   border-bottom-style: dashed;
 }
@@ -191,8 +173,23 @@ time {
   z-index: 3;
   background: linear-gradient(to left, var(--bd-color), var(--body-bg));
 }
-
-
+.entry {
+  border: 1px solid #ebebeb;
+  border-top: 0;
+  background: var(--body-bg);
+  height: 10em;
+  padding: 1em;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+/*we not use double as regular*/
+.double {
+  height: 22em;
+}
+.treble {
+  height: 22em;
+}
 
 .details {
   border-radius: 4px;
