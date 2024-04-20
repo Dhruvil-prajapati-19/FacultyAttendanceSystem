@@ -169,249 +169,189 @@
   </div>
 </div>
 
-      <!--TUESDAY-->
-      <div class="track turq">
-        <div class="entry">
-          <div class="details">
-            <h3>Punching time:</h3>
-            <p>Time:</p>
-          </div>
-        </div>
+<!-- Tuesday -->
+<div class="track blue">
+  <div class="entry">
+    <div class="details">
+      <h3>Punching time:</h3>
+      <p>Time:</p>
+    </div>
+  </div>
 
-        <div class="entry treble">
-          <div class="details">
-            <h3> 1st LAB  At {LABroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:IWD</p>
-            <p>duration:2H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>No lecture assign</h3>
-            <p>at this Time</p>
-            </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>No lecture assign</h3>
-            <p>at this Time</p>
-            </div>
-        </div>
-
-        <div class="entry">
-        <div class="details">
-            <h3>LECT - 2nd At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 3ed At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-        
-        <div class="entry">
-          <div class="details">
-            <h3>Punching out time:</h3>
-            <p>Time:</p>
-          </div>
-        </div>
-
-    <!--Wednesday-->    
+  {% for class_rollout in class_rollouts_by_day.Tuesday %}
+    <div class="entry">
+      <div class="details">
+        <h3>{{ class_rollout.subject.short_name }}  at {{ class_rollout.room }}</h3>
+        <p>Start Time: {{ class_rollout.start_time|date:"H:i" }} - End Time: {{ class_rollout.end_time|date:"H:i" }}</p>
+        <p>Semester: {{ class_rollout.semester }}</p>
+        <p>Duration: {{ class_rollout.duration }}</p>
+        <form method="POST" action="{% url 'toggle_attendance' class_rollout.pk %}">
+          {% csrf_token %}
+          <input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
+                 {% if class_rollout.class_attendance %} checked {% endif %}>
+          <label for="attendance_{{ class_rollout.pk }}">Faculty Attendance</label>
+          <button type="submit">Submit</button>
+        </form>
       </div>
-      <div class="track blue">
+    </div>
+  {% endfor %}
 
-        <div class="entry"> 
-          <div class="details">
-            <h3>Punching time:</h3>
-            <p>Time:</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 1ST At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 2nd At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry treble"> 
-          <div class="details">
-            <h3>LAB  At {LABroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:IWD</p>
-            <p>duration:2H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-           <div class="entry treble"> 
-          <div class="details">
-            <h3>LAB  At {LABroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:IWD</p>
-            <p>duration:2H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>Punching out time:</h3>
-            <p>Time:</p>
-          </div>
-        </div>
-
+  <!-- Generate additional entries -->
+  {% for entry in additional_entries.Tuesday %}
+    <div class="entry">
+      <div class="details">
+        <h3>No lecture assigned</h3>
+        <p>at this Time</p>
       </div>
+    </div>
+  {% endfor %}
 
-    <!--thursday-->  
-      <div class="track green">
-     
-        <div class="entry"> 
-          <div class="details">
-            <h3>Punching time:</h3>
-            <p>Time:</p>
-          </div>
-        </div>
+  <!-- Punching out time -->
+  <div class="entry">
+    <div class="details">
+      <h3>Punching out time:</h3>
+      <p>Time:</p>
+    </div>
+  </div>
+</div>
 
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 1ST At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject</p>
-            <p>duration:</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
+<!-- Wednesday -->
+<div class="track green">
+  <div class="entry">
+    <div class="details">
+      <h3>Punching time:</h3>
+      <p>Time:</p>
+    </div>
+  </div>
 
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 2nd At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry treble"> 
-          <div class="details">
-            <h3>LAB  At {LABroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:IWD</p>
-            <p>duration:2H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-           <div class="entry treble"> 
-          <div class="details">
-            <h3>LAB  At {LABroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:IWD</p>
-            <p>duration:2H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>Punching out time:</h3>
-            <p>Time:</p>
-          </div>
-        </div>
-
+  {% for class_rollout in class_rollouts_by_day.Wednesday %}
+    <div class="entry">
+      <div class="details">
+        <h3>{{ class_rollout.subject.short_name }}  at {{ class_rollout.room }}</h3>
+        <p>Start Time: {{ class_rollout.start_time|date:"H:i" }} - End Time: {{ class_rollout.end_time|date:"H:i" }}</p>
+        <p>Semester: {{ class_rollout.semester }}</p>
+        <p>Duration: {{ class_rollout.duration }}</p>
+        <form method="POST" action="{% url 'toggle_attendance' class_rollout.pk %}">
+          {% csrf_token %}
+          <input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
+                 {% if class_rollout.class_attendance %} checked {% endif %}>
+          <label for="attendance_{{ class_rollout.pk }}">Faculty Attendance</label>
+          <button type="submit">Submit</button>
+        </form>
       </div>
-    <!--friday-->
-      <div class="track purple">
+    </div>
+  {% endfor %}
 
-        <div class="entry">
-          <div class="details">
-            <h3>Punching time:</h3>
-            <p>Time:1H</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 1ST At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-          <h3>No lecture assign</h3>
-          <p>at this Time</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>No lecture assign</h3>
-            <p>at this Time</p>
-            </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 2ST At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry treble">
-          <div class="details">
-            <h3>1st LAB  At {LABroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:IWD</p>
-            <p>duration:2H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>Punching out</h3>
-            <p>Time</p>
-          </div>
-        </div>
-
-        <div class="entry">
-        </div>
-        
+  <!-- Generate additional entries -->
+  {% for entry in additional_entries.Wednesday %}
+    <div class="entry">
+      <div class="details">
+        <h3>No lecture assigned</h3>
+        <p>at this Time</p>
       </div>
+    </div>
+  {% endfor %}
+
+  <!-- Punching out time -->
+  <div class="entry">
+    <div class="details">
+      <h3>Punching out time:</h3>
+      <p>Time:</p>
+    </div>
+  </div>
+</div>
+
+<!-- Thursday -->
+<div class="track blue">
+  <div class="entry">
+    <div class="details">
+      <h3>Punching time:</h3>
+      <p>Time:</p>
+    </div>
+  </div>
+
+  {% for class_rollout in class_rollouts_by_day.Thursday %}
+    <div class="entry">
+      <div class="details">
+        <h3>{{ class_rollout.subject.short_name }}  at {{ class_rollout.room }}</h3>
+        <p>Start Time: {{ class_rollout.start_time|date:"H:i" }} - End Time: {{ class_rollout.end_time|date:"H:i" }}</p>
+        <p>Semester: {{ class_rollout.semester }}</p>
+        <p>Duration: {{ class_rollout.duration }}</p>
+        <form method="POST" action="{% url 'toggle_attendance' class_rollout.pk %}">
+          {% csrf_token %}
+          <input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
+                 {% if class_rollout.class_attendance %} checked {% endif %}>
+          <label for="attendance_{{ class_rollout.pk }}">Faculty Attendance</label>
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    </div>
+  {% endfor %}
+
+  <!-- Generate additional entries -->
+  {% for entry in additional_entries.Thursday %}
+    <div class="entry">
+      <div class="details">
+        <h3>No lecture assigned</h3>
+        <p>at this Time</p>
+      </div>
+    </div>
+  {% endfor %}
+
+  <!-- Punching out time -->
+  <div class="entry">
+    <div class="details">
+      <h3>Punching out time:</h3>
+      <p>Time:</p>
+    </div>
+  </div>
+</div>
+
+<!-- Friday -->
+<div class="track green">
+  <div class="entry">
+    <div class="details">
+      <h3>Punching time:</h3>
+      <p>Time:</p>
+    </div>
+  </div>
+
+  {% for class_rollout in class_rollouts_by_day.Friday %}
+    <div class="entry">
+      <div class="details">
+        <h3>{{ class_rollout.subject.short_name }}  at {{ class_rollout.room }}</h3>
+        <p>Start Time: {{ class_rollout.start_time|date:"H:i" }} - End Time: {{ class_rollout.end_time|date:"H:i" }}</p>
+        <p>Semester: {{ class_rollout.semester }}</p>
+        <p>Duration: {{ class_rollout.duration }}</p>
+        <form method="POST" action="{% url 'toggle_attendance' class_rollout.pk %}">
+          {% csrf_token %}
+          <input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
+                 {% if class_rollout.class_attendance %} checked {% endif %}>
+          <label for="attendance_{{ class_rollout.pk }}">Faculty Attendance</label>
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    </div>
+  {% endfor %}
+
+  <!-- Generate additional entries -->
+  {% for entry in additional_entries.Friday %}
+    <div class="entry">
+      <div class="details">
+        <h3>No lecture assigned</h3>
+        <p>at this Time</p>
+      </div>
+    </div>
+  {% endfor %}
+
+  <!-- Punching out time -->
+  <div class="entry">
+    <div class="details">
+      <h3>Punching out time:</h3>
+      <p>Time:</p>
+    </div>
+  </div>
+</div>
 
       <!--Saturday-->
       <div class="track gray">
