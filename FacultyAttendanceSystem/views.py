@@ -27,7 +27,6 @@ def index(request):
 
 def calendar(request):
     if request.method == 'GET':
-        # Default to today's date if no date is selected
         selected_date_str = request.GET.get('weekpicker', None)
         if selected_date_str:
             try:
@@ -35,28 +34,40 @@ def calendar(request):
             except ValueError:
                 selected_date = datetime.now().date()  
         else:
-            selected_date = datetime.now().date()  # Default to today's date if no date is selected
+            selected_date = datetime.now().date()  
 
-        # Calculate the start date of the week (Monday) preceding the selected date
         start_date = selected_date - timedelta(days=selected_date.weekday())
-
-        # Calculate the end date of the week (Sunday)
         end_date = start_date + timedelta(days=6)
 
-        # Fetch class rollouts for the selected week
-        class_rollouts = TimeTableRollouts.objects.filter(class_date__range=[start_date, end_date])
+        class_rollouts_by_day = {
+            'Monday': TimeTableRollouts.objects.filter(class_date=start_date),
+            'Tuesday': TimeTableRollouts.objects.filter(class_date=start_date + timedelta(days=1)),
+            'Wednesday': TimeTableRollouts.objects.filter(class_date=start_date + timedelta(days=2)),
+            'Thursday': TimeTableRollouts.objects.filter(class_date=start_date + timedelta(days=3)),
+            'Friday': TimeTableRollouts.objects.filter(class_date=start_date + timedelta(days=4)),
+            'Saturday': TimeTableRollouts.objects.filter(class_date=start_date + timedelta(days=5)),
+            'Sunday': TimeTableRollouts.objects.filter(class_date=end_date),
+        }
 
-        # Pass the dates and class rollouts to the template
+        additional_entries = {}
+        for day, rollouts in class_rollouts_by_day.items():
+            additional_entries[day] = [None] * max(0, 6 - rollouts.count())
+
         return render(request, 'index.html', {
             'success': True,
             'selected_date': selected_date.strftime('%Y-%m-%d'),
             'monday_date': start_date.strftime('%d-%m-%Y'),
+            'tuesday_date': (start_date + timedelta(days=1)).strftime('%d-%m-%Y'),
+            'wednesday_date': (start_date + timedelta(days=2)).strftime('%d-%m-%Y'),
+            'thursday_date': (start_date + timedelta(days=3)).strftime('%d-%m-%Y'),
+            'friday_date': (start_date + timedelta(days=4)).strftime('%d-%m-%Y'),
+            'saturday_date': (start_date + timedelta(days=5)).strftime('%d-%m-%Y'),
             'sunday_date': end_date.strftime('%d-%m-%Y'),
-            'class_rollouts': class_rollouts,
+            'class_rollouts_by_day': class_rollouts_by_day,
+            'additional_entries': additional_entries,
         })
 
     return render(request, 'index.html', {'success': False})
-
 
 def toggle_attendance(request, class_rollout_id):
     if request.method == 'POST':
