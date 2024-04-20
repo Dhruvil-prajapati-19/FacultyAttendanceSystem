@@ -136,15 +136,15 @@
     <div class="entry">
       <div class="details">
         <h3>{{ class_rollout.subject.short_name }}  at {{ class_rollout.room }}</h3>
-        <p>Start Time: {{ class_rollout.start_time|date:"H:i" }} - End Time: {{ class_rollout.end_time|date:"H:i" }}</p>
+        <p>Time: {{ class_rollout.start_time|date:"H:i" }} To {{ class_rollout.end_time|date:"H:i" }}</p>
         <p>Semester: {{ class_rollout.semester }}</p>
         <p>Duration: {{ class_rollout.duration }}</p>
         <form method="POST" action="{% url 'toggle_attendance' class_rollout.pk %}">
           {% csrf_token %}
-          <input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
+         <p> <input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
                  {% if class_rollout.class_attendance %} checked {% endif %}>
           <label for="attendance_{{ class_rollout.pk }}">Faculty Attendance</label>
-          <button type="submit">Submit</button>
+          <button type="submit">Submit</button></p>
         </form>
       </div>
     </div>
@@ -182,15 +182,15 @@
     <div class="entry">
       <div class="details">
         <h3>{{ class_rollout.subject.short_name }}  at {{ class_rollout.room }}</h3>
-        <p>Start Time: {{ class_rollout.start_time|date:"H:i" }} - End Time: {{ class_rollout.end_time|date:"H:i" }}</p>
+        <p>Time: {{ class_rollout.start_time|date:"H:i" }} To {{ class_rollout.end_time|date:"H:i" }}</p>
         <p>Semester: {{ class_rollout.semester }}</p>
         <p>Duration: {{ class_rollout.duration }}</p>
         <form method="POST" action="{% url 'toggle_attendance' class_rollout.pk %}">
           {% csrf_token %}
-          <input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
+          <p><input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
                  {% if class_rollout.class_attendance %} checked {% endif %}>
           <label for="attendance_{{ class_rollout.pk }}">Faculty Attendance</label>
-          <button type="submit">Submit</button>
+          <button type="submit">Submit</button></p>
         </form>
       </div>
     </div>
@@ -228,15 +228,15 @@
     <div class="entry">
       <div class="details">
         <h3>{{ class_rollout.subject.short_name }}  at {{ class_rollout.room }}</h3>
-        <p>Start Time: {{ class_rollout.start_time|date:"H:i" }} - End Time: {{ class_rollout.end_time|date:"H:i" }}</p>
+        <p>Time: {{ class_rollout.start_time|date:"H:i" }} To {{ class_rollout.end_time|date:"H:i" }}</p>
         <p>Semester: {{ class_rollout.semester }}</p>
         <p>Duration: {{ class_rollout.duration }}</p>
         <form method="POST" action="{% url 'toggle_attendance' class_rollout.pk %}">
           {% csrf_token %}
-          <input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
+         <p> <input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
                  {% if class_rollout.class_attendance %} checked {% endif %}>
           <label for="attendance_{{ class_rollout.pk }}">Faculty Attendance</label>
-          <button type="submit">Submit</button>
+          <button type="submit">Submit</button></p>
         </form>
       </div>
     </div>
@@ -274,15 +274,15 @@
     <div class="entry">
       <div class="details">
         <h3>{{ class_rollout.subject.short_name }}  at {{ class_rollout.room }}</h3>
-        <p>Start Time: {{ class_rollout.start_time|date:"H:i" }} - End Time: {{ class_rollout.end_time|date:"H:i" }}</p>
+        <p>Time: {{ class_rollout.start_time|date:"H:i" }} To {{ class_rollout.end_time|date:"H:i" }}</p>
         <p>Semester: {{ class_rollout.semester }}</p>
         <p>Duration: {{ class_rollout.duration }}</p>
         <form method="POST" action="{% url 'toggle_attendance' class_rollout.pk %}">
           {% csrf_token %}
-          <input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
+          <p><input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
                  {% if class_rollout.class_attendance %} checked {% endif %}>
           <label for="attendance_{{ class_rollout.pk }}">Faculty Attendance</label>
-          <button type="submit">Submit</button>
+          <button type="submit">Submit</button></p>
         </form>
       </div>
     </div>
@@ -320,15 +320,15 @@
     <div class="entry">
       <div class="details">
         <h3>{{ class_rollout.subject.short_name }}  at {{ class_rollout.room }}</h3>
-        <p>Start Time: {{ class_rollout.start_time|date:"H:i" }} - End Time: {{ class_rollout.end_time|date:"H:i" }}</p>
+        <p>Time: {{ class_rollout.start_time|date:"H:i" }} To {{ class_rollout.end_time|date:"H:i" }}</p>
         <p>Semester: {{ class_rollout.semester }}</p>
         <p>Duration: {{ class_rollout.duration }}</p>
         <form method="POST" action="{% url 'toggle_attendance' class_rollout.pk %}">
           {% csrf_token %}
-          <input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
+          <p><input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
                  {% if class_rollout.class_attendance %} checked {% endif %}>
           <label for="attendance_{{ class_rollout.pk }}">Faculty Attendance</label>
-          <button type="submit">Submit</button>
+          <button type="submit">Submit</button></p>
         </form>
       </div>
     </div>
@@ -414,7 +414,7 @@
 
         <div class="entry">
           <div class="details">
-          <h2 >holiday</h2>
+          <h3>holiday</h3>
         </div>
       </div>
         <div class="entry">
