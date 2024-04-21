@@ -216,7 +216,8 @@
 </div>
 
 <!-- Wednesday -->
-<div class="track green">
+<div class="track blue">
+  <!-- Punching time -->
   <div class="entry">
     <div class="details">
       <h3>Punching time:</h3>
@@ -224,32 +225,180 @@
     </div>
   </div>
 
+  <!-- Jinja template start here -->
   {% for class_rollout in class_rollouts_by_day.Wednesday %}
-    <div class="entry">
-      <div class="details">
-        <h3>{{ class_rollout.subject.short_name }}  at {{ class_rollout.room }}</h3>
-        <p>Time: {{ class_rollout.start_time|date:"H:i" }} To {{ class_rollout.end_time|date:"H:i" }}</p>
-        <p>Semester: {{ class_rollout.semester }}</p>
-        <p>Duration: {{ class_rollout.duration }}</p>
-        <form method="POST" action="{% url 'toggle_attendance' class_rollout.pk %}">
-          {% csrf_token %}
-         <p> <input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
-                 {% if class_rollout.class_attendance %} checked {% endif %}>
-          <label for="attendance_{{ class_rollout.pk }}">Faculty Attendance</label>
-          <button type="submit">Submit</button></p>
-        </form>
+    {% if class_rollout.start_time.hour == 10 and class_rollout.start_time.minute == 30 and class_rollout.end_time.hour == 11 and class_rollout.end_time.minute == 30 %}
+      <!-- Class entry for 10:30 - 11:30 -->
+      <div class="entry">
+        <div class="details">
+          <h3>{{ class_rollout.subject }}</h3>
+          <p>Time: {{ class_rollout.start_time|time:"H:i" }} TO {{ class_rollout.end_time|time:"H:i" }}</p>
+          <p>Semester: {{ class_rollout.semester }}</p>
+          <p>Duration: {{ class_rollout.duration }} hour(s)</p>
+          <form method="POST" action="/toggle_attendance/{{ class_rollout.id }}">
+            {% csrf_token %}
+            <p>
+              <input type="checkbox" id="attendance_{{ class_rollout.id }}" name="attendance" {% if class_rollout.class_attendance %}checked{% endif %}>
+              <label for="attendance_{{ class_rollout.id }}">Faculty Attendance</label>
+              <button type="submit">Submit</button>
+            </p>
+          </form>
+        </div>
       </div>
-    </div>
-  {% endfor %}
+    {% else %}
+      <!-- No lecture assigned for 10:30 - 11:30 -->
+      <div class="entry">
+        <div class="details">
+          <h3>No lecture assigned</h3>
+          <p>at this Time</p>
+        </div>
+      </div>
+    {% endif %}
+  <!-- 11:30 - 12:30 -->
+  <!-- Jinja template start here -->
+    {% if class_rollout.start_time.hour == 11 and class_rollout.start_time.minute == 30 and class_rollout.end_time.hour == 12 and class_rollout.end_time.minute == 30 %}
+      <!-- Class entry for 11:30 - 12:30 -->
+      <div class="entry">
+        <div class="details">
+          <h3>{{ class_rollout.subject }}</h3>
+          <p>Time: {{ class_rollout.start_time|time:"H:i" }} TO {{ class_rollout.end_time|time:"H:i" }}</p>
+          <p>Semester: {{ class_rollout.semester }}</p>
+          <p>Duration: {{ class_rollout.duration }} hour(s)</p>
+          <form method="POST" action="/toggle_attendance/{{ class_rollout.id }}">
+            {% csrf_token %}
+            <p>
+              <input type="checkbox" id="attendance_{{ class_rollout.id }}" name="attendance" {% if class_rollout.class_attendance %}checked{% endif %}>
+              <label for="attendance_{{ class_rollout.id }}">Faculty Attendance</label>
+              <button type="submit">Submit</button>
+            </p>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <!-- No lecture assigned for 11:30 - 12:30 -->
+      <div class="entry">
+        <div class="details">
+          <h3>No lecture assigned</h3>
+          <p>at this Time</p>
+        </div>
+      </div>
+    {% endif %}
+  <!-- 01:00 - 02:00 -->
+  <!-- Jinja template start here -->
+    {% if class_rollout.start_time.hour == 1 and class_rollout.start_time.minute == 0 and class_rollout.end_time.hour == 2 and class_rollout.end_time.minute == 0 %}
+      <!-- Class entry for 01:00 - 02:00 -->
+      <div class="entry">
+        <div class="details">
+          <h3>{{ class_rollout.subject }}</h3>
+          <p>Time: {{ class_rollout.start_time|time:"H:i" }} TO {{ class_rollout.end_time|time:"H:i" }}</p>
+          <p>Semester: {{ class_rollout.semester }}</p>
+          <p>Duration: {{ class_rollout.duration }} hour(s)</p>
+          <form method="POST" action="/toggle_attendance/{{ class_rollout.id }}">
+            {% csrf_token %}
+            <p>
+              <input type="checkbox" id="attendance_{{ class_rollout.id }}" name="attendance" {% if class_rollout.class_attendance %}checked{% endif %}>
+              <label for="attendance_{{ class_rollout.id }}">Faculty Attendance</label>
+              <button type="submit">Submit</button>
+            </p>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <!-- No lecture assigned for 01:00 - 02:00 -->
+      <div class="entry">
+        <div class="details">
+          <h3>No lecture assigned</h3>
+          <p>at this Time</p>
+        </div>
+      </div>
+    {% endif %}
+  <!-- 02:00 - 03:00 -->
+  <!-- Jinja template start here -->
+    {% if class_rollout.start_time.hour == 2 and class_rollout.start_time.minute == 0 and class_rollout.end_time.hour == 3 and class_rollout.end_time.minute == 0 %}
+      <!-- Class entry for 02:00 - 03:00 -->
+      <div class="entry">
+        <div class="details">
+          <h3>{{ class_rollout.subject }}</h3>
+          <p>Time: {{ class_rollout.start_time|time:"H:i" }} TO {{ class_rollout.end_time|time:"H:i" }}</p>
+          <p>Semester: {{ class_rollout.semester }}</p>
+          <p>Duration: {{ class_rollout.duration }} hour(s)</p>
+          <form method="POST" action="/toggle_attendance/{{ class_rollout.id }}">
+            {% csrf_token %}
+            <p>
+              <input type="checkbox" id="attendance_{{ class_rollout.id }}" name="attendance" {% if class_rollout.class_attendance %}checked{% endif %}>
+              <label for="attendance_{{ class_rollout.id }}">Faculty Attendance</label>
+              <button type="submit">Submit</button>
+            </p>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <!-- No lecture assigned for 02:00 - 03:00 -->
+      <div class="entry">
+        <div class="details">
+          <h3>No lecture assigned</h3>
+          <p>at this Time</p>
+        </div>
+      </div>
+    {% endif %}
 
-  <!-- Generate additional entries -->
-  {% for entry in additional_entries.Wednesday %}
-    <div class="entry">
-      <div class="details">
-        <h3>No lecture assigned</h3>
-        <p>at this Time</p>
+  <!-- 03:10 - 04:10 -->
+  <!-- Jinja template start here -->
+    {% if class_rollout.start_time.hour == 3 and class_rollout.start_time.minute == 10 and class_rollout.end_time.hour == 4 and class_rollout.end_time.minute == 10 %}
+      <!-- Class entry for 03:10 - 04:10 -->
+      <div class="entry">
+        <div class="details">
+          <h3>{{ class_rollout.subject }}</h3>
+          <p>Time: {{ class_rollout.start_time|time:"H:i" }} TO {{ class_rollout.end_time|time:"H:i" }}</p>
+          <p>Semester: {{ class_rollout.semester }}</p>
+          <p>Duration: {{ class_rollout.duration }} hour(s)</p>
+          <form method="POST" action="/toggle_attendance/{{ class_rollout.id }}">
+            {% csrf_token %}
+            <p>
+              <input type="checkbox" id="attendance_{{ class_rollout.id }}" name="attendance" {% if class_rollout.class_attendance %}checked{% endif %}>
+              <label for="attendance_{{ class_rollout.id }}">Faculty Attendance</label>
+              <button type="submit">Submit</button>
+            </p>
+          </form>
+        </div>
       </div>
-    </div>
+    {% else %}
+      <!-- No lecture assigned for 03:10 - 04:10 -->
+      <div class="entry">
+        <div class="details">
+          <h3>No lecture assigned</h3>
+          <p>at this Time</p>
+        </div>
+      </div>
+    {% endif %}
+  <!-- 04:10 - 05:10 -->
+    {% if class_rollout.start_time.hour == 4 and class_rollout.start_time.minute == 10 and class_rollout.end_time.hour == 5 and class_rollout.end_time.minute == 10 %}
+      <!-- Class entry for 04:10 - 05:10 -->
+      <div class="entry">
+        <div class="details">
+          <h3>{{ class_rollout.subject }}</h3>
+          <p>Time: {{ class_rollout.start_time|time:"H:i" }} TO {{ class_rollout.end_time|time:"H:i" }}</p>
+          <p>Semester: {{ class_rollout.semester }}</p>
+          <p>Duration: {{ class_rollout.duration }} hour(s)</p>
+          <form method="POST" action="/toggle_attendance/{{ class_rollout.id }}">
+            {% csrf_token %}
+            <p>
+              <input type="checkbox" id="attendance_{{ class_rollout.id }}" name="attendance" {% if class_rollout.class_attendance %}checked{% endif %}>
+              <label for="attendance_{{ class_rollout.id }}">Faculty Attendance</label>
+              <button type="submit">Submit</button>
+            </p>
+          </form>
+        </div>
+      </div>
+    {% else %}
+      <!-- No lecture assigned for 04:10 - 05:10 -->
+      <div class="entry">
+        <div class="details">
+          <h3>No lecture assigned</h3>
+          <p>at this Time</p>
+        </div>
+      </div>
+    {% endif %}
   {% endfor %}
 
   <!-- Punching out time -->
@@ -260,6 +409,7 @@
     </div>
   </div>
 </div>
+
 
 <!-- Thursday -->
 <div class="track blue">
@@ -440,5 +590,3 @@
 <script src="{%static 'js/index.js'%}"></script>
 </body>
 </html>
-
-

@@ -79,4 +79,3 @@ def toggle_attendance(request, class_rollout_id):
         return redirect('index')
 
 
-
