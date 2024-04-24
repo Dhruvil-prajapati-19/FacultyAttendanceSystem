@@ -1,26 +1,23 @@
 from django.contrib import admin
 from . import models
 
+@admin.register(models.ClassDuration)
+class ClassDurationAdmin(admin.ModelAdmin):
+    list_display = ('duration', 'duration_short_name', 'hours', 'minute')
+
 @admin.register(models.Faculty)
 class FacultyAdmin(admin.ModelAdmin):
-    list_per_page = 20
-    empty_value_display = '-'
+    search_fields = ('name', 'short_name')
+    list_display = ('name', 'short_name')
 
 @admin.register(models.Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_per_page = 20
-    empty_value_display = '-'
-
-@admin.register(models.ClassDuration)
-class ClassDurationAdmin(admin.ModelAdmin):
-    list_per_page = 20
-    empty_value_display = '-'
+    pass
 
 @admin.register(models.Room)
 class RoomAdmin(admin.ModelAdmin):
-    list_per_page = 20
-    empty_value_display = '-'
-
+    list_display = ('room_name',)
+    
 @admin.register(models.Timetable)
 class TimetableAdmin(admin.ModelAdmin):
     list_display = ('class_type', 'formatted_semester', 'faculty', 'subject', 'room', 'duration', 'start_time', 'end_time', 'formatted_create_date', 'formatted_modified_date')
@@ -61,4 +58,5 @@ class TimeTableRolloutsAdmin(admin.ModelAdmin):
 @admin.register(models.Semester)
 class SemesterAdmin(admin.ModelAdmin):
     list_display = ('name', 'start_date', 'end_date')
+    search_fields = ('name',)
     list_filter = ('start_date', 'end_date')
