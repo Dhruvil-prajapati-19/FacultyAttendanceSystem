@@ -12,12 +12,13 @@ class FacultyAdmin(admin.ModelAdmin):
 
 @admin.register(models.Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'short_name', 'semester')
+    search_fields = ('name', 'short_name')
 
 @admin.register(models.Room)
 class RoomAdmin(admin.ModelAdmin):
     list_display = ('room_name',)
-    
+
 @admin.register(models.Timetable)
 class TimetableAdmin(admin.ModelAdmin):
     list_display = ('class_type', 'formatted_semester', 'faculty', 'subject', 'room', 'duration', 'start_time', 'end_time', 'formatted_create_date', 'formatted_modified_date')
