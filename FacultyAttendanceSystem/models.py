@@ -1,4 +1,4 @@
-# models.py
+# models.py #26
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -21,7 +21,6 @@ class AdminCredentials(models.Model):
         return self.faculty.name
     
 #Timetable assin by admin to that faculty
-
 class Semester(models.Model):
     name = models.CharField(max_length=120)
     start_date = models.DateField(verbose_name='start term date')
