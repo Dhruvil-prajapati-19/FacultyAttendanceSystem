@@ -12,6 +12,7 @@
   <title>Result</title>
 </head>
 <body>
+
   <form method="GET" action="{% url 'calendar' %}">
     <div class="container-sm">
         <div class="row mb-2">
@@ -49,7 +50,7 @@
       {% if success %}
       <div class="scroller syncscroll" name="myElements">
         <div class="track time">
-          <div class="heading">Time</div>
+          <div class="heading">Day</div>
           <div class="heading">Date</div>
         </div>
         <div class="track">
@@ -83,7 +84,7 @@
       </div>
     </div>
     {% else %} 
-    <h3>plz Select date or reload page</h3>
+    <h3>plz Select date </h3>
     {% endif %}
 
     <div class="tracks syncscroll" name="myElements">
@@ -133,22 +134,27 @@
   </div>
 
   {% for class_rollout in class_rollouts_by_day.Monday %}
-    <div class="entry">
+  <div class="entry">
       <div class="details">
-        <h3>{{ class_rollout.subject.short_name }}  at {{ class_rollout.room }}</h3>
-        <p>Time: {{ class_rollout.start_time|date:"H:i" }} To {{ class_rollout.end_time|date:"H:i" }}</p>
-        <p>Semester: {{ class_rollout.semester }}</p>
-        <p>Duration: {{ class_rollout.duration }}</p>
-        <form method="POST" action="{% url 'toggle_attendance' class_rollout.pk %}">
-          {% csrf_token %}
-         <p> <input type="checkbox" id="attendance_{{ class_rollout.pk }}" name="attendance"
-                 {% if class_rollout.class_attendance %} checked {% endif %}>
-          <label for="attendance_{{ class_rollout.pk }}">Faculty Attendance</label>
-          <button type="submit">Submit</button></p>
-        </form>
+          <h3>{{ class_rollout.subject.short_name }} at {{ class_rollout.room }}</h3>
+          <p>Time: {{ class_rollout.start_time|date:"H:i" }} To {{ class_rollout.end_time|date:"H:i" }}</p>
+          <p>Semester: {{ class_rollout.semester }}</p>
+          <p>Duration: {{ class_rollout.duration }}</p>
+          <form method="POST" action="{% url 'toggle_attendance' class_rollout.pk %}">
+              {% csrf_token %}
+              <p>
+                  <!-- Hidden input to send the value of attendance -->
+                  <input type="hidden" name="attendance" id="attendance_{{ class_rollout.pk }}"
+                         value="{% if class_rollout.class_attendance %}1{% else %}0{% endif %}">
+                  <!-- Checkbox to display the attendance status -->
+                  <input type="checkbox" id="attendance_checkbox_{{ class_rollout.pk }}"
+                         {% if class_rollout.class_attendance %}checked{% endif %}>
+                  <label for="attendance_checkbox_{{ class_rollout.pk }}">Faculty Attendance</label>
+              </p>
+          </form>
       </div>
-    </div>
-  {% endfor %}
+  </div>
+{% endfor %}
 
   <!-- Generate additional entries -->
   {% for entry in additional_entries.Monday %}
@@ -438,6 +444,31 @@
 </div>
 <div id="top-of-site-pixel-anchor"></div>
 <script src="{%static 'js/index.js'%}"></script>
+<script>
+  function toggleAttendance(checkbox, classRolloutId) {
+      // Disable the checkbox to prevent unticking
+      checkbox.disabled = true;
+
+      // Send AJAX request to update the attendance status
+      const formData = new FormData();
+      formData.append('attendance', checkbox.checked ? '1' : '0');
+
+      fetch(`/toggle-attendance/${classRolloutId}/`, {
+          method: 'POST',
+          body: formData,
+          headers: {
+              'X-CSRFToken': '{{ csrf_token }}'
+          }
+      }).then(response => {
+          if (!response.ok) {
+              console.error('Failed to update attendance');
+          }
+      }).catch(error => {
+          console.error('Failed to update attendance:', error);
+      });
+  }
+</script>
+
 </body>
 </html>
 

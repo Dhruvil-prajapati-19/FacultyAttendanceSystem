@@ -1,6 +1,10 @@
 from django.contrib import admin
 from . import models
 
+@admin.register(models.AdminCredentials)
+class AdminCredentialsAdmin(admin.ModelAdmin):
+    list_display = ['faculty', 'username'] 
+    
 @admin.register(models.ClassDuration)
 class ClassDurationAdmin(admin.ModelAdmin):
     list_display = ('duration', 'duration_short_name', 'hours', 'minute')

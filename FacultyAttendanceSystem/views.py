@@ -2,28 +2,32 @@ from django.shortcuts import render,redirect
 from .models import AdminCredentials
 from datetime import datetime, timedelta
 from .models import TimeTableRollouts
-from django.urls import reverse
-
+from django.contrib.auth.hashers import check_password
+from django.contrib import messages
+from .models import AdminCredentials
 
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         
-        # Fetch admin credentials based on the provided username
-        admin_credentials = AdminCredentials.objects.filter(username=username).first()
+        try:
+            # Fetch admin credentials based on the provided username
+            admin_credentials = AdminCredentials.objects.get(username=username)
+            
+            if admin_credentials.password == password:
+                messages.success(request, 'You have successfully logged in.')
+                return redirect('index/')
+            else:
+                error_message = 'Invalid password'
+        except AdminCredentials.DoesNotExist:
+            error_message = 'Invalid username or password'
         
-        if admin_credentials and admin_credentials.password == password:
-            return redirect('index')
-        else:
-            return render(request, 'login.html', {'error': 'Invalid username or password'})
-    else:
-        return render(request, 'login.html')
- 
+        # Display error message
+        messages.error(request, error_message)
+    
+    return render(request, 'login.html')
 
-
-def index(request):
-    return render(request, 'index.html') 
 
 def calendar(request):
     if request.method == 'GET':
@@ -73,7 +77,7 @@ def toggle_attendance(request, class_rollout_id):
     if request.method == 'POST':
         class_rollout = TimeTableRollouts.objects.get(pk=class_rollout_id)
         # Toggle the attendance status
-        class_rollout.class_attendance = not class_rollout.class_attendance
+        class_rollout.class_attedance = not class_rollout.class_attedance
         class_rollout.save()
         # Redirect back to the index page or wherever appropriate
         return redirect('index')
