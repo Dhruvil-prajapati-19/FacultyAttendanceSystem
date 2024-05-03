@@ -1,10 +1,7 @@
 from django.shortcuts import render,redirect
-from .models import AdminCredentials
+from .models import AdminCredentials,TimeTableRollouts,AdminCredentials
 from datetime import datetime, timedelta
-from .models import TimeTableRollouts
-from django.contrib.auth.hashers import check_password
 from django.contrib import messages
-from .models import AdminCredentials
 
 def login(request):
     if request.method == 'POST':
