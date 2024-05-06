@@ -45,6 +45,14 @@ def download_data(request):
     
     return response
 
+def index_redirect(request):
+    return redirect('index/')
+
+
+def error_404_view(request):
+    return render(request, 'pages-error-404.html')
+
+
 class LoginView(View):
 
     def get(self, request):
