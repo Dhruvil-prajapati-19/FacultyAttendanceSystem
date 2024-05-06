@@ -57,9 +57,7 @@
                                                 </div>
                                             {% endfor %}
                                         {% endif %}
-                                        {% if request.user.is_authenticated %}
-                                            <p class="text-center small">You are logged in as {{ request.user.username }}.</p>
-                                        {% endif %}
+
                                     </div>
                                     <form method="post" action="{% url 'login' %}">
                                         {% csrf_token %}
