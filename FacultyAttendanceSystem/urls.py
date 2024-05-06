@@ -11,5 +11,5 @@ urlpatterns = [
     path('logout/', views.logout, name='logout'),
     path('download/',  Faculty_login_required(views.download_data), name='download_data'),
     path('index_redirect/', Faculty_login_required(views.index_redirect), name='index_redirect'),
-    path('pages-error-404/', views.error_404_view, name='pages-error-404'),
+    path('pages-error-404/', Faculty_login_required(views.error_404_view), name='pages-error-404'),
 ]
