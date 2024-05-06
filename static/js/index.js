@@ -2,6 +2,7 @@ const btnR = document.querySelector('.btn-right');
 const btnL = document.querySelector('.btn-left');
 const tracks = document.querySelector('.tracks');
 const tracksW = tracks.scrollWidth;
+
 let scrollInterval; // Variable to hold the interval for continuous scrolling
 
 btnR.addEventListener('mousedown', () => {

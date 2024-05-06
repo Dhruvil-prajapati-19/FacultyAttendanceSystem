@@ -1,11 +1,13 @@
 from django.contrib import admin
 from django.urls import path
-from . import views  # Import views from the same directory
+from . import views  
+from .decorators import Faculty_login_required  # Import the decorator
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.login, name='login'),
-    path('index/', views.calendar, name='calendar'),
-    path('', views.calendar, name='index'), 
-    path('toggle-attendance/<int:class_rollout_id>/', views.toggle_attendance, name='toggle_attendance')
+    path('', views.LoginView.as_view(), name='login'),
+    path('index/', Faculty_login_required(views.Attendancesheet.as_view()), name='index'),  # Apply the decorator to Attendancesheet
+    path('calendar/',  Faculty_login_required(views.Attendancesheet.as_view()), name='calendar_view'),
+    path('logout/', views.logout, name='logout'),
+    path('download/',  Faculty_login_required(views.download_data), name='download_data'),
 ]

@@ -21,7 +21,6 @@ class AdminCredentials(models.Model):
             return self.faculty.name
         else:
             return "No Faculty Assigned"        
-#Timetable assin by admin to that faculty
 
 class Semester(models.Model):
     name = models.CharField(max_length=120)
