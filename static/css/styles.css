@@ -18,7 +18,7 @@
     width: 100%;
     max-width: 750px;
     margin-top: 50px;
-    margin-left: 150px;
+   
   }
   
   h1 {
@@ -309,5 +309,13 @@
   background-color: #cc0000; /* Darker red color on hover */
 }
 
-/* template css */
+.button-container {
+  padding-left: 5em ; /* Align buttons to the right */
+  margin-top: px; /* Add some top margin for spacing */
+}
+
+.button-container button {
+  margin-left: 10px; /* Add some left margin between buttons */
+}
+
 

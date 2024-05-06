@@ -250,18 +250,18 @@
       </div>
     </div>
 
-       <!-- Logout Form -->
-    <form action="{% url 'logout' %}" method="post">
-      {% csrf_token %}
-      <button type="submit">Logout</button>
-  </form> 
-
-
-<form action="{% url 'download_data' %}" method="post">
-  {% csrf_token %}
-  <button type="submit">Download Attendance Data</button>
-</form>
-
+    <div class="button-container">
+      <!-- Logout Form -->
+      <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+      </form> 
+    
+      <form action="{% url 'download_data' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Download Attendance Data</button>
+      </form>
+    </div>
 
     <form
       class="form-inline justify-content-end"
@@ -515,6 +515,8 @@
     <div id="top-of-site-pixel-anchor"></div>
   </div>
 </main>
+
+
     <!-- ======= Footer ======= -->
     <footer id="footer" class="footer">
       <div class="copyright">
