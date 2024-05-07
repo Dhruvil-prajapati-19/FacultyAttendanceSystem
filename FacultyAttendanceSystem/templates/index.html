@@ -1,0 +1,523 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Courgette" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap-reboot.css">
+  <script src="http://asvd.github.io/syncscroll/syncscroll.js"></script>
+  <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+  <title>Result</title> 
+</head>
+<body>
+  <form method="GET" action="{% url 'calendar' %}">
+    <div class="container-sm">
+        <div class="row mb-2">
+            <div class="col">
+                Date Picker:
+                <input type="date" id="weekpicker" class="form-control mb-2" name="weekpicker" />
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</form>
+
+<svg style="position: absolute; width: 0; height: 0; display: none;">
+  <symbol id="icon-arrow" viewBox="0 0 96 96">
+    <title>Arrow</title>
+    <path d="M39.66,13.34A8,8,0,0,0,28.34,24.66L51.69,48,28.34,71.34A8,8,0,0,0,39.66,82.66l29-29a8,8,0,0,0,0-11.31Z"/>
+  </symbol>
+</svg>
+    
+<div class="wrapper">
+  <h1>attendance sheet</h1>
+  <div class="sticky-header">
+    <span>take your attendance</span>
+  </div>
+  <div class="table">
+    <div class="headers">
+      <div class="buttons">
+        <button class="btn-left">
+          <svg><use xlink:href="#icon-arrow"></use></svg>
+        </button>
+        <button class="btn-right">
+          <svg><use xlink:href="#icon-arrow"></use></svg>
+        </button>
+      </div>
+      {% if success %}
+      <div class="scroller syncscroll" name="myElements">
+        <div class="track time">
+          <div class="heading">Time</div>
+          <div class="heading">Date</div>
+        </div>
+        <div class="track">
+          <div class="heading">Monday</div>
+          <div class="heading">{{ monday_date }}</div>
+        </div>
+        <div class="track">
+          <div class="heading">Tuesday</div>
+          <div class="heading">{{ tuesday_date }}</div>
+        </div>
+        <div class="track">
+          <div class="heading">Wednesday</div>
+          <div class="heading">{{ wednesday_date }}</div>
+        </div>
+        <div class="track">
+          <div class="heading">Thursday</div>
+          <div class="heading">{{ thursday_date }}</div>
+        </div>
+        <div class="track">
+          <div class="heading">Friday</div>
+          <div class="heading">{{ friday_date }}</div>
+        </div>
+        <div class="track">
+          <div class="heading">Saturday</div>
+          <div class="heading">{{ saturday_date }}</div>
+        </div>
+        <div class="track">
+          <div class="heading">Sunday</div>
+          <div class="heading">{{ sunday_date }}</div>
+        </div>
+      </div>
+    </div>
+    {% else %} 
+    <h3>plz Select date or reload page</h3>
+    {% endif %}
+
+    <div class="tracks syncscroll" name="myElements">
+      <div class="track time">
+        <div class="entry">
+          <time>09:00</time>
+          <time>10:30</time>
+        </div>
+        <div class="entry">
+          <time>10:30</time>
+          <time>11:30</time>
+        </div>
+        <div class="entry">
+          <time>11:30</time>
+          <time>12:30</time>
+        </div>
+        <div class="entry">
+          <time>01:00</time>
+          <time>02:00</time>
+        </div>
+        <div class="entry">
+          <time>02:00</time>
+          <time>03:00</time>
+        </div>
+        <div class="entry">
+          <time>03:10</time>
+          <time>04:10</time>
+        </div>
+        <div class="entry">
+          <time>04:10</time>
+          <time>05:10</time>
+        </div>
+        <div class="entry">
+          <time>05:10</time>
+          <time>06:10</time>
+        </div>
+        <div class="entry">
+        </div>
+      </div>
+<!--Monday-->
+      <div class="track yellow">
+        <div class="entry">
+          <div class="details">
+            <h3>Punching time:</h3>
+            <p>Time:</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>LECT - 1ST At {classroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject:</p>
+            <p>duration:1H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+          <h3>No lecture assign</h3>
+          <p>at this Time</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>No lecture assign</h3>
+            <p>at this Time</p>
+            </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>LECT - 2ed At {classroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject</p>
+            <p>duration:1H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+        <div class="entry treble">
+          <div class="details">
+            <h3>1st LAB  At {LABroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject:IWD</p>
+            <p>duration:2H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>Punching out</h3>
+            <p>Time</p>
+          </div>
+        </div>
+
+        <div class="entry">
+        </div>
+        
+      </div>
+
+      <!--TUESDAY-->
+      <div class="track turq">
+        <div class="entry">
+          <div class="details">
+            <h3>Punching time:</h3>
+            <p>Time:</p>
+          </div>
+        </div>
+
+        <div class="entry treble">
+          <div class="details">
+            <h3> 1st LAB  At {LABroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject:IWD</p>
+            <p>duration:2H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>No lecture assign</h3>
+            <p>at this Time</p>
+            </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>No lecture assign</h3>
+            <p>at this Time</p>
+            </div>
+        </div>
+
+        <div class="entry">
+        <div class="details">
+            <h3>LECT - 2nd At {classroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject:</p>
+            <p>duration:1H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>LECT - 3ed At {classroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject:</p>
+            <p>duration:1H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+        
+        <div class="entry">
+          <div class="details">
+            <h3>Punching out time:</h3>
+            <p>Time:</p>
+          </div>
+        </div>
+
+    <!--Wednesday-->    
+      </div>
+      <div class="track blue">
+
+        <div class="entry"> 
+          <div class="details">
+            <h3>Punching time:</h3>
+            <p>Time:</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>LECT - 1ST At {classroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject</p>
+            <p>duration:1H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>LECT - 2nd At {classroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject</p>
+            <p>duration:1H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+        <div class="entry treble"> 
+          <div class="details">
+            <h3>LAB  At {LABroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject:IWD</p>
+            <p>duration:2H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+           <div class="entry treble"> 
+          <div class="details">
+            <h3>LAB  At {LABroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject:IWD</p>
+            <p>duration:2H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>Punching out time:</h3>
+            <p>Time:</p>
+          </div>
+        </div>
+
+      </div>
+
+    <!--thursday-->  
+      <div class="track green">
+     
+        <div class="entry"> 
+          <div class="details">
+            <h3>Punching time:</h3>
+            <p>Time:</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>LECT - 1ST At {classroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject</p>
+            <p>duration:</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>LECT - 2nd At {classroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject</p>
+            <p>duration:1H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+        <div class="entry treble"> 
+          <div class="details">
+            <h3>LAB  At {LABroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject:IWD</p>
+            <p>duration:2H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+           <div class="entry treble"> 
+          <div class="details">
+            <h3>LAB  At {LABroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject:IWD</p>
+            <p>duration:2H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>Punching out time:</h3>
+            <p>Time:</p>
+          </div>
+        </div>
+
+      </div>
+    <!--friday-->
+      <div class="track purple">
+
+        <div class="entry">
+          <div class="details">
+            <h3>Punching time:</h3>
+            <p>Time:1H</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>LECT - 1ST At {classroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject</p>
+            <p>duration:1H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+          <h3>No lecture assign</h3>
+          <p>at this Time</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>No lecture assign</h3>
+            <p>at this Time</p>
+            </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>LECT - 2ST At {classroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject</p>
+            <p>duration:1H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+        <div class="entry treble">
+          <div class="details">
+            <h3>1st LAB  At {LABroom}</h3>
+            <p>SEM-4</p>
+            <p>Subject:IWD</p>
+            <p>duration:2H</p>
+            <p>checkbox of present</p>
+          </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>Punching out</h3>
+            <p>Time</p>
+          </div>
+        </div>
+
+        <div class="entry">
+        </div>
+        
+      </div>
+
+      <!--Saturday-->
+      <div class="track gray">
+
+        <div class="entry">
+          <div class="details">
+            <h3>Punching time:</h3>
+            <p>Time:</p>
+          </div>
+        </div>
+        <div class="entry">
+          <div class="details">
+            <h3>No lecture assign</h3>
+            <p>at this Time</p>
+            </div>
+        </div>
+        <div class="entry">
+          <div class="details">
+            <h3>No lecture assign</h3>
+            <p>at this Time</p>
+            </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>No lecture assign</h3>
+            <p>at this Time</p>
+            </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>No lecture assign</h3>
+            <p>at this Time</p>
+            </div>
+        </div>
+        <div class="entry">
+          <div class="details">
+            <h3>No lecture assign</h3>
+            <p>at this Time</p>
+            </div>
+        </div>
+        <div class="entry">
+          <div class="details">
+            <h3>No lecture assign</h3>
+            <p>at this Time</p>
+            </div>
+        </div>
+
+        <div class="entry">
+          <div class="details">
+            <h3>Punching out time:</h3>
+            <p>Time:</p>
+            </div>
+        </div>
+
+      </div>
+      <div class="track gray">
+      <div class="track">
+
+        <div class="entry">
+          <div class="details">
+          <h2 >holiday</h2>
+        </div>
+      </div>
+        <div class="entry">
+        </div>
+        <div class="entry">
+        </div>
+        <div class="entry">
+        </div>
+        <div class="entry">
+        </div>
+        <div class="entry">
+        </div>
+        <div class="entry">
+        </div>
+        <div class="entry">
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+<div id="top-of-site-pixel-anchor"></div>
+<script src="{%static 'js/index.js'%}"></script>
+</body>
+</html>
+
+
