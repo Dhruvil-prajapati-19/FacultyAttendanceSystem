@@ -1,523 +1,468 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css?family=Courgette" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap-reboot.css">
-  <script src="http://asvd.github.io/syncscroll/syncscroll.js"></script>
-  <link href="{% static 'css/styles.css' %}" rel="stylesheet">
-  <title>Result</title> 
-</head>
-<body>
-  <form method="GET" action="{% url 'calendar' %}">
-    <div class="container-sm">
-        <div class="row mb-2">
-            <div class="col">
-                Date Picker:
-                <input type="date" id="weekpicker" class="form-control mb-2" name="weekpicker" />
-            </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </div>
-</form>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Faculty_Attendance_System</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+  
+    <!-- Favicons -->
+    <link href="{% static 'img/favicon.png' %}" rel="icon">
+    <link href="{% static 'img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+  
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  
+    <!-- Vendor CSS Files -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/quill/quill.snow.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/quill/quill.bubble.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/remixicon/remixicon.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/simple-datatables/style.css' %}" rel="stylesheet">
+   
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Courgette"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap-reboot.css"
+    />
+    <script src="http://asvd.github.io/syncscroll/syncscroll.js"></script>
+    <link
+     href="{% static 'css/styles.css' %}"
+      rel="stylesheet" 
+    >
+    <link
+     href="{% static 'css/template.css' %}"
+     rel="stylesheet"
+     >
 
-<svg style="position: absolute; width: 0; height: 0; display: none;">
-  <symbol id="icon-arrow" viewBox="0 0 96 96">
-    <title>Arrow</title>
-    <path d="M39.66,13.34A8,8,0,0,0,28.34,24.66L51.69,48,28.34,71.34A8,8,0,0,0,39.66,82.66l29-29a8,8,0,0,0,0-11.31Z"/>
-  </symbol>
-</svg>
+  </head>
+
+  <body>
+      <!-- ======= Header ======= -->
+      <header id="header" class="header fixed-top d-flex align-items-center">
+
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="index/" class="logo d-flex align-items-center">
+            <img src="assets/img/logo.png" alt="">
+            <span class="d-none d-lg-block">Faculty Attendance Sheet</span>
+          </a>
+          <i class="bi bi-list toggle-sidebar-btn"></i>
+        </div>
     
-<div class="wrapper">
-  <h1>attendance sheet</h1>
-  <div class="sticky-header">
-    <span>take your attendance</span>
-  </div>
-  <div class="table">
-    <div class="headers">
-      <div class="buttons">
-        <button class="btn-left">
-          <svg><use xlink:href="#icon-arrow"></use></svg>
+    
+      <!-- End Icons Navigation -->
+    
+      </header><!-- End Header -->
+      <!-- End Header -->
+
+  <!-- ======= Sidebar ======= -->
+  <aside id="sidebar" class="sidebar">
+
+    <ul class="sidebar-nav" id="sidebar-nav">
+
+      <li class="nav-item">
+        <a class="nav-link " href="{% url 'index' %}">
+          <i class="bi bi-grid"></i>
+          <span>Attendance Sheet</span>
+        </a>
+      </li>
+      <!-- End Attendance Sheet Nav -->
+
+
+      <li class="nav-heading">Pages</li>
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
+          <i class="bi bi-person"></i>
+          <span>Profile</span>
+        </a>
+      </li><!-- End Profile Page Nav -->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
+          <i class="bi bi-question-circle"></i>
+          <span>F.A.Q</span>
+        </a>
+      </li><!-- End F.A.Q Page Nav -->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
+          <i class="bi bi-envelope"></i>
+          <span>Contact</span>
+        </a>
+      </li>
+      <!-- End Contact Page Nav -->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
+          <i class="bi bi-card-list"></i>
+          <span>Register</span>
+        </a>
+      </li><!-- End Register Page Nav -->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'logout' %}">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span>Logout</span>
+          </a>
+        </li><!-- End Login Page Nav -->
+        <li class="nav-item">
+          <a class="nav-link collapsed" href="{% url 'download_data' %}">
+            
+            <i class="bi bi-file-earmark"></i>
+            {% csrf_token %}
+            <span>Download Attendance Data</span>
+          </a>
+        </li><!-- End Blank Page Nav -->
+      </ul>
+    </aside>
+    <!-- End Sidebar-->
+  
+    <main id="main" class="main">
+      <div class="pagetitle">
+        <h1>Attendance Sheet</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'index' %}">Attendance Sheet</a></li>
+          </ol>
+        </nav>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} " role="alert">
+        <strong>{{ message }}</strong>
+    {% endfor %}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span>
         </button>
-        <button class="btn-right">
-          <svg><use xlink:href="#icon-arrow"></use></svg>
-        </button>
-      </div>
-      {% if success %}
-      <div class="scroller syncscroll" name="myElements">
-        <div class="track time">
-          <div class="heading">Time</div>
-          <div class="heading">Date</div>
-        </div>
-        <div class="track">
-          <div class="heading">Monday</div>
-          <div class="heading">{{ monday_date }}</div>
-        </div>
-        <div class="track">
-          <div class="heading">Tuesday</div>
-          <div class="heading">{{ tuesday_date }}</div>
-        </div>
-        <div class="track">
-          <div class="heading">Wednesday</div>
-          <div class="heading">{{ wednesday_date }}</div>
-        </div>
-        <div class="track">
-          <div class="heading">Thursday</div>
-          <div class="heading">{{ thursday_date }}</div>
-        </div>
-        <div class="track">
-          <div class="heading">Friday</div>
-          <div class="heading">{{ friday_date }}</div>
-        </div>
-        <div class="track">
-          <div class="heading">Saturday</div>
-          <div class="heading">{{ saturday_date }}</div>
-        </div>
-        <div class="track">
-          <div class="heading">Sunday</div>
-          <div class="heading">{{ sunday_date }}</div>
-        </div>
-      </div>
-    </div>
-    {% else %} 
-    <h3>plz Select date or reload page</h3>
+        </div> 
     {% endif %}
+    <div class="container" style="max-width: 800px; display: flex">
+      <div style="display: flex; align-items: center; padding-right: 30px">
+        <div
+          style="
+            width: 15px;
+            height: 15px;
+            background-color: #ffd800;
+            margin-right: 5px;
+          "
+        ></div>
+        <span>Pending</span>
+      </div>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          margin-top: 5px;
+          padding-right: 30px;
+        "
+      >
+        <div
+          style="
+            width: 15px;
+            height: 15px;
+            background-color: #86f250;
+            margin-right: 5px;
+          "
+        ></div>
+        <span>Present</span>
+      </div>
+    </div>
 
-    <div class="tracks syncscroll" name="myElements">
-      <div class="track time">
-        <div class="entry">
-          <time>09:00</time>
-          <time>10:30</time>
-        </div>
-        <div class="entry">
-          <time>10:30</time>
-          <time>11:30</time>
-        </div>
-        <div class="entry">
-          <time>11:30</time>
-          <time>12:30</time>
-        </div>
-        <div class="entry">
-          <time>01:00</time>
-          <time>02:00</time>
-        </div>
-        <div class="entry">
-          <time>02:00</time>
-          <time>03:00</time>
-        </div>
-        <div class="entry">
-          <time>03:10</time>
-          <time>04:10</time>
-        </div>
-        <div class="entry">
-          <time>04:10</time>
-          <time>05:10</time>
-        </div>
-        <div class="entry">
-          <time>05:10</time>
-          <time>06:10</time>
-        </div>
-        <div class="entry">
+    <div class="button-container">
+    
+  <!---   <form action="{% url 'download_data' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Download Attendance Data</button>
+      </form>
+    </div> -->
+
+    <form 
+    class="form-inline"
+     method="GET" 
+     action="{% url 'calendar_view' %}" 
+     style="margin: 30px 500px 0px 0px"">
+      
+     <div class="input-group">
+        <input
+         type="date" 
+         id="weekpicker"
+          class="form-control" 
+          name="weekpicker">
+        <div class="input-group-append">
+          <button type="submit" class="btn btn-outline-primary">Select Date</button>
         </div>
       </div>
-<!--Monday-->
-      <div class="track yellow">
-        <div class="entry">
-          <div class="details">
-            <h3>Punching time:</h3>
-            <p>Time:</p>
-          </div>
-        </div>
+    </form>
+    
 
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 1ST At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-          <h3>No lecture assign</h3>
-          <p>at this Time</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>No lecture assign</h3>
-            <p>at this Time</p>
+    <div class="wrapper">
+      <div class="table">
+        <div class="headers">
+          {% if success %}
+          <div class="scroller syncscroll" name="myElements">
+            <div class="track">
+              <div class="heading">{{ monday_date }}</div>
             </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 2ed At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
+            <div class="track">
+              <div class="heading">{{ tuesday_date }}</div>
+            </div>
+            <div class="track">
+              <div class="heading">{{ wednesday_date }}</div>
+            </div>
+            <div class="track">
+              <div class="heading">{{ thursday_date }}</div>
+            </div>
+            <div class="track">
+              <div class="heading">{{ friday_date }}</div>
+            </div>
+            <div class="track">
+              <div class="heading">{{ saturday_date }}</div>
+            </div>
+            <div class="track">
+              <div class="heading">{{ sunday_date }}</div>
+            </div>
           </div>
         </div>
+        {% else %}
+        <h3>plz Select date or reload page</h3>
+        {% endif %}
 
-        <div class="entry treble">
-          <div class="details">
-            <h3>1st LAB  At {LABroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:IWD</p>
-            <p>duration:2H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>Punching out</h3>
-            <p>Time</p>
-          </div>
-        </div>
-
-        <div class="entry">
-        </div>
+        <div class="tracks syncscroll" name="myElements">
         
+
+          <div class="track yellow">
+            <!--Monday-->
+            {% for class_rollout in monday_classes %}
+            <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
+              <div class="details">
+                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
+                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
+                <p>{{ class_rollout.subject.name }}</p>
+                <p>Faculty: {{ class_rollout.faculty.name }}</p>
+                <p>Duration: {{ class_rollout.duration.duration }}</p>
+                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <p style="margin-top: -22px; margin-left: 17px">
+                            <label for="attendance">Attendance</label>
+                        </p>
+                    </form>
+                </div>
+            </div>
+            </div>
+            {% endfor %}
+          </div>
+
+<!-- TUESDAY -->
+<div class="track yellow">
+  {% for class_rollout in tuesday_classes %}
+  <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
+    <div class="details">
+      <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
+      <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
+      <p>{{ class_rollout.subject.name }}</p>
+      <p>Faculty: {{ class_rollout.faculty.name }}</p>
+      <p>Duration: {{ class_rollout.duration.duration }}</p>
+      <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+          <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+              {% csrf_token %}
+              <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+              <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+              <p style="margin-top: -22px; margin-left: 17px">
+                  <label for="attendance">Attendance</label>
+              </p>
+          </form>
       </div>
+  </div>
+  </div>
+  {% endfor %}
+</div>
 
-      <!--TUESDAY-->
-      <div class="track turq">
-        <div class="entry">
-          <div class="details">
-            <h3>Punching time:</h3>
-            <p>Time:</p>
-          </div>
-        </div>
-
-        <div class="entry treble">
-          <div class="details">
-            <h3> 1st LAB  At {LABroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:IWD</p>
-            <p>duration:2H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>No lecture assign</h3>
-            <p>at this Time</p>
+          <!--Wednesday-->
+          <div class="track yellow">
+            {% for class_rollout in wednesday_classes %}
+            <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
+              <div class="details">
+                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
+                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
+                <p>{{ class_rollout.subject.name }}</p>
+                <p>Faculty: {{ class_rollout.faculty.name }}</p>
+                <p>Duration: {{ class_rollout.duration.duration }}</p>
+                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <p style="margin-top: -22px; margin-left: 17px">
+                            <label for="attendance">Attendance</label>
+                        </p>
+                    </form>
+                </div>
             </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>No lecture assign</h3>
-            <p>at this Time</p>
             </div>
-        </div>
-
-        <div class="entry">
-        <div class="details">
-            <h3>LECT - 2nd At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
+            {% endfor %}
           </div>
-        </div>
 
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 3ed At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-        
-        <div class="entry">
-          <div class="details">
-            <h3>Punching out time:</h3>
-            <p>Time:</p>
-          </div>
-        </div>
-
-    <!--Wednesday-->    
-      </div>
-      <div class="track blue">
-
-        <div class="entry"> 
-          <div class="details">
-            <h3>Punching time:</h3>
-            <p>Time:</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 1ST At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 2nd At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry treble"> 
-          <div class="details">
-            <h3>LAB  At {LABroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:IWD</p>
-            <p>duration:2H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-           <div class="entry treble"> 
-          <div class="details">
-            <h3>LAB  At {LABroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:IWD</p>
-            <p>duration:2H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>Punching out time:</h3>
-            <p>Time:</p>
-          </div>
-        </div>
-
-      </div>
-
-    <!--thursday-->  
-      <div class="track green">
-     
-        <div class="entry"> 
-          <div class="details">
-            <h3>Punching time:</h3>
-            <p>Time:</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 1ST At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject</p>
-            <p>duration:</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 2nd At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry treble"> 
-          <div class="details">
-            <h3>LAB  At {LABroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:IWD</p>
-            <p>duration:2H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-           <div class="entry treble"> 
-          <div class="details">
-            <h3>LAB  At {LABroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:IWD</p>
-            <p>duration:2H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>Punching out time:</h3>
-            <p>Time:</p>
-          </div>
-        </div>
-
-      </div>
-    <!--friday-->
-      <div class="track purple">
-
-        <div class="entry">
-          <div class="details">
-            <h3>Punching time:</h3>
-            <p>Time:1H</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 1ST At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-          <h3>No lecture assign</h3>
-          <p>at this Time</p>
-          </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>No lecture assign</h3>
-            <p>at this Time</p>
+          <!--thursday-->
+          <div class="track yellow">
+            {% for class_rollout in thursday_classes %}
+            <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
+              <div class="details">
+                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
+                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
+                <p>{{ class_rollout.subject.name }}</p>
+                <p>Faculty: {{ class_rollout.faculty.name }}</p>
+                <p>Duration: {{ class_rollout.duration.duration }}</p>
+                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <p style="margin-top: -22px; margin-left: 17px">
+                            <label for="attendance">Attendance</label>
+                        </p>
+                    </form>
+                </div>
             </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>LECT - 2ST At {classroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject</p>
-            <p>duration:1H</p>
-            <p>checkbox of present</p>
+            </div>
+            {% endfor %}
           </div>
-        </div>
 
-        <div class="entry treble">
-          <div class="details">
-            <h3>1st LAB  At {LABroom}</h3>
-            <p>SEM-4</p>
-            <p>Subject:IWD</p>
-            <p>duration:2H</p>
-            <p>checkbox of present</p>
+          <!--friday-->
+          <div class="track">
+            {% for class_rollout in friday_classes %}
+            <div
+              class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}"
+            >
+            <div class="details">
+              <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
+              <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
+              <p>{{ class_rollout.subject.name }}</p>
+              <p>Faculty: {{ class_rollout.faculty.name }}</p>
+              <p>Duration: {{ class_rollout.duration.duration }}</p>
+              <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                  <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+                      <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                      <p style="margin-top: -22px; margin-left: 17px">
+                          <label for="attendance">Attendance</label>
+                      </p>
+                  </form>
+              </div>
           </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>Punching out</h3>
-            <p>Time</p>
+            </div>
+            {% endfor %}
           </div>
-        </div>
 
-        <div class="entry">
-        </div>
-        
-      </div>
-
-      <!--Saturday-->
-      <div class="track gray">
-
-        <div class="entry">
-          <div class="details">
-            <h3>Punching time:</h3>
-            <p>Time:</p>
+          <!--Saturday-->
+          <div class="track gray">
+            {% for class_rollout in saturday_classes %}
+            <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
+              <div class="details">
+                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
+                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
+                <p>{{ class_rollout.subject.name }}</p>
+                <p>Faculty: {{ class_rollout.faculty.name }}</p>
+                <p>Duration: {{ class_rollout.duration.duration }}</p>
+                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <p style="margin-top: -22px; margin-left: 17px">
+                            <label for="attendance">Attendance</label>
+                        </p>
+                    </form>
+                </div>
+            </div>
+            </div>
+            {% endfor %}
           </div>
-        </div>
-        <div class="entry">
-          <div class="details">
-            <h3>No lecture assign</h3>
-            <p>at this Time</p>
+          <!-- Sunday -->
+          <div class="track gray">
+            {% for class_rollout in sunday_classes %}
+            <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
+              <div class="details">
+                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
+                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
+                <p>{{ class_rollout.subject.name }}</p>
+                <p>Faculty: {{ class_rollout.faculty.name }}</p>
+                <p>Duration: {{ class_rollout.duration.duration }}</p>
+                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <p style="margin-top: -22px; margin-left: 17px">
+                            <label for="attendance">Attendance</label>
+                        </p>
+                    </form>
+                </div>
             </div>
-        </div>
-        <div class="entry">
-          <div class="details">
-            <h3>No lecture assign</h3>
-            <p>at this Time</p>
             </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>No lecture assign</h3>
-            <p>at this Time</p>
-            </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>No lecture assign</h3>
-            <p>at this Time</p>
-            </div>
-        </div>
-        <div class="entry">
-          <div class="details">
-            <h3>No lecture assign</h3>
-            <p>at this Time</p>
-            </div>
-        </div>
-        <div class="entry">
-          <div class="details">
-            <h3>No lecture assign</h3>
-            <p>at this Time</p>
-            </div>
-        </div>
-
-        <div class="entry">
-          <div class="details">
-            <h3>Punching out time:</h3>
-            <p>Time:</p>
-            </div>
-        </div>
-
-      </div>
-      <div class="track gray">
-      <div class="track">
-
-        <div class="entry">
-          <div class="details">
-          <h2 >holiday</h2>
-        </div>
-      </div>
-        <div class="entry">
-        </div>
-        <div class="entry">
-        </div>
-        <div class="entry">
-        </div>
-        <div class="entry">
-        </div>
-        <div class="entry">
-        </div>
-        <div class="entry">
-        </div>
-        <div class="entry">
+            {% endfor %}
+          </div>
         </div>
       </div>
     </div>
+    <div id="top-of-site-pixel-anchor"></div>
   </div>
-  </div>
-</div>
-<div id="top-of-site-pixel-anchor"></div>
-<script src="{%static 'js/index.js'%}"></script>
-</body>
+</main>
+
+
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer">
+      <div class="copyright">
+        &copy; Copyright <strong><span>Anything</span></strong>. All Rights Reserved
+      </div>
+      <div class="credits">
+        Developed by Dhruvil , Krisha , Krishi , Ravi.
+      </div>
+    </footer>
+    <script>
+      function submitForm(class_rollout_id) {
+        document.getElementById("attendanceForm_" + class_rollout_id).submit();
+      }
+    </script>
+    <script src="{%static 'js/index.js'%}"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+    <script src="{% static 'vendor/apexcharts/apexcharts.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'vendor/chart.js/chart.umd.js' %}"></script>
+    <script src="{% static 'vendor/echarts/echarts.min.js' %}"></script>
+    <script src="{% static 'vendor/quill/quill.min.js' %}"></script>
+    <script src="{% static 'vendor/simple-datatables/simple-datatables.js' %}"></script>
+    <script src="{% static 'vendor/tinymce/tinymce.min.js' %}"></script>
+    <script src="{% static 'vendor/php-email-form/validate.js' %}"></script>  
+    <script src="{% static 'js/main.js' %}"></script>
+  
+  </body>
 </html>
-
-

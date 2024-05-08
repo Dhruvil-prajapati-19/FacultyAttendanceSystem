@@ -32,3 +32,20 @@ def create_rollouts_for_timetable(sender, instance, created, **kwargs):
 
             # Move to the next week
             first_class_date += timedelta(weeks=1)
+
+@receiver(post_save, sender=Timetable)
+def update_rollouts_for_timetable(sender, instance, created, **kwargs):
+    if not created:
+        # Get the related TimeTableRollouts objects for this Timetable instance
+        rollouts = TimeTableRollouts.objects.filter(class_id=instance)
+
+        # Update the rollouts based on the modified Timetable instance
+        for rollout in rollouts:
+            rollout.faculty = instance.faculty
+            rollout.room = instance.room
+            rollout.subject = instance.subject
+            rollout.duration = instance.duration
+            rollout.start_time = instance.start_time
+            rollout.end_time = instance.end_time
+            rollout.modified_by = instance.modified_by_user
+            rollout.save()

@@ -11,16 +11,16 @@ class Faculty(models.Model):
     def __str__(self):
         return self.name
 
- #Add Faculty_username and password for that faculty   
 class AdminCredentials(models.Model):
     faculty = models.OneToOneField(Faculty, on_delete=models.SET_NULL, null=True)
     username = models.CharField(max_length=50)
     password = models.CharField(max_length=50)
-    
+
     def __str__(self):
-        return self.faculty.name
-    
-#Timetable assin by admin to that faculty
+        if self.faculty:
+            return self.faculty.name
+        else:
+            return "No Faculty Assigned"        
 
 class Semester(models.Model):
     name = models.CharField(max_length=120)

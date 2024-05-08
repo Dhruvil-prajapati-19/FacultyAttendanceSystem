@@ -1,6 +1,13 @@
 from django.contrib import admin
 from . import models
 
+<<<<<<< HEAD
+=======
+@admin.register(models.AdminCredentials)
+class AdminCredentialsAdmin(admin.ModelAdmin):
+    list_display = ['faculty', 'username'] 
+    
+>>>>>>> Timetable
 @admin.register(models.ClassDuration)
 class ClassDurationAdmin(admin.ModelAdmin):
     list_display = ('duration', 'duration_short_name', 'hours', 'minute')
