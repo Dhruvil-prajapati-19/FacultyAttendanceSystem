@@ -2,6 +2,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+# main Timetable
+from django.db import models
+from django.contrib.auth.models import User
 
 #Add Faculty_name
 class Faculty(models.Model):
@@ -55,9 +58,16 @@ class Room(models.Model):
     def __str__(self):
         return self.room_name
 
-# main Timetable
-from django.db import models
-from django.contrib.auth.models import User
+#for punch in and puch out
+class WorkShift(models.Model):
+    faculty = models.ForeignKey(Faculty, on_delete=models.SET_NULL , null=True , verbose_name='faculty_id')
+    date = models.DateField(null=True, blank=True, verbose_name="Class Start Time")
+    punch_in = models.TimeField(null=True, blank=True , verbose_name='punch in')
+    punch_out = models.TimeField(null=True, blank=True, verbose_name='punch out')
+
+    def __str__(self):
+        return f"{self.faculty.name} - {self.date}-{self.punch_in}-{self.punch_out}"
+
 
 class Timetable(models.Model):
     CLASS_TYPE_CHOICES = (

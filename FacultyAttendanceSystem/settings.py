@@ -16,6 +16,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -27,9 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '63e9-103-148-164-89.ngrok-free.app']
 CSRF_TRUSTED_ORIGINS = ["https://*.ngrok.io"]
-CSRF_TRUSTED_ORIGINS = [
-    'https://63e9-103-148-164-89.ngrok-free.app' 
-    ]
+
 
 # Application definition
 
@@ -108,9 +107,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
+
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'  #time
 
 USE_I18N = True
 

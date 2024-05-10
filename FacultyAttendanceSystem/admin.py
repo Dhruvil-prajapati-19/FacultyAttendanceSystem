@@ -3,8 +3,9 @@ from . import models
 
 @admin.register(models.AdminCredentials)
 class AdminCredentialsAdmin(admin.ModelAdmin):
-    list_display = ['faculty', 'username'] 
-    
+    list_display = ['faculty', 'username']
+    search_fields = ['faculty__name', 'faculty__short_name']
+
 @admin.register(models.ClassDuration)
 class ClassDurationAdmin(admin.ModelAdmin):
     list_display = ('duration', 'duration_short_name', 'hours', 'minute')
@@ -23,11 +24,16 @@ class SubjectAdmin(admin.ModelAdmin):
 class RoomAdmin(admin.ModelAdmin):
     list_display = ('room_name',)
 
+@admin.register(models.WorkShift)
+class WorkshiftAdmin(admin.ModelAdmin):
+    list_display = ('faculty', 'date', 'punch_in', 'punch_out')
+    search_fields = ('faculty__name','faculty__short_name')  
+ 
 @admin.register(models.Timetable)
 class TimetableAdmin(admin.ModelAdmin):
     list_display = ('class_type', 'formatted_semester', 'faculty', 'subject', 'room', 'duration', 'start_time', 'end_time', 'formatted_create_date', 'formatted_modified_date')
     list_filter = ('class_type', 'semester', 'faculty', 'subject', 'room', 'create_date', 'modified_date')
-    search_fields = ('semester__name', 'faculty__name', 'subject__name', 'room__room_name')
+    search_fields = ('semester__name', 'faculty__name', 'subject__name', 'room__room_name', 'faculty__short_name')
 
     def formatted_semester(self, obj):
         if obj.semester:
@@ -52,7 +58,7 @@ class TimetableAdmin(admin.ModelAdmin):
 class TimeTableRolloutsAdmin(admin.ModelAdmin):
     list_display = ('subject', 'faculty', 'room', 'duration', 'class_status', 'formatted_class_date', 'start_time', 'end_time', 'class_attedance')
     list_filter = ('subject', 'faculty', 'room', 'class_status', 'class_attedance', 'class_date')
-    search_fields = ('subject__name', 'faculty__name', 'room__room_name', 'class_date')
+    search_fields = ('subject__name', 'faculty__name', 'room__room_name', 'class_date' , 'short_name' ,'faculty__short_name')
     list_editable = ('class_attedance',)
 
     def formatted_class_date(self, obj):
