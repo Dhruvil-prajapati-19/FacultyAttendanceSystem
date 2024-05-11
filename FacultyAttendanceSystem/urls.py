@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.urls import path
 from . import views  
-from .decorators import Faculty_login_required  # Import the decorator
+from .decorators import Faculty_login_required 
+admin.site.site_header = "KDPP Faculty Attendance Administration"  
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),

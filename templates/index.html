@@ -58,17 +58,13 @@
       <header id="header" class="header fixed-top d-flex align-items-center">
 
         <div class="d-flex align-items-center justify-content-between">
-            <a  class="logo d-flex align-items-center">
-            <img src="assets/img/logo.png" alt="">
-            <span class="d-none d-lg-block">Kdpp. Faculty Attendance</span> 
+          <a href="#" class="logo d-flex align-items-center">
+              <img src="{% static 'img/logo.png' %}" alt="Logo">
+              <span class="d-none d-lg-block">Kdpp. Faculty Attendance</span>
           </a>
           <i class="bi bi-list toggle-sidebar-btn"></i>
-        </div>
-    
-    
-      <!-- End Icons Navigation -->
-    
-      </header><!-- End Header -->
+      </div>
+      </header>
       <!-- End Header -->
 
   <!-- ======= Sidebar ======= -->
@@ -158,7 +154,7 @@
         </button>
         </div> 
     {% endif %}
-    <div class="container" style="max-width: 800px; display: flex">
+    <div class="container" style="max-width: 1300px; display: flex">
       <div style="display: flex; align-items: center; padding-right: 30px">
         <div
           style="
@@ -196,38 +192,31 @@
       </form>
     </div> -->
 
-    <form 
-    class="form-inline"
-     method="GET" 
-     action="{% url 'calendar_view' %}" 
-     style="margin: 30px 500px 0px 0px"">
-      
-     <div class="input-group">
-        <input
-         type="date" 
-         id="weekpicker"
-          class="form-control" 
-          name="weekpicker">
-        <div class="input-group-append">
-          <button type="submit" class="btn btn-outline-primary">Select Date</button>
-        </div>
+    <form class="form-inline" method="GET" action="{% url 'calendar_view' %}" style="margin: 30px auto;">
+      <div class="input-group">
+          <input type="date" id="weekpicker" class="form-control form-control-sm" name="weekpicker"> <!-- Added form-control-sm class for smaller input -->
+          <div class="input-group-append">
+              <button type="submit" class="btn btn-sm btn-outline-primary">Selete Date </button> <!-- Added btn-sm class for smaller button -->
+          </div>
       </div>
-    </form>
+  </form>
+  
+  
     
-    <!--puch in and puch out-->
-    <div class="form-inline">
-    <form action ="{% url 'punch_in' %}" method="POST"  class="form-control" style="margin: 10px; padding-bottom:35px ;" >
-      {% csrf_token %}
-      <!-- Add any form fields if needed -->
-      <button class="input-group-append" type="submit"  style="font-family: 'Andale Mono', monospace;" >Punch In</button>
-  </form>
+  <div class="form-inline">
+    <form action="{% url 'punch_in' %}" method="POST" class="form-inline" style="margin: 10px;">
+        {% csrf_token %}
+        <!-- Add any form fields if needed -->
+        <button class="btn btn-sm btn-outline-primary" type="submit" style="font-family: 'Andale Mono', monospace;">Punch In</button>
+    </form>
 
-  <form action="{% url 'punch_out' %}" method="POST"  class="form-control" style="margin: 10px; padding-bottom:35px ;" >
-    {% csrf_token %}
-    <!-- Add any form fields if needed -->
-    <button class="input-group-append" type="submit" style="font-family: 'Andale Mono', monospace;">Punch Out</button>
-  </form>
-      </div>
+    <form action="{% url 'punch_out' %}" method="POST" class="form-inline" style="margin: 10px;">
+        {% csrf_token %}
+        <!-- Add any form fields if needed -->
+        <button class="btn btn-sm btn-outline-primary" type="submit" style="font-family: 'Andale Mono', monospace;">Punch Out</button>
+    </form>
+</div>
+
 
 <!-- <div class="button-container">
   <a href="{% url 'download_work_shift' %}" class="btn btn-primary">Download Work Shift Data</a>
