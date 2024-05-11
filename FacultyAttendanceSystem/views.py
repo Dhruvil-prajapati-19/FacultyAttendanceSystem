@@ -10,6 +10,8 @@ from django.http import HttpResponse
 from openpyxl import Workbook # type: ignore
 
 
+'''def error_404(request, exception):
+    return render(request, 'pages-error-404.html', status=404)'''
 
 def logout(request):
     if 'logged_user' in request.session:

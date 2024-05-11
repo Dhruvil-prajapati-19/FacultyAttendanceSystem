@@ -4,6 +4,7 @@ from . import views
 from .decorators import Faculty_login_required 
 admin.site.site_header = "KDPP Faculty Attendance Administration"  
 
+#handler404 = 'FacultyAttendanceSystem.views.error_404'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
