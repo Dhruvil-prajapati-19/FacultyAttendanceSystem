@@ -50,7 +50,7 @@
      href="{% static 'css/template.css' %}"
      rel="stylesheet"
      >
-
+    
   </head>
 
   <body>
@@ -82,8 +82,6 @@
           <span>Attendance Sheet</span>
         </a>
       </li>
-      <!-- End Attendance Sheet Nav -->
-
 
       <li class="nav-heading">Pages</li>
       <li class="nav-item">
@@ -91,13 +89,15 @@
           <i class="bi bi-person"></i>
           <span>Profile</span>
         </a>
-      </li><!-- End Profile Page Nav -->
+      </li>
+      
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
           <i class="bi bi-question-circle"></i>
           <span>F.A.Q</span>
         </a>
-      </li><!-- End F.A.Q Page Nav -->
+      </li>
+      <!-- End F.A.Q Page Nav -->
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
           <i class="bi bi-envelope"></i>
@@ -110,13 +110,14 @@
           <i class="bi bi-card-list"></i>
           <span>Register</span>
         </a>
-      </li><!-- End Register Page Nav -->
+      </li>
+      <!-- End Register Page Nav -->
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'logout' %}">
             <i class="bi bi-box-arrow-in-right"></i>
             <span>Logout</span>
           </a>
-        </li><!-- End Login Page Nav -->
+        </li>
         <li class="nav-item">
           <a class="nav-link collapsed" href="{% url 'download_data' %}">
             
@@ -124,7 +125,17 @@
             {% csrf_token %}
             <span>Download Attendance Data</span>
           </a>
-        </li><!-- End Blank Page Nav -->
+        </li>
+      </li>
+ 
+      <li class="nav-item">
+       <a  href="{% url 'download_work_shift' %}" class="nav-link collapsed" >
+          <i class="bi bi-file-earmark"></i>
+          {% csrf_token %}
+          <span>Download Work Shift Data</span>
+        </a>
+      </li>
+
       </ul>
     </aside>
     <!-- End Sidebar-->
@@ -179,8 +190,6 @@
       </div>
     </div>
 
-    <div class="button-container">
-    
   <!---   <form action="{% url 'download_data' %}" method="post">
         {% csrf_token %}
         <button type="submit">Download Attendance Data</button>
@@ -205,6 +214,24 @@
       </div>
     </form>
     
+    <!--puch in and puch out-->
+    <div class="form-inline">
+    <form action ="{% url 'punch_in' %}" method="POST"  class="form-control" style="margin: 10px; padding-bottom:35px ;" >
+      {% csrf_token %}
+      <!-- Add any form fields if needed -->
+      <button class="input-group-append" type="submit"  style="font-family: 'Andale Mono', monospace;" >Punch In</button>
+  </form>
+
+  <form action="{% url 'punch_out' %}" method="POST"  class="form-control" style="margin: 10px; padding-bottom:35px ;" >
+    {% csrf_token %}
+    <!-- Add any form fields if needed -->
+    <button class="input-group-append" type="submit" style="font-family: 'Andale Mono', monospace;">Punch Out</button>
+  </form>
+      </div>
+
+<!-- <div class="button-container">
+  <a href="{% url 'download_work_shift' %}" class="btn btn-primary">Download Work Shift Data</a>
+</div> -->
 
     <div class="wrapper">
       <div class="table">
@@ -437,6 +464,25 @@
       function submitForm(class_rollout_id) {
         document.getElementById("attendanceForm_" + class_rollout_id).submit();
       }
+    </script>
+    <script>
+      // Disable buttons after click
+      document.getElementById("punchInForm").addEventListener("submit", function () {
+        document.getElementById("punchInBtn").disabled = true;
+        document.getElementById("punchOutBtn").disabled = true;
+      });
+    
+      document.getElementById("punchOutForm").addEventListener("submit", function () {
+        document.getElementById("punchInBtn").disabled = true;
+        document.getElementById("punchOutBtn").disabled = true;
+      });
+    
+      // Change button color and status after successful punch in
+      // You can modify this based on your backend logic
+      // For now, I'll simulate a successful punch in after 2 seconds
+      setTimeout(function () {
+        document.getElementById("pendingStatus").style.backgroundColor = "#86f250";
+      }, 2000);
     </script>
     <script src="{%static 'js/index.js'%}"></script>
     <script

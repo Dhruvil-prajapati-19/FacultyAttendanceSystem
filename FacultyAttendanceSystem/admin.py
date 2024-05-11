@@ -24,11 +24,40 @@ class SubjectAdmin(admin.ModelAdmin):
 class RoomAdmin(admin.ModelAdmin):
     list_display = ('room_name',)
 
+
 @admin.register(models.WorkShift)
 class WorkshiftAdmin(admin.ModelAdmin):
-    list_display = ('faculty', 'date', 'punch_in', 'punch_out')
-    search_fields = ('faculty__name','faculty__short_name')  
+    list_display = ('faculty', 'formatted_date', 'formatted_punch_in', 'formatted_punch_out')
+    search_fields = ('faculty__name', 'faculty__short_name') 
+    list_filter = ('faculty__name',) 
+    
+#custom design: 
+    def formatted_date(self, obj):
+        """Custom method to display the date in dd/mm/yyyy format."""
+        if obj.date:
+            return obj.date.strftime('%d/%m/%Y')
+        else:
+            return '-'
+    formatted_date.short_description = 'Date'
+
+    def formatted_punch_in(self, obj):
+        """Custom method to display the punch in time with seconds."""
+        if obj.punch_in:
+            return obj.punch_in.strftime('%H:%M:%S')
+        else:
+            return '-'
+    formatted_punch_in.short_description = 'Punch In'
+
  
+    def formatted_punch_out(self, obj):
+      """Custom method to display the punch out time with seconds."""
+      if obj.punch_out:
+        return obj.punch_out.strftime('%H:%M:%S')
+      else:
+        return '-'
+    formatted_punch_out.short_description = 'Punch Out'
+
+    
 @admin.register(models.Timetable)
 class TimetableAdmin(admin.ModelAdmin):
     list_display = ('class_type', 'formatted_semester', 'faculty', 'subject', 'room', 'duration', 'start_time', 'end_time', 'formatted_create_date', 'formatted_modified_date')
