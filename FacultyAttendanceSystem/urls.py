@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.urls import path
 from . import views  
-from .decorators import Faculty_login_required 
-admin.site.site_header = "KDPP Faculty Attendance Administration"  
-
+from .decorators import Faculty_login_required  
+admin.site.site_header = "KDPP Faculty Attendance Administration"
+admin.site.site_title = "KDPP Faculty Attendance Administration Portal"
+admin.site.index_title = "Welcome to KDPP Faculty Attendance Administration Portal"
 #handler404 = 'FacultyAttendanceSystem.views.error_404'
 
 urlpatterns = [
