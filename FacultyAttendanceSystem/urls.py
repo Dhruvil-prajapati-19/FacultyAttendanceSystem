@@ -11,7 +11,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.LoginView.as_view(), name='login'),
     path('index/', Faculty_login_required(views.Attendancesheet.as_view()), name='index'),  
-    path('calendar/',  Faculty_login_required(views.Attendancesheet.as_view()), name='calendar_view'),
+    path('Attendancesheet/',  Faculty_login_required(views.Attendancesheet.as_view()), name='calendar_view'),
     path('logout/', Faculty_login_required(views.logout), name='logout'),
     path('download/',  Faculty_login_required(views.download_data), name='download_data'),
     path('index_redirect/', Faculty_login_required(views.index_redirect), name='index_redirect'),
