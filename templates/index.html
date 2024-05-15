@@ -58,14 +58,26 @@
       <header id="header" class="header fixed-top d-flex align-items-center">
 
         <div class="d-flex align-items-center justify-content-between">
-          <a class="logo d-flex align-items-center">
+          <a href="#" class="logo d-flex align-items-center">
               <img src="{% static 'img/logoX.jpg' %}" alt="Logo">
               <span class="d-none d-lg-block">Kdpp. Faculty Attendance</span>
           </a>
           <i class="bi bi-list toggle-sidebar-btn"></i>
       </div>
+      <nav class="header-nav ms-auto">
+        <ul class="d-flex align-items-center">
+          <!-- End Search Nav -->
+            <a class="nav-link d-flex align-items-center pe-3" >
+              <img src="{% static 'img/default-profile-picture.jpg' %}" alt="Profile" class="rounded-circle" height="50px" width="50px">
+              <span class="d-none d-md-block ps-2">{{ faculty_name }}</span>
+            </a><!-- End Profile Image Icon -->
+  
+          <!-- End Profile Nav -->
+  
+        </ul>
+      </nav>
+      
       </header>
-      <!-- End Header -->
 
   <!-- ======= Sidebar ======= -->
   <aside id="sidebar" class="sidebar">
@@ -138,12 +150,14 @@
   
     <main id="main" class="main">
       <div class="pagetitle">
-        <h1>Attendance Sheet</h1>
         <nav>
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+            <li class="breadcrumb-item active">Attendance Sheet</li>
           </ol>
         </nav>
+      </div>
+      </div>
 
     {% if messages %}
     {% for message in messages %}
@@ -154,70 +168,70 @@
         </button>
         </div> 
     {% endif %}
-    <div class="container" style="max-width: 1300px; display: flex">
-      <div style="display: flex; align-items: center; padding-right: 30px">
-        <div
-          style="
-            width: 15px;
-            height: 15px;
-            background-color: #ffd800;
-            margin-right: 5px;
-          "
-        ></div>
-        <span>Pending</span>
-      </div>
-      <div
-        style="
-          display: flex;
-          align-items: center;
-          margin-top: 5px;
-          padding-right: 30px;
-        "
-      >
-        <div
-          style="
-            width: 15px;
-            height: 15px;
-            background-color: #86f250;
-            margin-right: 5px;
-          "
-        ></div>
-        <span>Present</span>
-      </div>
-    </div>
-
-  <!---   <form action="{% url 'download_data' %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Download Attendance Data</button>
-      </form>
-    </div> -->
-
-    <form class="form-inline" method="GET" action="{% url 'calendar_view' %}" style="margin: 30px auto;">
-      <div class="input-group">
-          <input type="date" id="weekpicker" class="form-control form-control-sm" name="weekpicker"> <!-- Added form-control-sm class for smaller input -->
-          <div class="input-group-append">
-              <button type="submit" class="btn btn-sm btn-outline-primary">Selete Date </button> <!-- Added btn-sm class for smaller button -->
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <div style="display: flex; align-items: center; padding-right: 30px">
+            <div
+              style="
+                width: 15px;
+                height: 15px;
+                background-color: #ffd800;
+                margin-right: 5px;
+              "
+            ></div>
+            <span>Pending</span>
+          </div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              margin-top: 5px;
+              padding-right: 30px;
+            "
+          >
+            <div
+              style="
+                width: 15px;
+                height: 15px;
+                background-color: #86f250;
+                margin-right: 5px;
+              "
+            ></div>
+            <span>Present</span>
+          </div>
+        </div>
+        <div class="col">
+          <div class="row" style="width: 500px;">
+          <div class="col" style="margin-top: 20px;">
+          <p><b>Last punch time:</b> {{ punch_time }}</p>
+          <p><b>Your attendance:</b>{{ attended_classes }}/{{ total_classes }}</p>
+          </div>
+          {# punch in #}
+          <div class="col">
+          <div class="form-inline">
+            <form action="{% url 'punch' %}" method="POST" class="form-inline" style="margin: 10px;">
+                {% csrf_token %}
+                <!-- Add any form fields if needed -->
+                <button class="btn btn-sm {% if is_punch_out %}btn-outline-primary{% else %}btn btn-primary{% endif %}" type="submit" style="font-family: 'Andale Mono', monospace;">{% if is_punch_out %}Punch Out {% else %}Punch In{% endif %}</button>
+            </form>
+        </div>
           </div>
       </div>
-  </form>
-  
-  
-    
-  <div class="form-inline">
-    <form action="{% url 'punch_in' %}" method="POST" class="form-inline" style="margin: 10px;">
-        {% csrf_token %}
-        <!-- Add any form fields if needed -->
-        <button class="btn btn-sm btn-outline-primary" type="submit" style="font-family: 'Andale Mono', monospace;">Punch In</button>
-    </form>
-
-    <form action="{% url 'punch_out' %}" method="POST" class="form-inline" style="margin: 10px;">
-        {% csrf_token %}
-        <!-- Add any form fields if needed -->
-        <button class="btn btn-sm btn-outline-primary" type="submit" style="font-family: 'Andale Mono', monospace;">Punch Out</button>
-    </form>
-</div>
-
-
+        </div>
+        <div class="col">
+        <form class="form-inline" method="GET" action="{% url 'calendar_view' %}" style="margin: 10px auto;">
+          <div class="input-group">
+              <input type="date" id="weekpicker" class="form-control form-control-sm" name="weekpicker"> <!-- Added form-control-sm class for smaller input -->
+              <div class="input-group-append">
+                  <button type="submit" class="btn btn-sm btn-outline-primary">Selete Date </button> <!-- Added btn-sm class for smaller button -->
+              </div>
+          </div>
+      </form>
+        </div>
+      </div>
+    </div>
+ 
 <!-- <div class="button-container">
   <a href="{% url 'download_work_shift' %}" class="btn btn-primary">Download Work Shift Data</a>
 </div> -->
@@ -265,8 +279,8 @@
                 <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
                 <p>{{ class_rollout.subject.name }}</p>
-                <p>Faculty: {{ class_rollout.faculty.name }}</p>
-                <p>Duration: {{ class_rollout.duration.duration }}</p>
+           
+           
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                     <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                         {% csrf_token %}
@@ -290,8 +304,8 @@
       <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
       <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
       <p>{{ class_rollout.subject.name }}</p>
-      <p>Faculty: {{ class_rollout.faculty.name }}</p>
-      <p>Duration: {{ class_rollout.duration.duration }}</p>
+ 
+ 
       <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
           <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
               {% csrf_token %}
@@ -315,8 +329,8 @@
                 <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
                 <p>{{ class_rollout.subject.name }}</p>
-                <p>Faculty: {{ class_rollout.faculty.name }}</p>
-                <p>Duration: {{ class_rollout.duration.duration }}</p>
+           
+           
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                     <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                         {% csrf_token %}
@@ -340,8 +354,8 @@
                 <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
                 <p>{{ class_rollout.subject.name }}</p>
-                <p>Faculty: {{ class_rollout.faculty.name }}</p>
-                <p>Duration: {{ class_rollout.duration.duration }}</p>
+           
+           
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                     <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                         {% csrf_token %}
@@ -367,8 +381,8 @@
               <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
               <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
               <p>{{ class_rollout.subject.name }}</p>
-              <p>Faculty: {{ class_rollout.faculty.name }}</p>
-              <p>Duration: {{ class_rollout.duration.duration }}</p>
+         
+         
               <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                   <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                       {% csrf_token %}
@@ -392,8 +406,8 @@
                 <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
                 <p>{{ class_rollout.subject.name }}</p>
-                <p>Faculty: {{ class_rollout.faculty.name }}</p>
-                <p>Duration: {{ class_rollout.duration.duration }}</p>
+           
+           
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                     <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                         {% csrf_token %}
@@ -416,8 +430,8 @@
                 <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
                 <p>{{ class_rollout.subject.name }}</p>
-                <p>Faculty: {{ class_rollout.faculty.name }}</p>
-                <p>Duration: {{ class_rollout.duration.duration }}</p>
+           
+           
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                     <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                         {% csrf_token %}
@@ -465,10 +479,7 @@
         document.getElementById("punchInBtn").disabled = true;
         document.getElementById("punchOutBtn").disabled = true;
       });
-    
-      // Change button color and status after successful punch in
-      // You can modify this based on your backend logic
-      // For now, I'll simulate a successful punch in after 2 seconds
+
       setTimeout(function () {
         document.getElementById("pendingStatus").style.backgroundColor = "#86f250";
       }, 2000);

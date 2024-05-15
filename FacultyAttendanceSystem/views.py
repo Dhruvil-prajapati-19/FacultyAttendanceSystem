@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views import View
 from django.core.exceptions import ObjectDoesNotExist
-from .models import AdminCredentials, TimeTableRollouts, WorkShift
+from .models import AdminCredentials, Faculty, TimeTableRollouts, WorkShift
 from django.utils.timezone import localtime, now
 from .decorators import Faculty_login_required
 from datetime import datetime, timedelta
@@ -126,8 +126,19 @@ class Attendancesheet(View):
 
         logged_user = request.session.get('logged_user')
 
-        class_rollouts = TimeTableRollouts.objects.filter(faculty__id=logged_user, class_date__gte=start_date,
-                                                          class_date__lte=end_date)
+        total_classes = 0
+        attended_classes = 0
+        faculty = None
+
+        if logged_user:
+            try:
+                faculty = AdminCredentials.objects.get(id=logged_user).faculty
+                total_classes = TimeTableRollouts.objects.filter(faculty=faculty).count()
+                attended_classes = TimeTableRollouts.objects.filter(faculty=faculty, class_attedance=True).count()
+            except AdminCredentials.DoesNotExist:
+                pass
+
+        class_rollouts = TimeTableRollouts.objects.filter(faculty=faculty, class_date__gte=start_date, class_date__lte=end_date)
 
         monday_date = start_date
         tuesday_date = start_date + timedelta(days=1)
@@ -145,7 +156,26 @@ class Attendancesheet(View):
         saturday_classes = class_rollouts.filter(class_date=saturday_date)
         sunday_classes = class_rollouts.filter(class_date=sunday_date)
 
+        final_punch_time = None
+        is_punch_out = False
+        punch_date_time = None
+        try:
+            punch_time = WorkShift.objects.filter(faculty=faculty).last()
+            if punch_time:
+                if punch_time.punch_in is not None and punch_time.punch_out is None:
+                    final_punch_time = punch_time.punch_in
+                    is_punch_out = True
+                else:
+                    if punch_time.punch_in and punch_time.punch_out is not None:
+                        final_punch_time = punch_time.punch_out
+                punch_date_time = f"{punch_time.date} {final_punch_time.strftime('%H:%M')}"
+        except WorkShift.DoesNotExist:
+            punch_date_time = None
+
         context = {
+            'faculty_name': faculty,
+            'punch_time': punch_date_time,
+            'is_punch_out': is_punch_out,
             'todays_date': todays_date,
             'success': True,
             'selected_date': selected_date.strftime('%Y-%m-%d'),
@@ -163,7 +193,12 @@ class Attendancesheet(View):
             'friday_classes': friday_classes,
             'saturday_classes': saturday_classes,
             'sunday_classes': sunday_classes,
+            'total_classes': total_classes,
+            'attended_classes': attended_classes,
+            'total_classes': total_classes,
+            'attended_classes': attended_classes,
         }
+
         return render(request, 'index.html', context)
     
     def post(self, request):
@@ -184,48 +219,25 @@ class Attendancesheet(View):
          return redirect("calendar_view")
         
 class WorkShiftView(View):
-   
-    def punch_in(request):
+    def punch(request):
         logged_user = request.session.get('logged_user')
         if logged_user:
             try:
                 faculty = AdminCredentials.objects.get(id=logged_user).faculty
-                # Get the current time in the local timezone
                 current_time = localtime(now())
-                # Check if a punch-in entry already exists for today
-                existing_entry = WorkShift.objects.filter(faculty=faculty, date=current_time.date()).exists()
-                if existing_entry:
-                    messages.warning(request, "Punch in already recorded for today.")
-                else:
-                    # Create a new punch-in entry
+                try:
+                    existing_entry = WorkShift.objects.get(faculty=faculty, date=current_time.date())
+                    if existing_entry.punch_in and existing_entry.punch_out is not None:
+                        messages.info(request, "Punch already exist for today!")
+                        return redirect("calendar_view")
+                    
+                    if existing_entry.punch_in is not None and existing_entry.punch_out is None:
+                        existing_entry.punch_out = current_time.time()
+                        existing_entry.save()
+                except WorkShift.DoesNotExist as e:
                     WorkShift.objects.create(faculty=faculty, date=current_time.date(), punch_in=current_time.time())
                     messages.success(request, "Punch in successful")
-            except ObjectDoesNotExist:
-                messages.error(request, "Faculty not found.")
-        else:
-            messages.error(request, "Faculty not logged in.")
-        return redirect("calendar_view")
-
-    def punch_out(request):
-        logged_user = request.session.get('logged_user')
-        if logged_user:
-            try:
-                faculty = AdminCredentials.objects.get(id=logged_user).faculty
-                work_shift = WorkShift.objects.filter(faculty=faculty).last()
-                if work_shift:
-                    # Get the current time in the local timezone
-                    current_time = localtime(now())
-                    # Check if a punch-out entry already exists for today
-                    existing_entry = WorkShift.objects.filter(faculty=faculty, date=current_time.date(), punch_out__isnull=False).exists()
-                    if existing_entry:
-                        messages.warning(request, "Punch out already recorded for today.")
-                    else:
-                        # Update the punch-out time
-                        work_shift.punch_out = current_time.time()
-                        work_shift.save()
-                        messages.success(request, "Punch out successful")
-                else:
-                    messages.error(request, "Punch out failed. No punch in recorded.")
+    
             except ObjectDoesNotExist:
                 messages.error(request, "Faculty not found.")
         else:
