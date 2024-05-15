@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views import View
 from django.core.exceptions import ObjectDoesNotExist
-from .models import AdminCredentials, Faculty, TimeTableRollouts, WorkShift
+from .models import AdminCredentials, EventScheduler, Faculty, HolidayScheduler, TimeTableRollouts, WorkShift
 from django.utils.timezone import localtime, now
 from .decorators import Faculty_login_required
 from datetime import datetime, timedelta
@@ -137,9 +137,13 @@ class Attendancesheet(View):
                 attended_classes = TimeTableRollouts.objects.filter(faculty=faculty, class_attedance=True).count()
             except AdminCredentials.DoesNotExist:
                 pass
-
+         
+        today_date = datetime.date.today()
         class_rollouts = TimeTableRollouts.objects.filter(faculty=faculty, class_date__gte=start_date, class_date__lte=end_date)
+        event_today = EventScheduler.objects.filter(date=today_date, faculty=faculty)
+        holiday_today = HolidayScheduler.objects.filter(date=today_date).first()
 
+        
         monday_date = start_date
         tuesday_date = start_date + timedelta(days=1)
         wednesday_date = start_date + timedelta(days=2)
@@ -171,7 +175,7 @@ class Attendancesheet(View):
                 punch_date_time = f"{punch_time.date} {final_punch_time.strftime('%H:%M')}"
         except WorkShift.DoesNotExist:
             punch_date_time = None
-
+   
         context = {
             'faculty_name': faculty,
             'punch_time': punch_date_time,
@@ -193,6 +197,8 @@ class Attendancesheet(View):
             'friday_classes': friday_classes,
             'saturday_classes': saturday_classes,
             'sunday_classes': sunday_classes,
+            'event_today': event_today,
+            'holiday_today': holiday_today,
             'total_classes': total_classes,
             'attended_classes': attended_classes,
             'total_classes': total_classes,
