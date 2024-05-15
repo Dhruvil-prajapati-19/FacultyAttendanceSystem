@@ -66,6 +66,23 @@ class WorkShift(models.Model):
     def __str__(self):
         return f"{self.faculty.name} - {self.date}-{self.punch_in}-{self.punch_out}"
 
+class EventScheduler(models.Model):
+    faculty = models.ManyToManyField(Faculty, blank=True, verbose_name='Faculty')
+    date = models.DateField(null=True, blank=True, verbose_name="Event Date")
+    start_time = models.TimeField(verbose_name='start event')
+    end_time = models.TimeField(verbose_name='end event')
+    Title = models.CharField(max_length=255, blank=True, null=True, verbose_name="Event Title")
+    Description = models.CharField(max_length=400, blank=True, null=True, verbose_name="Event Description")
+
+    def __str__(self):
+        return f'{self.faculty}-{self.date}-{self.start_time_} TO {self.end_time}-{self.Title}-{self.Description}'
+    
+class HolidayScheduler(models.Model):
+    date = models.DateField(null=True, blank=True, verbose_name="Holiday event")
+    Title = models.CharField(max_length=255, blank=True, null=True, verbose_name="Title")
+   
+    def __str__(self):
+        return f"{self.date}-{self.Title}"
 
 class Timetable(models.Model):
     CLASS_TYPE_CHOICES = (
