@@ -24,6 +24,7 @@ class AdminCredentials(models.Model):
             return "No Faculty Assigned"        
 
 class Semester(models.Model):
+    term_date = models.CharField(max_length=100, null=True, verbose_name='Term Date')
     name = models.CharField(max_length=120)
     start_date = models.DateField(verbose_name='start term date')
     end_date = models.DateField(verbose_name='end term date')
@@ -31,15 +32,15 @@ class Semester(models.Model):
     def __str__(self):
         start_date_str = self.start_date.strftime('%d-%m-%Y')
         end_date_str = self.end_date.strftime('%d-%m-%Y')
-        return f'{self.name}-{start_date_str} TO {end_date_str}'
+        return f'{self.term_date}-{self.name}-{start_date_str} TO {end_date_str}'
     
-class Subject(models.Model):
+class Subject(models.Model): 
     name = models.CharField(max_length=200, unique=True)
     short_name = models.CharField(max_length=200)
-    semester = models.ForeignKey(Semester, on_delete=models.SET_NULL, related_name='subjects',null=True)
+    semester = models.ForeignKey(Semester, on_delete=models.SET_NULL, related_name='subjects', null=True)
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
 
 class ClassDuration(models.Model):
     duration = models.CharField(max_length=20)
@@ -87,7 +88,16 @@ class HolidayScheduler(models.Model):
 class Timetable(models.Model):
     CLASS_TYPE_CHOICES = (
         ('lecture', 'lecture'),
-        ('lab', 'lab')
+        ('lab', 'lab'),
+        ('lab-A1', 'lab-A1'),
+        ('lab-A2', 'lab-A2'),
+        ('lab-A3', 'lab-A3'),
+        ('lab-B1', 'lab-B1'),
+        ('lab-B2', 'lab-B2'),
+        ('lab-B3', 'lab-B3'),
+        ('lab-C1', 'lab-C1'),
+        ('lab-C2', 'lab-C2'),
+        ('lab-C3', 'lab-C3'),
     )
     class_type = models.CharField('Class Type', max_length=200, null=True, blank=True, choices=CLASS_TYPE_CHOICES, default='scheduled')
     semester = models.ForeignKey(Semester, on_delete=models.SET_NULL, null=True)

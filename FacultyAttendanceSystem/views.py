@@ -115,8 +115,12 @@ class LoginView(View):
         return render(request, 'login.html')
 
 
+from datetime import datetime, timedelta
+from django.shortcuts import render
+from .models import AdminCredentials, TimeTableRollouts, HolidayScheduler, WorkShift
+
 class Attendancesheet(View):
-    
+
     def get(self, request):
         todays_date = datetime.now().date()
         selected_date_str = request.GET.get('weekpicker')
@@ -137,13 +141,13 @@ class Attendancesheet(View):
                 attended_classes = TimeTableRollouts.objects.filter(faculty=faculty, class_attedance=True).count()
             except AdminCredentials.DoesNotExist:
                 pass
-         
-        today_date = datetime.date.today()
-        class_rollouts = TimeTableRollouts.objects.filter(faculty=faculty, class_date__gte=start_date, class_date__lte=end_date)
-        event_today = EventScheduler.objects.filter(date=today_date, faculty=faculty)
-        holiday_today = HolidayScheduler.objects.filter(date=today_date).first()
 
+        class_rollouts = TimeTableRollouts.objects.filter(faculty=faculty, class_date__gte=start_date, class_date__lte=end_date)
+        holiday_today = HolidayScheduler.objects.filter(date=todays_date)
         
+        # if holiday_today.exists():  # Check if there is a holiday scheduled for today
+        #    holiday_today = holiday_today.first().Title
+
         monday_date = start_date
         tuesday_date = start_date + timedelta(days=1)
         wednesday_date = start_date + timedelta(days=2)
@@ -175,7 +179,7 @@ class Attendancesheet(View):
                 punch_date_time = f"{punch_time.date} {final_punch_time.strftime('%H:%M')}"
         except WorkShift.DoesNotExist:
             punch_date_time = None
-   
+
         context = {
             'faculty_name': faculty,
             'punch_time': punch_date_time,
@@ -197,16 +201,13 @@ class Attendancesheet(View):
             'friday_classes': friday_classes,
             'saturday_classes': saturday_classes,
             'sunday_classes': sunday_classes,
-            'event_today': event_today,
             'holiday_today': holiday_today,
-            'total_classes': total_classes,
-            'attended_classes': attended_classes,
             'total_classes': total_classes,
             'attended_classes': attended_classes,
         }
 
         return render(request, 'index.html', context)
-    
+        
     def post(self, request):
          attendance = request.POST.get('attendance')
          if attendance == 'true':
