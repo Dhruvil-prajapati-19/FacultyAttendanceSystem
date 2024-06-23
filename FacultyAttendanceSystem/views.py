@@ -270,7 +270,7 @@ class Studentsheet(View):
             selected_room = get_object_or_404(Room, id=selected_room_id)
 
         # Filter StudentsRollouts based on the selected room and faculty
-        Students_rollouts = StudentsRollouts.objects.filter(room=selected_room, faculty=faculty) if selected_room else StudentsRollouts.objects.filter(faculty=faculty)
+        Students_rollouts = StudentsRollouts.objects.filter(room=selected_room, faculty=faculty, class_date__gte=start_date, class_date__lte=end_date) if selected_room else StudentsRollouts.objects.filter(faculty=faculty)
 
         monday_date = start_date
         tuesday_date = start_date + timedelta(days=1)
