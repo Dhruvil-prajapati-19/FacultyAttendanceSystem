@@ -157,12 +157,12 @@
   
     <main id="main" class="main">
       <div class="pagetitle">
-        <nav>
+        <!-- <nav>
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
             <li class="breadcrumb-item active">Attendance Sheet</li>
           </ol>
-        </nav>
+        </nav> -->
       </div>
       </div>
 
@@ -208,26 +208,11 @@
             <span>Present</span>
           </div>
         </div>
-        <div class="col">
-          <div class="row" style="width: 500px;">
-          <div class="col" style="margin-top: 20px;">
-          <p><b>Last punch time:</b> {{ punch_time }}</p>
-          <p><b>Your attendance:</b>{{ attended_classes }}/{{ total_classes }}</p>
-          </div>
-          {# punch in #}
-          <div class="col">
-          <div class="form-inline">
-            <form action="{% url 'punch' %}" method="POST" class="form-inline" style="margin: 10px;">
-                {% csrf_token %}
-                <!-- Add any form fields if needed -->
-                <button class="btn btn-sm {% if is_punch_out %}btn-outline-primary{% else %}btn btn-primary{% endif %}" type="submit" style="font-family: 'Andale Mono', monospace;">{% if is_punch_out %}Punch Out {% else %}Punch In{% endif %}</button>
-            </form>
-        </div>
           </div>
       </div>
         </div>
         <div class="col">
-        <form class="form-inline" method="GET" action="{% url 'calendar_view' %}" style="margin: 10px auto;">
+        <form class="form-inline" method="GET" action="{% url 'Students' %}" style="margin: 10px auto;">
           <div class="input-group">
               <input type="date" id="weekpicker" class="form-control form-control-sm" name="weekpicker"> <!-- Added form-control-sm class for smaller input -->
               <div class="input-group-append">
@@ -280,19 +265,19 @@
 
           <div class="track yellow">
             <!--Monday-->
-            {% for class_rollout in monday_classes %}
-            <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
+            {% for Students_rollout in monday_classes %}
+            <div class="entry {% if Students_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
-                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-                <p>{{ class_rollout.subject.name }}</p>
+                <h3>{{ Students_rollout.room.room_name }} ({{ Students_rollout.duration.duration_short_name }})</h3>
+                <p>{{ Students_rollout.start_time }} - {{ Students_rollout.end_time }}</p>
+                <p>{{ Students_rollout.subject.name }}</p>
            
            
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                    <form id="attendanceForm_{{ Students_rollout.id }}" method="POST" action="{% url 'Students' %}">
                         {% csrf_token %}
-                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <input type="hidden" name="Students_rollout_id" value="{{ Students_rollout.id }}" />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ Students_rollout.id }}')" {% if Students_rollout.class_attedance %} checked {% endif %} {% if Students_rollout.class_date != todays_date %} disabled {% endif %} />
                         <p style="margin-top: -22px; margin-left: 17px">
                             <label for="attendance">Attendance</label>
                         </p>
@@ -305,19 +290,19 @@
 
 <!-- TUESDAY -->
 <div class="track yellow">
-  {% for class_rollout in tuesday_classes %}
-  <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
+  {% for Students_rollout in tuesday_classes %}
+  <div class="entry {% if Students_rollout.class_attedance %}green{% else %}yellow{% endif %}">
     <div class="details">
-      <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-      <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-      <p>{{ class_rollout.subject.name }}</p>
+      <h3>{{ Students_rollout.room.room_name }} ({{ Students_rollout.duration.duration_short_name }})</h3>
+      <p>{{ Students_rollout.start_time }} - {{ Students_rollout.end_time }}</p>
+      <p>{{ Students_rollout.subject.name }}</p>
  
  
       <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-          <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+          <form id="attendanceForm_{{ Students_rollout.id }}" method="POST" action="{% url 'Students' %}">
               {% csrf_token %}
-              <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-              <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+              <input type="hidden" name="Students_rollout_id" value="{{ Students_rollout.id }}" />
+              <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ Students_rollout.id }}')" {% if Students_rollout.class_attedance %} checked {% endif %} {% if Students_rollout.class_date != todays_date %} disabled {% endif %} />
               <p style="margin-top: -22px; margin-left: 17px">
                   <label for="attendance">Attendance</label>
               </p>
@@ -330,19 +315,19 @@
 
           <!--Wednesday-->
           <div class="track yellow">
-            {% for class_rollout in wednesday_classes %}
-            <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
+            {% for Students_rollout in wednesday_classes %}
+            <div class="entry {% if Students_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
-                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-                <p>{{ class_rollout.subject.name }}</p>
+                <h3>{{ Students_rollout.room.room_name }} ({{ Students_rollout.duration.duration_short_name }})</h3>
+                <p>{{ Students_rollout.start_time }} - {{ Students_rollout.end_time }}</p>
+                <p>{{ Students_rollout.subject.name }}</p>
            
            
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                    <form id="attendanceForm_{{ Students_rollout.id }}" method="POST" action="{% url 'Students' %}">
                         {% csrf_token %}
-                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <input type="hidden" name="Students_rollout_id" value="{{ Students_rollout.id }}" />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ Students_rollout.id }}')" {% if Students_rollout.class_attedance %} checked {% endif %} {% if Students_rollout.class_date != todays_date %} disabled {% endif %} />
                         <p style="margin-top: -22px; margin-left: 17px">
                             <label for="attendance">Attendance</label>
                         </p>
@@ -355,19 +340,19 @@
 
           <!--thursday-->
           <div class="track yellow">
-            {% for class_rollout in thursday_classes %}
-            <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
+            {% for Students_rollout in thursday_classes %}
+            <div class="entry {% if Students_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
-                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-                <p>{{ class_rollout.subject.name }}</p>
+                <h3>{{ Students_rollout.room.room_name }} ({{ Students_rollout.duration.duration_short_name }})</h3>
+                <p>{{ Students_rollout.start_time }} - {{ Students_rollout.end_time }}</p>
+                <p>{{ Students_rollout.subject.name }}</p>
            
            
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                    <form id="attendanceForm_{{ Students_rollout.id }}" method="POST" action="{% url 'Students' %}">
                         {% csrf_token %}
-                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <input type="hidden" name="Students_rollout_id" value="{{ Students_rollout.id }}" />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ Students_rollout.id }}')" {% if Students_rollout.class_attedance %} checked {% endif %} {% if Students_rollout.class_date != todays_date %} disabled {% endif %} />
                         <p style="margin-top: -22px; margin-left: 17px">
                             <label for="attendance">Attendance</label>
                         </p>
@@ -380,21 +365,21 @@
 
           <!--friday-->
           <div class="track">
-            {% for class_rollout in friday_classes %}
+            {% for Students_rollout in friday_classes %}
             <div
-              class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}"
+              class="entry {% if Students_rollout.class_attedance %}green{% else %}yellow{% endif %}"
             >
             <div class="details">
-              <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-              <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-              <p>{{ class_rollout.subject.name }}</p>
+              <h3>{{ Students_rollout.room.room_name }} ({{ Students_rollout.duration.duration_short_name }})</h3>
+              <p>{{ Students_rollout.start_time }} - {{ Students_rollout.end_time }}</p>
+              <p>{{ Students_rollout.subject.name }}</p>
          
          
               <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                  <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                  <form id="attendanceForm_{{ Students_rollout.id }}" method="POST" action="{% url 'Students' %}">
                       {% csrf_token %}
-                      <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                      <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                      <input type="hidden" name="Students_rollout_id" value="{{ Students_rollout.id }}" />
+                      <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ Students_rollout.id }}')" {% if Students_rollout.class_attedance %} checked {% endif %} {% if Students_rollout.class_date != todays_date %} disabled {% endif %} />
                       <p style="margin-top: -22px; margin-left: 17px">
                           <label for="attendance">Attendance</label>
                       </p>
@@ -407,19 +392,19 @@
 
           <!--Saturday-->
           <div class="track gray">
-            {% for class_rollout in saturday_classes %}
-            <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
+            {% for Students_rollout in saturday_classes %}
+            <div class="entry {% if Students_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
-                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-                <p>{{ class_rollout.subject.name }}</p>
+                <h3>{{ Students_rollout.room.room_name }} ({{ Students_rollout.duration.duration_short_name }})</h3>
+                <p>{{ Students_rollout.start_time }} - {{ Students_rollout.end_time }}</p>
+                <p>{{ Students_rollout.subject.name }}</p>
            
            
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                    <form id="attendanceForm_{{ Students_rollout.id }}" method="POST" action="{% url 'Students' %}">
                         {% csrf_token %}
-                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <input type="hidden" name="Students_rollout_id" value="{{ Students_rollout.id }}" />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ Students_rollout.id }}')" {% if Students_rollout.class_attedance %} checked {% endif %} {% if Students_rollout.class_date != todays_date %} disabled {% endif %} />
                         <p style="margin-top: -22px; margin-left: 17px">
                             <label for="attendance">Attendance</label>
                         </p>
@@ -431,19 +416,19 @@
           </div>
           <!-- Sunday -->
           <div class="track gray">
-            {% for class_rollout in sunday_classes %}
-            <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
+            {% for Students_rollout in sunday_classes %}
+            <div class="entry {% if Students_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
-                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-                <p>{{ class_rollout.subject.name }}</p>
+                <h3>{{ Students_rollout.room.room_name }} ({{ Students_rollout.duration.duration_short_name }})</h3>
+                <p>{{ Students_rollout.start_time }} - {{ Students_rollout.end_time }}</p>
+                <p>{{ Students_rollout.subject.name }}</p>
            
            
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                    <form id="attendanceForm_{{ Students_rollout.id }}" method="POST" action="{% url 'Students' %}">
                         {% csrf_token %}
-                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <input type="hidden" name="Students_rollout_id" value="{{ Students_rollout.id }}" />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ Students_rollout.id }}')" {% if Students_rollout.class_attedance %} checked {% endif %} {% if Students_rollout.class_date != todays_date %} disabled {% endif %} />
                         <p style="margin-top: -22px; margin-left: 17px">
                             <label for="attendance">Attendance</label>
                         </p>
@@ -471,8 +456,8 @@
       </div>
     </footer>
     <script>
-      function submitForm(class_rollout_id) {
-        document.getElementById("attendanceForm_" + class_rollout_id).submit();
+      function submitForm(Students_rollout_id) {
+        document.getElementById("attendanceForm_" + Students_rollout_id).submit();
       }
     </script>
     <script>
