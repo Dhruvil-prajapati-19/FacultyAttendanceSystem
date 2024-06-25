@@ -85,8 +85,6 @@ class HolidayScheduler(models.Model):
     def __str__(self):
         return f"{self.date}-{self.Title}"
 
-from django.db import models
-
 class StudentClass(models.Model):
     Students_class_name = models.CharField(max_length=200, verbose_name='Class Name', null=True)
     semester = models.ForeignKey(Semester, on_delete=models.SET_NULL, related_name='related_classes', null=True)
@@ -131,7 +129,6 @@ class Timetable(models.Model):
         time_range = f"{self.start_time.strftime('%I:%M %p')} TO {self.end_time.strftime('%I:%M %p')}"
         return f'{semester_name}-{subject_short_name}-{faculty_name}-{room_name}-{time_range}'
 
-
 class TimeTableRollouts(models.Model):
     STATUSES_CHOICES = (
         ('scheduled', 'scheduled'),
@@ -170,8 +167,7 @@ class Students(models.Model):
     def __str__(self):  
         return f'{self.student_name} ({self.enrollment_no}) - {self.Student_Class.Students_class_name if self.Student_Class else ""}'
 
-from django.db import models
-from django.utils import timezone
+
 from .models import Students, Room, Subject, ClassDuration, Timetable, User
 
 class StudentsRollouts(models.Model):
@@ -181,7 +177,7 @@ class StudentsRollouts(models.Model):
         ('break', 'break'),
         ('discontinued', 'discontinued'),
     )
-
+    faculty = models.ForeignKey(Faculty, related_name='student_class_faculty', null=True, on_delete=models.SET_NULL)
     student = models.ForeignKey(Students, verbose_name='Student', null=True, on_delete=models.SET_NULL)
     room = models.ForeignKey(Room, null=True, blank=True, on_delete=models.SET_NULL)
     subject = models.ForeignKey(Subject, null=True, blank=True, verbose_name='Subject', on_delete=models.SET_NULL)
@@ -203,4 +199,3 @@ class StudentsRollouts(models.Model):
         start_time_str = self.start_time.strftime("%H:%M") if self.start_time else ""
         end_time_str = self.end_time.strftime("%H:%M") if self.end_time else ""
         return f"Class for: {subject_name} on {self.class_date} from {start_time_str} to {end_time_str}"
-

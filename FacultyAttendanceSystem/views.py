@@ -1,8 +1,8 @@
-from django.shortcuts import render, redirect , get_object_or_404
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.views import View
 from django.core.exceptions import ObjectDoesNotExist
-from .models import AdminCredentials, Faculty, Room, StudentsRollouts, TimeTableRollouts, WorkShift
+from .models import AdminCredentials, EventScheduler, Faculty, HolidayScheduler, Room, StudentsRollouts, TimeTableRollouts, WorkShift
 from django.utils.timezone import localtime, now
 from .decorators import Faculty_login_required
 from datetime import datetime, timedelta
@@ -117,8 +117,12 @@ class LoginView(View):
         return render(request, 'login.html')
 
 
+from datetime import datetime, timedelta
+from django.shortcuts import render
+from .models import AdminCredentials, TimeTableRollouts, HolidayScheduler, WorkShift
+
 class Attendancesheet(View):
-    
+
     def get(self, request):
         todays_date = datetime.now().date()
         selected_date_str = request.GET.get('weekpicker')
@@ -141,6 +145,10 @@ class Attendancesheet(View):
                 pass
 
         class_rollouts = TimeTableRollouts.objects.filter(faculty=faculty, class_date__gte=start_date, class_date__lte=end_date)
+        holiday_today = HolidayScheduler.objects.filter(date=todays_date)
+        
+        # if holiday_today.exists():  # Check if there is a holiday scheduled for today
+        #    holiday_today = holiday_today.first().Title
 
         monday_date = start_date
         tuesday_date = start_date + timedelta(days=1)
@@ -195,14 +203,13 @@ class Attendancesheet(View):
             'friday_classes': friday_classes,
             'saturday_classes': saturday_classes,
             'sunday_classes': sunday_classes,
-            'total_classes': total_classes,
-            'attended_classes': attended_classes,
+            'holiday_today': holiday_today,
             'total_classes': total_classes,
             'attended_classes': attended_classes,
         }
 
         return render(request, 'index.html', context)
-    
+        
     def post(self, request):
          attendance = request.POST.get('attendance')
          if attendance == 'true':
@@ -246,7 +253,6 @@ class WorkShiftView(View):
             messages.error(request, "Faculty not logged in.")
         return redirect("calendar_view")
 
-
 class Studentsheet(View):
     def get(self, request):
         todays_date = datetime.now().date()
@@ -255,7 +261,7 @@ class Studentsheet(View):
         selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d') if selected_date_str else todays_date
         start_date = selected_date - timedelta(days=selected_date.weekday())
         end_date = start_date + timedelta(days=6)
-  
+
         logged_user = request.session.get('logged_user')
         faculty = None
         if logged_user:
@@ -264,14 +270,18 @@ class Studentsheet(View):
             except AdminCredentials.DoesNotExist:
                 pass
 
-        # If no room is selected, set selected_room to None
         selected_room = None
         if selected_room_id:
             selected_room = get_object_or_404(Room, id=selected_room_id)
 
-        # Filter StudentsRollouts based on the selected room and faculty
-        Students_rollouts = StudentsRollouts.objects.filter(room=selected_room, faculty=faculty, class_date__gte=start_date, class_date__lte=end_date) if selected_room else StudentsRollouts.objects.filter(faculty=faculty)
-
+        # Filter StudentsRollouts based on faculty and selected room, if available
+        Students_rollouts = StudentsRollouts.objects.filter(
+            faculty=faculty,
+            room=selected_room,
+            class_date__gte=start_date,
+            class_date__lte=end_date,
+           
+        )
         monday_date = start_date
         tuesday_date = start_date + timedelta(days=1)
         wednesday_date = start_date + timedelta(days=2)
@@ -280,19 +290,19 @@ class Studentsheet(View):
         saturday_date = start_date + timedelta(days=5)
         sunday_date = end_date
 
-        Stu_monday_classes = Students_rollouts.filter(class_date=monday_date)
-        Stu_tuesday_classes = Students_rollouts.filter(class_date=tuesday_date)
-        Stu_wednesday_classes = Students_rollouts.filter(class_date=wednesday_date)
-        Stu_thursday_classes = Students_rollouts.filter(class_date=thursday_date)
-        Stu_friday_classes = Students_rollouts.filter(class_date=friday_date)
-        Stu_saturday_classes = Students_rollouts.filter(class_date=saturday_date)
-        Stu_sunday_classes = Students_rollouts.filter(class_date=sunday_date)
+        monday_classes = Students_rollouts.filter(class_date=monday_date)
+        tuesday_classes = Students_rollouts.filter(class_date=tuesday_date)
+        wednesday_classes = Students_rollouts.filter(class_date=wednesday_date)
+        thursday_classes = Students_rollouts.filter(class_date=thursday_date)
+        friday_classes = Students_rollouts.filter(class_date=friday_date)
+        saturday_classes = Students_rollouts.filter(class_date=saturday_date)
+        sunday_classes = Students_rollouts.filter(class_date=sunday_date)
 
-        # Get all rooms for the room selection dropdown
         rooms = Room.objects.all()
 
         context = {
             'faculty_name': faculty,
+            'todays_date': todays_date,
             'success': True,
             'selected_date': selected_date.strftime('%Y-%m-%d'),
             'monday_date': start_date.strftime('%a %d %b, %Y'),
@@ -302,15 +312,15 @@ class Studentsheet(View):
             'friday_date': friday_date.strftime('%a %d %b, %Y'),
             'saturday_date': saturday_date.strftime('%a %d %b, %Y'),
             'sunday_date': sunday_date.strftime('%a %d %b, %Y'),
-            'monday_classes': Stu_monday_classes,
-            'tuesday_classes': Stu_tuesday_classes,
-            'wednesday_classes': Stu_wednesday_classes,
-            'thursday_classes': Stu_thursday_classes,
-            'friday_classes': Stu_friday_classes,
-            'saturday_classes': Stu_saturday_classes,
-            'sunday_classes': Stu_sunday_classes,
+            'monday_classes': monday_classes,
+            'tuesday_classes': tuesday_classes,
+            'wednesday_classes': wednesday_classes,
+            'thursday_classes': thursday_classes,
+            'friday_classes': friday_classes,
+            'saturday_classes': saturday_classes,
+            'sunday_classes': sunday_classes,
             'rooms': rooms,
             'selected_room': selected_room,
         }
-  
+
         return render(request, 'Students.html', context)

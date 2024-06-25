@@ -13,7 +13,7 @@ class ClassDurationAdmin(admin.ModelAdmin):
 @admin.register(models.Faculty)
 class FacultyAdmin(admin.ModelAdmin):
     search_fields = ('name', 'short_name')
-    list_display = ('name', 'short_name')
+    list_display = ('id','name', 'short_name')
 
 @admin.register(models.Subject)
 class SubjectAdmin(admin.ModelAdmin):
@@ -60,7 +60,7 @@ class WorkshiftAdmin(admin.ModelAdmin):
     
 @admin.register(models.Timetable)
 class TimetableAdmin(admin.ModelAdmin):
-    list_display = ('class_type', 'formatted_semester', 'faculty', 'subject', 'room', 'duration', 'start_time', 'end_time', 'formatted_create_date', 'formatted_modified_date')
+    list_display = ('class_type', 'Student_Class','formatted_semester', 'faculty',  'subject', 'room', 'duration', 'start_time', 'end_time', 'formatted_create_date', 'formatted_modified_date')
     list_filter = ('class_type', 'semester', 'faculty', 'subject', 'room', 'create_date', 'modified_date')
     search_fields = ('semester__name', 'faculty__name', 'subject__name', 'room__room_name', 'faculty__short_name')
 
@@ -85,7 +85,7 @@ class TimetableAdmin(admin.ModelAdmin):
  
 @admin.register(models.TimeTableRollouts)
 class TimeTableRolloutsAdmin(admin.ModelAdmin):
-    list_display = ('subject', 'faculty', 'room', 'duration', 'class_status', 'formatted_class_date', 'start_time', 'end_time', 'class_attedance')
+    list_display = ('subject', 'faculty',  'room', 'duration', 'class_status', 'formatted_class_date', 'start_time', 'end_time', 'class_attedance')
     list_filter = ('subject', 'faculty', 'room', 'class_status', 'class_attedance', 'class_date')
     search_fields = ('subject__name', 'faculty__name', 'room__room_name', 'class_date' , 'short_name' ,'faculty__short_name')
     list_editable = ('class_attedance',)
@@ -131,7 +131,7 @@ class StudentsAdmin(admin.ModelAdmin):
 
 @admin.register(models.StudentsRollouts)
 class StudentsRolloutsAdmin(admin.ModelAdmin):
-    list_display = ('student', 'subject', 'room', 'start_time', 'end_time', 'formatted_class_date', 'class_status' , 'student_attendance')
+    list_display = ('student','faculty','subject', 'room', 'start_time', 'end_time', 'formatted_class_date', 'class_status' , 'student_attendance')
     list_filter = ('class_status', 'subject', 'room', 'student')
     search_fields = ('student__student_name', 'subject__name')
     ordering = ('class_date', 'start_time', 'end_time')
