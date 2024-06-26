@@ -135,3 +135,4 @@ def handle_holiday_scheduler(sender, instance, **kwargs):
 
     # Remove all classes on the holiday date
     TimeTableRollouts.objects.filter(class_date=holiday_date).delete()
+    StudentsRollouts.objects.filter(class_date=holiday_date).delete()

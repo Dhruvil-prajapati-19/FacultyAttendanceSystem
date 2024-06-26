@@ -99,12 +99,15 @@ class Timetable(models.Model):
         ('lab-A1', 'lab-A1'),
         ('lab-A2', 'lab-A2'),
         ('lab-A3', 'lab-A3'),
+        ('lab-A4', 'lab-A4'),
         ('lab-B1', 'lab-B1'),
         ('lab-B2', 'lab-B2'),
         ('lab-B3', 'lab-B3'),
+        ('lab-B4', 'lab-B4'),
         ('lab-C1', 'lab-C1'),
         ('lab-C2', 'lab-C2'),
         ('lab-C3', 'lab-C3'),
+        ('lab-C4', 'lab-C4'),
     )
     Student_Class = models.ForeignKey(StudentClass, on_delete=models.CASCADE, blank=True, null=True)
     class_type = models.CharField('Class Type', max_length=200, null=True, blank=True, choices=CLASS_TYPE_CHOICES, default='scheduled')

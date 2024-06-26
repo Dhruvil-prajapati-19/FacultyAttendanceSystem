@@ -7,3 +7,4 @@ class FacultyAttendanceSystemConfig(AppConfig):
 
     def ready(self):
         import FacultyAttendanceSystem.signals  # noqa
+

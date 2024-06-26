@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from . import views  
 from .decorators import Faculty_login_required  
 admin.site.site_header = "KDPP Faculty Attendance Administration"
@@ -14,6 +14,7 @@ urlpatterns = [
     path('Attendancesheet/',  Faculty_login_required(views.Attendancesheet.as_view()), name='calendar_view'),
     path('Students/',  Faculty_login_required(views.Studentsheet.as_view()), name='Students'),
     path('upload/',  Faculty_login_required(views.upload), name='upload'),
+    path('datawizard/', include('data_wizard.urls')),
     path('logout/', Faculty_login_required(views.logout), name='logout'),
     path('download/',  Faculty_login_required(views.download_data), name='download_data'),
     path('index_redirect/', Faculty_login_required(views.index_redirect), name='index_redirect'),

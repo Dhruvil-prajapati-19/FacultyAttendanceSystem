@@ -327,3 +327,27 @@ class Studentsheet(View):
         }
 
         return render(request, 'Students.html', context)
+    
+# views.py
+# from django.shortcuts import render, redirect
+# from django.contrib import messages
+# from .forms import XLSXUploadForm
+# from data_wizard.sources.models import DataSource # type: ignore
+# from data_wizard.models import Wizard  # type: ignore
+
+# def import_xlsx(request):
+#     if request.method == "POST":
+#         form = XLSXUploadForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             xlsx_file = request.FILES['xlsx_file']
+#             data_source = DataSource.objects.create(file=xlsx_file, format='xlsx')
+#             wizard = Wizard.objects.create(source=data_source, mappings={'Students': 'student_mapping'})
+#             messages.success(request, "XLSX file has been imported successfully.")
+#             return redirect("..")
+#         else:
+#             messages.error(request, "Invalid form submission.")
+#     else:
+#         form = XLSXUploadForm()
+
+#     return render(request, "admin/xlsx_form.html", {'form': form})
+ 
