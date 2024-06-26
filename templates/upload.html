@@ -1,0 +1,259 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Faculty_Attendance_System</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+  
+    <!-- Favicons -->
+    <link href="{% static 'img/favicon.png' %}" rel="icon">
+    <link href="{% static 'img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+  
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  
+    <!-- Vendor CSS Files -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/quill/quill.snow.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/quill/quill.bubble.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/remixicon/remixicon.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/simple-datatables/style.css' %}" rel="stylesheet">
+   
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Courgette"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap-reboot.css"
+    />
+    <script src="http://asvd.github.io/syncscroll/syncscroll.js"></script>
+    <link
+     href="{% static 'css/styles.css' %}"
+      rel="stylesheet" 
+    >
+    <link
+     href="{% static 'css/template.css' %}"
+     rel="stylesheet"
+     >
+     <link
+     href="{% static 'css/upload.css' %}"
+     rel="stylesheet"
+     >
+  </head>
+
+  <body>
+      <!-- ======= Header ======= -->
+      <header id="header" class="header fixed-top d-flex align-items-center">
+
+        <div class="d-flex align-items-center justify-content-between">
+          <a class="logo d-flex align-items-center">
+              <img src="{% static 'img/logoX.jpg' %}" alt="Logo">
+              <span class="d-none d-lg-block">Kdpp. Faculty Attendance</span>
+          </a>
+          <i class="bi bi-list toggle-sidebar-btn"></i>
+      </div>
+      <nav class="header-nav ms-auto">
+        <ul class="d-flex align-items-center">
+          <!-- End Search Nav -->
+            <a class="nav-link d-flex align-items-center pe-3" >
+              <img src="{% static 'img/default-profile-picture.jpg' %}" alt="Profile" class="rounded-circle" height="50px" width="50px">
+              <span >{{ faculty_name }}</span>
+            </a><!-- End Profile Image Icon -->
+  
+          <!-- End Profile Nav -->
+  
+        </ul>
+      </nav>
+      
+      </header>
+
+  <!-- ======= Sidebar ======= -->
+  <aside id="sidebar" class="sidebar">
+
+    <ul class="sidebar-nav" id="sidebar-nav">
+
+      <li class="nav-item">
+        <a class="nav-link " href="{% url 'index' %}">
+          <i class="bi bi-grid"></i>
+          <span>Attendance Sheet</span>
+        </a>
+      </li>
+
+      
+
+      <li class="nav-item">
+          <a class="nav-link " href="{% url 'Students' %}">
+          <i class="bi bi-grid"></i>
+          <span>Students Attendance Sheet</span>
+        </a>
+      </li>
+
+      <li class="nav-item"></li>
+      <a class="nav-link " href="{% url 'upload' %}">
+        <i class="bi bi-grid"></i>
+        <span>Upload_data</span>
+      </a>
+    </li>
+
+      <li class="nav-heading">Pages</li>
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
+          <i class="bi bi-person"></i>
+          <span>Profile</span>
+        </a>
+      </li>
+      
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
+          <i class="bi bi-question-circle"></i>
+          <span>F.A.Q</span>
+        </a>
+      </li>
+      <!-- End F.A.Q Page Nav -->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
+          <i class="bi bi-envelope"></i>
+          <span>Contact</span>
+        </a>
+      </li>
+      <!-- End Contact Page Nav -->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
+          <i class="bi bi-card-list"></i>
+          <span>Register</span>
+        </a>
+      </li>
+      <!-- End Register Page Nav -->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'logout' %}">
+            <i class="bi bi-box-arrow-in-right"></i>
+            <span>Logout</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link collapsed" href="{% url 'download_data' %}">
+            
+            <i class="bi bi-file-earmark"></i>
+            {% csrf_token %}
+            <span>Download Attendance Data</span>
+          </a>
+        </li>
+      </li>
+ 
+      <li class="nav-item">
+       <a  href="{% url 'download_work_shift' %}" class="nav-link collapsed" >
+          <i class="bi bi-file-earmark"></i>
+          {% csrf_token %}
+          <span>Download Work Shift Data</span>
+        </a>
+      </li>
+
+      </ul>
+    </aside>
+    <!-- End Sidebar-->
+  
+    <main id="main" class="main">
+      <div class="pagetitle">
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+            <li class="breadcrumb-item active">Upload_data</li>
+          </ol>
+        </nav>
+      </div>
+      </div>
+
+      <div class="wrapper">
+        <div class="container">
+            <h1>Upload a file</h1>
+            <div class="upload-container">
+                <div class="border-container">
+                    <div class="icons fa-4x">
+                        <i class="fas fa-file-image" data-fa-transform="shrink-3 down-2 left-6 rotate--45"></i>
+                        <i class="fas fa-file-alt" data-fa-transform="shrink-2 up-4"></i>
+                        <i class="fas fa-file-pdf" data-fa-transform="shrink-3 down-2 right-6 rotate-45"></i>
+                    </div>
+                    <p>Drag and drop files here, or 
+                        <a href="#" id="file-browser">browse</a> your computer.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer">
+      <div class="copyright">
+        &copy; Copyright <strong><span>Anything</span></strong>. All Rights Reserved
+      </div>
+      <div class="credits">
+        Developed by Dhruvil 
+      </div>
+    </footer>
+    <script src="{%static 'js/upload.js'%}"></script>
+    <script src="https://use.fontawesome.com/releases/v5.0.10/js/all.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+      function submitForm(class_rollout_id) {
+        document.getElementById("attendanceForm_" + class_rollout_id).submit();
+      }
+    </script>
+    <script>
+      // Disable buttons after click
+      document.getElementById("punchInForm").addEventListener("submit", function () {
+        document.getElementById("punchInBtn").disabled = true;
+        document.getElementById("punchOutBtn").disabled = true;
+      });
+    
+      document.getElementById("punchOutForm").addEventListener("submit", function () {
+        document.getElementById("punchInBtn").disabled = true;
+        document.getElementById("punchOutBtn").disabled = true;
+      });
+
+      setTimeout(function () {
+        document.getElementById("pendingStatus").style.backgroundColor = "#86f250";
+      }, 2000);
+    </script>
+    <script src="{%static 'js/index.js'%}"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+    <script src="{% static 'vendor/apexcharts/apexcharts.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'vendor/chart.js/chart.umd.js' %}"></script>
+    <script src="{% static 'vendor/echarts/echarts.min.js' %}"></script>
+    <script src="{% static 'vendor/quill/quill.min.js' %}"></script>
+    <script src="{% static 'vendor/simple-datatables/simple-datatables.js' %}"></script>
+    <script src="{% static 'vendor/tinymce/tinymce.min.js' %}"></script>
+    <script src="{% static 'vendor/php-email-form/validate.js' %}"></script>  
+    <script src="{% static 'js/main.js' %}"></script>
+  
+  </body>
+</html>

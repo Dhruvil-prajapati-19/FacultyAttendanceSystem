@@ -91,12 +91,21 @@
         </a>
       </li>
 
+      
+
       <li class="nav-item">
-        <a class="nav-link " href="{% url 'Students' %}">
+          <a class="nav-link " href="{% url 'Students' %}">
           <i class="bi bi-grid"></i>
           <span>Students Attendance Sheet</span>
         </a>
       </li>
+
+      <li class="nav-item"></li>
+      <a class="nav-link " href="{% url 'upload' %}">
+        <i class="bi bi-grid"></i>
+        <span>Upload_data</span>
+      </a>
+    </li>
 
       <li class="nav-heading">Pages</li>
       <li class="nav-item">
@@ -160,7 +169,7 @@
         <nav>
           <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-            <li class="breadcrumb-item active">Attendance Sheet</li>
+            <li class="breadcrumb-item active">Students Attendance Sheet</li>
           </ol>
         </nav>
       </div>

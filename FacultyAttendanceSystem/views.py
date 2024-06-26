@@ -90,6 +90,9 @@ def error_404_view(request):
 def Students(request):
     return render(request, 'Students.html')
 
+def upload(request):
+    return render(request, 'upload.html')
+
 class LoginView(View):
 
     def get(self, request):

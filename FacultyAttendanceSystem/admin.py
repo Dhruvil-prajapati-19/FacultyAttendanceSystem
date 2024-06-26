@@ -1,5 +1,19 @@
 from django.contrib import admin
 from . import models
+from .forms import XLSXUploadForm
+import pandas as pd # type: ignore
+from django.contrib import admin
+from .models import Students, StudentClass, Semester
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.urls import path
+import csv
+from django.contrib import admin
+from django.shortcuts import render, redirect
+from openpyxl import load_workbook  # type: ignore
+import traceback
+from datetime import datetime
+import openpyxl # type: ignore
 
 @admin.register(models.AdminCredentials)
 class AdminCredentialsAdmin(admin.ModelAdmin):
@@ -118,17 +132,101 @@ class HolidaySchedulerAdmin(admin.ModelAdmin):
     list_filter = ('date', 'Title')
     search_fields = ('Title',)
     
-@admin.register(models.Students)
+@admin.register(Students)
 class StudentsAdmin(admin.ModelAdmin):
     list_display = ('enrollment_no', 'student_name', 'get_students_class_name')
-    list_filter = ('Student_Class__Students_class_name',)  # Adjust filter according to the relationship
+    list_filter = ('Student_Class__Students_class_name',)
     search_fields = ('enrollment_no', 'student_name')
     ordering = ('enrollment_no',)
+    change_list_template = "admin/students_changelist.html"
 
     def get_students_class_name(self, obj):
         return obj.Student_Class.Students_class_name if obj.Student_Class else ''
     get_students_class_name.short_description = 'Class Name'
 
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path('import-xlsx/', self.import_xlsx),
+        ]
+        return my_urls + urls
+
+    def import_xlsx(self, request):
+        if request.method == "POST":
+            form = XLSXUploadForm(request.POST, request.FILES)
+            if form.is_valid():
+                xlsx_file = request.FILES['xlsx_file']
+                try:
+                    workbook = openpyxl.load_workbook(xlsx_file)
+                    sheet = workbook.active
+
+                    for row in sheet.iter_rows(min_row=2, values_only=True):  # Skip the header row
+                        if len(row) < 2:
+                            messages.warning(request, f"Skipped row: not enough values (expected 2, got {len(row)})")
+                            continue
+
+                        enrollment_no = row[0]
+                        student_name = row[1]
+                        class_info = row[2] if len(row) > 2 else ''
+
+                        if not enrollment_no or not student_name:
+                            messages.error(request, f"Skipped row: Enrollment Number or Student Name missing")
+                            continue
+
+                        if not class_info or '-' not in class_info or ' TO ' not in class_info:
+                            messages.error(request, f"Skipped row: Invalid class information format")
+                            continue
+
+                        # Split class_info into parts
+                        class_parts = class_info.split('-')
+                        if len(class_parts) < 4:
+                            messages.error(request, f"Skipped row: Invalid class information format")
+                            continue
+
+                        class_room = '-'.join(class_parts[:-3]).strip()
+                        term_name = class_parts[-3].strip()
+                        sem_name = class_parts[-2].strip()
+                        term_dates = class_parts[-1].strip()
+
+                        start_date_str, end_date_str = term_dates.split(' TO ')
+                        start_date = datetime.strptime(start_date_str, '%d-%m-%Y').date()
+                        end_date = datetime.strptime(end_date_str, '%d-%m-%Y').date()
+
+                        # Fetch or create Semester object
+                        semester, created = Semester.objects.get_or_create(
+                            name=sem_name,
+                            defaults={'start_date': start_date, 'end_date': end_date}
+                        )
+
+                        # Fetch or create StudentClass object
+                        student_class, created = StudentClass.objects.get_or_create(
+                            Students_class_name=f"{class_room}-{term_name}",
+                            semester=semester
+                        )
+
+                        # Create Student object
+                        Students.objects.create(
+                            enrollment_no=enrollment_no,
+                            student_name=student_name,
+                            Student_Class=student_class
+                        )
+
+                    messages.success(request, "XLSX file has been imported successfully.")
+                    return redirect("..")
+
+                except Exception as e:
+                    messages.error(request, f"Error reading Excel file: {str(e)}")
+                    return redirect("..")
+
+        else:
+            form = XLSXUploadForm()
+
+        context = {
+            'form': form
+        }
+        return render(request, "admin/xlsx_form.html", context)
+
+    
 @admin.register(models.StudentsRollouts)
 class StudentsRolloutsAdmin(admin.ModelAdmin):
     list_display = ('student','faculty','subject', 'room', 'start_time', 'end_time', 'formatted_class_date', 'class_status' , 'student_attendance')
