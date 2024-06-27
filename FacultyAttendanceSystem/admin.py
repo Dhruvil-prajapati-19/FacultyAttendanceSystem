@@ -69,7 +69,7 @@ class WorkshiftAdmin(admin.ModelAdmin):
     
 @admin.register(models.Timetable)
 class TimetableAdmin(admin.ModelAdmin):
-    list_display = ('class_type', 'Student_Class','formatted_semester', 'faculty',  'subject', 'room', 'duration', 'start_time', 'end_time', 'formatted_create_date', 'formatted_modified_date')
+    list_display = ('class_type', 'Student_Class','formatted_semester', 'faculty',  'subject', 'room', 'formatted_first_class_date', 'duration', 'start_time', 'end_time', 'formatted_create_date', 'formatted_modified_date')
     list_filter = ('class_type', 'semester', 'faculty', 'subject', 'room', 'create_date', 'modified_date')
     search_fields = ('semester__name', 'faculty__name', 'subject__name', 'room__room_name', 'faculty__short_name')
 
@@ -91,6 +91,12 @@ class TimetableAdmin(admin.ModelAdmin):
         return obj.modified_date.strftime("%d/%m/%Y")
 
     formatted_modified_date.short_description = 'Class Definition Modified Date'
+
+    def formatted_first_class_date(self, obj):
+        return obj.first_class_date.strftime("%d/%m/%Y") if obj.first_class_date else '-'
+
+    formatted_first_class_date.short_description = 'First Class Date'
+
  
 @admin.register(models.TimeTableRollouts)
 class TimeTableRolloutsAdmin(admin.ModelAdmin):
