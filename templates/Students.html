@@ -235,15 +235,16 @@
           </div>
       </div>
         </div>
-        <div class="col">
-          <form class="form-inline" method="GET" action="{% url 'Students' %}" style="margin: 10px auto;">
+        <div class="container mt-4">
+          <form method="GET" action="{% url 'Students' %}" class="form-inline mb-3">
+              {% csrf_token %}
               <div class="input-group">
                   <input type="date" id="weekpicker" name="weekpicker" class="form-control form-control-sm" value="{{ selected_date }}">
                   <div class="input-group-append">
                       <button type="submit" class="btn btn-sm btn-outline-primary">Select Date</button>
                   </div>
               </div>
-              <div class="input-group" style="margin-left: 10px;">
+              <div class="input-group ml-2">
                   <select id="room" name="room" class="form-control form-control-sm">
                       <option value="">Select a room</option>
                       {% for room in rooms %}
@@ -254,14 +255,22 @@
                       <button type="submit" class="btn btn-sm btn-outline-primary">Select Room</button>
                   </div>
               </div>
-              <button type="submit" class="btn btn-sm btn-outline-primary" style="margin-left: 10px;">Filter</button>
+              <button type="submit" class="btn btn-sm btn-outline-primary ml-2">Filter</button>
+          </form>
+      
+          <form method="POST" action="{% url 'Students' %}" class="form-inline">
+              {% csrf_token %}
+              <div class="input-group">
+                  <textarea id="attendanceInput" name="attendanceInput" class="form-control" rows="2" cols="40" placeholder="last 4 digits of enrollment numbers, separated by commas"></textarea>
+              </div>
+              <input type="hidden" name="selected_date" value="{{ selected_date }}">
+              <input type="hidden" name="selected_room" value="{{ selected_room.id }}">
+              <button type="submit" class="btn btn-outline-primary ml-2">Submit Attendance</button>
           </form>
       </div>
       
-      <div class="attendance-entry">
-          <input type="text" id="attendanceInput" placeholder="Enter last 4 digits of enrollment numbers, separated by commas">
-          <button onclick="submitAttendance()">Submit Attendance</button>
-      </div>
+    
+    
             
       
       </div>
@@ -306,103 +315,95 @@
 
         <div class="tracks syncscroll" name="myElements">
         
-                <!--MOnday-->
-                <div class="track yellow">
-                  {% for student_rollout in monday_classes %}
-                  <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
-                      <div class="details">
-                          <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
-                          <p class="enrollment-number">{{ student_rollout.student.enrollment_no }}</p>
-                          <p>{{ student_rollout.student.student_name }}</p>
-                          <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 20px;">
-                              <form id="attendanceForm_{{ student_rollout.id }}" method="POST" action="{% url 'Students' %}">
-                                  {% csrf_token %}
-                                  <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}" />
-                                  <input type="checkbox" id="attendance_{{ student_rollout.id }}" name="attendance" value="true" onchange="submitForm('{{ student_rollout.id }}')" {% if student_rollout.student_attendance %} checked {% endif %} />
-                                  <label for="attendance_{{ student_rollout.id }}" style="margin-left: 1px;">Attendance</label>
-                              </form>
-                          </div>
-                      </div>
+              <!-- Monday -->
+              <div class="track yellow">
+                {% for student_rollout in monday_classes %}
+                <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
+                  <div class="details">
+                    <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
+                    <p class="enrollment-number">{{ student_rollout.student.enrollment_no }}</p>
+                    <p>{{ student_rollout.student.student_name }}</p>
+                    <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 20px;">
+                      <form id="attendanceForm_{{ student_rollout.id }}" method="POST" action="{% url 'Students' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}" />
+                          
+                          <input type="checkbox" id="attendance_{{ student_rollout.id }}" name="attendance" value="true" onchange="submitForm('{{ student_rollout.id }}')" {% if student_rollout.student_attendance %} checked {% endif %} />
+                          <label for="attendance_{{ student_rollout.id }}" style="margin-left: 1px;">Attendance</label>
+                      </form>
                   </div>
-                  {% endfor %}
+                  </div>
+                </div>
+                {% endfor %}
               </div>
 
-              
-
-<!-- TUESDAY -->
-<div class="track yellow">
-  {% for student_rollout in tuesday_classes %}
-      <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
-          <div class="details">
-              <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
-              <p>{{ student_rollout.start_time }} - {{ student_rollout.end_time }}</p>
-              <p>{{ student_rollout.student.enrollment_no }}</p>
-              <p>{{ student_rollout.student.student_name }}</p>
-  
-              <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 20px;">
-                  <form id="attendanceForm_{{ student_rollout.id }}" method="POST" action="{% url 'Students' %}">
-                      {% csrf_token %}
-                      <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}" />
-                       
-                      <input type="checkbox" id="attendance_{{ student_rollout.id }}" name="attendance" value="true" onchange="submitForm('{{ student_rollout.id }}')" {% if student_rollout.student_attendance %} checked {% endif %} />
-                      <label for="attendance_{{ student_rollout.id }}" style="margin-left: 1px;">Attendance</label>
-                  </form>
+              <!-- Tuesday -->
+              <div class="track yellow">
+                {% for student_rollout in tuesday_classes %}
+                <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
+                  <div class="details">
+                    <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
+                    <p class="enrollment-number">{{ student_rollout.student.enrollment_no }}</p>
+                    <p>{{ student_rollout.student.student_name }}</p>
+                    <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 20px;">
+                      <form id="attendanceForm_{{ student_rollout.id }}" method="POST" action="{% url 'Students' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}" />
+                          
+                          <input type="checkbox" id="attendance_{{ student_rollout.id }}" name="attendance" value="true" onchange="submitForm('{{ student_rollout.id }}')" {% if student_rollout.student_attendance %} checked {% endif %} />
+                          <label for="attendance_{{ student_rollout.id }}" style="margin-left: 1px;">Attendance</label>
+                      </form>
+                  </div>
+                  </div>
+                </div>
+                {% endfor %}
               </div>
-          </div>
-      </div>
-  {% endfor %}
-  </div>
-  
-<!-- WEDNESDAY -->
-  <div class="track yellow">
-    {% for student_rollout in wednesday_classes %}
-    <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
-        <div class="details">
-            <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
-            <p>{{ student_rollout.start_time }} - {{ student_rollout.end_time }}</p>
-            <p>{{ student_rollout.student.enrollment_no }}</p>
-            <p>{{ student_rollout.student.student_name }}</p>
 
-            <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 20px;">
-                <form id="attendanceForm_{{ student_rollout.id }}" method="POST" action="{% url 'Students' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}" />
-                     
-                    <input type="checkbox" id="attendance_{{ student_rollout.id }}" name="attendance" value="true" onchange="submitForm('{{ student_rollout.id }}')" {% if student_rollout.student_attendance %} checked {% endif %} />
-                    <label for="attendance_{{ student_rollout.id }}" style="margin-left: 1px;">Attendance</label>
-                </form>
+            <!-- Wednesday -->
+            <div class="track yellow">
+              {% for student_rollout in wednesday_classes %}
+              <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
+                <div class="details">
+                  <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
+                  <p class="enrollment-number">{{ student_rollout.student.enrollment_no }}</p>
+                  <p>{{ student_rollout.student.student_name }}</p>
+                  <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 20px;">
+                    <form id="attendanceForm_{{ student_rollout.id }}" method="POST" action="{% url 'Students' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}" />
+                        
+                        <input type="checkbox" id="attendance_{{ student_rollout.id }}" name="attendance" value="true" onchange="submitForm('{{ student_rollout.id }}')" {% if student_rollout.student_attendance %} checked {% endif %} />
+                        <label for="attendance_{{ student_rollout.id }}" style="margin-left: 1px;">Attendance</label>
+                    </form>
+                </div>
+                </div>
+              </div>
+              {% endfor %}
             </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
 
           <!--thursday-->
           <div class="track yellow">
             {% for student_rollout in thursday_classes %}
             <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
-                <div class="details">
-                    <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
-                    <p>{{ student_rollout.start_time }} - {{ student_rollout.end_time }}</p>
-                    <p>{{ student_rollout.student.enrollment_no }}</p>
-                    <p>{{ student_rollout.student.student_name }}</p>
-        
-                    <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 20px;">
-                        <form id="attendanceForm_{{ student_rollout.id }}" method="POST" action="{% url 'Students' %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}" />
-                             
-                            <input type="checkbox" id="attendance_{{ student_rollout.id }}" name="attendance" value="true" onchange="submitForm('{{ student_rollout.id }}')" {% if student_rollout.student_attendance %} checked {% endif %} />
-                            <label for="attendance_{{ student_rollout.id }}" style="margin-left: 1px;">Attendance</label>
-                        </form>
-                    </div>
+              <div class="details">
+                <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
+                <p class="enrollment-number">{{ student_rollout.student.enrollment_no }}</p>
+                <p>{{ student_rollout.student.student_name }}</p>
+                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 20px;">
+                  <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 20px;">
+                    <form id="attendanceForm_{{ student_rollout.id }}" method="POST" action="{% url 'Students' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}" />
+                         
+                        <input type="checkbox" id="attendance_{{ student_rollout.id }}" name="attendance" value="true" onchange="submitForm('{{ student_rollout.id }}')" {% if student_rollout.student_attendance %} checked {% endif %} />
+                        <label for="attendance_{{ student_rollout.id }}" style="margin-left: 1px;">Attendance</label>
+                    </form>
                 </div>
+              </div>
             </div>
             {% endfor %}
-        </div>
+          </div>
         
-
           <!--friday-->
           <div class="track yellow">
             {% for student_rollout in friday_classes %}
@@ -417,7 +418,6 @@
                         <form id="attendanceForm_{{ student_rollout.id }}" method="POST" action="{% url 'Students' %}">
                             {% csrf_token %}
                             <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}" />
-                             
                             <input type="checkbox" id="attendance_{{ student_rollout.id }}" name="attendance" value="true" onchange="submitForm('{{ student_rollout.id }}')" {% if student_rollout.student_attendance %} checked {% endif %} />
                             <label for="attendance_{{ student_rollout.id }}" style="margin-left: 1px;">Attendance</label>
                         </form>
@@ -426,7 +426,6 @@
             </div>
             {% endfor %}
         </div>
-        
 
           <!--Saturday-->
           <div class="track yellow">
@@ -437,12 +436,10 @@
                     <p>{{ student_rollout.start_time }} - {{ student_rollout.end_time }}</p>
                     <p>{{ student_rollout.student.enrollment_no }}</p>
                     <p>{{ student_rollout.student.student_name }}</p>
-        
                     <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 20px;">
                         <form id="attendanceForm_{{ student_rollout.id }}" method="POST" action="{% url 'Students' %}">
                             {% csrf_token %}
-                            <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}" />
-                             
+                            <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}" />  
                             <input type="checkbox" id="attendance_{{ student_rollout.id }}" name="attendance" value="true" onchange="submitForm('{{ student_rollout.id }}')" {% if student_rollout.student_attendance %} checked {% endif %} />
                             <label for="attendance_{{ student_rollout.id }}" style="margin-left: 1px;">Attendance</label>
                         </form>
@@ -466,7 +463,6 @@
                         <form id="attendanceForm_{{ student_rollout.id }}" method="POST" action="{% url 'Students' %}">
                             {% csrf_token %}
                             <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}" />
-                             
                             <input type="checkbox" id="attendance_{{ student_rollout.id }}" name="attendance" value="true" onchange="submitForm('{{ student_rollout.id }}')" {% if student_rollout.student_attendance %} checked {% endif %} />
                             <label for="attendance_{{ student_rollout.id }}" style="margin-left: 1px;">Attendance</label>
                         </form>
@@ -496,24 +492,31 @@
       function submitForm(student_rollout_id) {
           document.getElementById("attendanceForm_" + student_rollout_id).submit();
       }
-      
-      function submitAttendance() {
-          const input = document.getElementById('attendanceInput').value;
-          const last4Digits = input.split(',').map(d => d.trim());
-          const enrollmentNumbers = document.querySelectorAll('.enrollment-number');
-      
-          enrollmentNumbers.forEach(enrollmentNumber => {
-              const number = enrollmentNumber.textContent;
-              const last4 = number.slice(-4);
-              if (last4Digits.includes(last4)) {
-                  const form = enrollmentNumber.closest('.details').querySelector('form');
-                  const checkbox = form.querySelector('input[type="checkbox"]');
-                  checkbox.checked = true;
-                  form.submit();
-              }
-          });
-      }
-      </script>
+  
+function submitAttendance() {
+    const input = document.getElementById('attendanceInput').value;
+    const last4Digits = input.split(',').map(d => d.trim());
+    const enrollmentNumbers = document.querySelectorAll('.enrollment-number');
+    const selectedDate = document.getElementById('weekpicker').value;
+    const selectedRoom = document.getElementById('room').value;
+
+    enrollmentNumbers.forEach(enrollmentNumber => {
+        const number = enrollmentNumber.textContent;
+        const last4 = number.slice(-4);
+        const form = enrollmentNumber.closest('.details').querySelector('form');
+        const formDate = form.querySelector('input[name="class_date"]').value;
+        const formRoom = form.querySelector('input[name="room"]').value;
+
+        // Check if the current enrollment number matches any of the entered last 4 digits
+        if (last4Digits.some(digit => last4.includes(digit)) && formDate === selectedDate && formRoom === selectedRoom) {
+            const checkbox = form.querySelector('input[type="checkbox"]');
+            checkbox.checked = true;
+            form.submit();// Submit the form immediately after ticking the checkbox
+        }
+    });
+}
+  </script>
+  
       
     <!-- <script src="{%static 'js/index.js'%}"></script> -->
     <script

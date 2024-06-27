@@ -9,7 +9,7 @@ from .decorators import Faculty_login_required
 from datetime import datetime, timedelta
 from django.http import HttpResponse, HttpResponseRedirect
 from openpyxl import Workbook # type: ignore
-
+from django.urls import reverse
 
 '''def error_404(request, exception):
     return render(request, 'pages-error-404.html', status=404)'''
@@ -309,25 +309,33 @@ class Studentsheet(View):
         }
 
         return render(request, 'Students.html', context)
-    
+
     def post(self, request):
-        attendance = request.POST.get('attendance') == 'true'
-        student_rollout_id = request.POST.get('student_rollout_id')
+        attendance_input = request.POST.get('attendanceInput')
+        selected_date = request.POST.get('selected_date')
+        selected_room_id = request.POST.get('selected_room')
 
-        try:
-            student_rollout = StudentsRollouts.objects.get(id=student_rollout_id)
-            student_rollout.student_attendance = attendance
-            student_rollout.save()
-            messages.success(request, "Student attendance has been marked")
-        except StudentsRollouts.DoesNotExist:
-            messages.error(request, f"Student Rollout with id {student_rollout_id} does not exist")
-        except ValueError:
-            messages.error(request, "Invalid value provided for student_rollout_id")
+        if not attendance_input or not selected_date or not selected_room_id:
+            messages.error(request, "Incomplete attendance data provided")
+            return redirect("Students")
 
-        return redirect("Students")
+        selected_room = get_object_or_404(Room, id=selected_room_id)
+        last4_digits_list = [digit.strip() for digit in attendance_input.split(',')]
 
+        students_to_mark = StudentsRollouts.objects.filter(
+            class_date=selected_date,
+            room=selected_room
+        )
 
-# views.py
+        for student_rollout in students_to_mark:
+            if student_rollout.student.enrollment_no[-4:] in last4_digits_list:
+                student_rollout.student_attendance = True
+                student_rollout.save()
+                # messages.success(request, f"Attendance marked for student {student_rollout.student.enrollment_no}")
+
+        # Redirect back to the same selected_date page after processing
+        return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')
+
 # views.py
 from django.shortcuts import render
 from .models import Students
