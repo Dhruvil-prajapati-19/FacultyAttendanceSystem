@@ -284,7 +284,7 @@ class Studentsheet(View):
             class_date__gte=start_date,
             class_date__lte=end_date,
         )
-        
+
         context = {
             'faculty_name': faculty,
             'todays_date': todays_date,
