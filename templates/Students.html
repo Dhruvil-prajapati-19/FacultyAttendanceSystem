@@ -302,11 +302,6 @@
       </div>
     </div>
  
- 
-<!-- <div class="button-container">
-  <a href="{% url 'download_work_shift' %}" class="btn btn-primary">Download Work Shift Data</a>
-</div> -->
-
     <div class="wrapper">
       <div class="table">
         <div class="headers">
@@ -518,6 +513,13 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <script src="{%static 'js/Students.js'%}"></script>
 <script src="{% static 'js/html5-qrcode.min.js' %}"></script>
+<script>
+  $(document).ready(function(){
+      $('#qrModal').on('hidden.bs.modal', function (e) {
+          $('#attendanceForm').submit();
+      });
+  });
+</script>
 <script>
     let html5QrcodeScanner;
 
