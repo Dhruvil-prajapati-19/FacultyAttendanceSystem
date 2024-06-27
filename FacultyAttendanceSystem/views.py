@@ -320,18 +320,19 @@ class Studentsheet(View):
             return redirect("Students")
 
         selected_room = get_object_or_404(Room, id=selected_room_id)
-        last4_digits_list = [digit.strip() for digit in attendance_input.split(',')]
+        enrollment_numbers = [enrollment.strip() for enrollment in attendance_input.split(',') if enrollment.strip()]
 
         students_to_mark = StudentsRollouts.objects.filter(
             class_date=selected_date,
-            room=selected_room
+            room=selected_room,
+            student__enrollment_no__in=enrollment_numbers
         )
 
         for student_rollout in students_to_mark:
-            if student_rollout.student.enrollment_no[-4:] in last4_digits_list:
-                student_rollout.student_attendance = True
-                student_rollout.save()
-                # messages.success(request, f"Attendance marked for student {student_rollout.student.enrollment_no}")
+            student_rollout.student_attendance = True
+            student_rollout.save()
+            # Optionally, you can uncomment the following line to show a success message for each student marked present
+            # messages.success(request, f"Attendance marked for student {student_rollout.student.enrollment_no}")
 
         # Redirect back to the same selected_date page after processing
         return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')

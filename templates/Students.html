@@ -18,7 +18,7 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
   
     <!-- Vendor CSS Files -->
-    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet"> -->
     <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/quill/quill.snow.css' %}" rel="stylesheet">
@@ -51,6 +51,20 @@
      rel="stylesheet"
      >
     
+     <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet"> -->
+     <style>
+         #reader {
+             width: 100%;
+             height: 300px;
+             margin: 0 auto;
+         }
+         #attendanceInput {
+             width: 100%;
+             height: 100px;
+             resize: none;
+         }
+     </style>
+ </head>
   </head>
 
   <body>
@@ -71,9 +85,7 @@
               <img src="{% static 'img/default-profile-picture.jpg' %}" alt="Profile" class="rounded-circle" height="50px" width="50px">
               <span >{{ faculty_name }}</span>
             </a><!-- End Profile Image Icon -->
-  
           <!-- End Profile Nav -->
-  
         </ul>
       </nav>
       
@@ -257,22 +269,36 @@
               </div>
               <button type="submit" class="btn btn-sm btn-outline-primary ml-2">Filter</button>
           </form>
-      
-          <form method="POST" action="{% url 'Students' %}" class="form-inline">
-              {% csrf_token %}
-              <div class="input-group">
-                  <textarea id="attendanceInput" name="attendanceInput" class="form-control" rows="2" cols="40" placeholder="last 4 digits of enrollment numbers, separated by commas"></textarea>
+          <form id="attendanceForm" method="POST" action="{% url 'Students' %}" class="form-inline">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+                <textarea id="attendanceInput" name="attendanceInput" class="form-control" rows="2" cols="40" placeholder="Enrollment numbers or last 4 digits, separated by commas"></textarea>
+            </div>
+            <input type="hidden" name="selected_date" value="{{ selected_date }}">
+            <input type="hidden" name="selected_room" value="{{ selected_room.id }}">
+            <button type="button" id="scanQRButton" class="btn btn-outline-primary ml-2" data-toggle="modal" data-target="#qrModal">Scan QR Code</button>
+            <button type="submit" class="btn btn-outline-primary ml-2">Submit Attendance</button>
+        </form>
+        </div>
+        <!-- QR Scanner Modal -->
+        <div class="modal fade" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                  <div class="modal-header">
+                      <h5 class="modal-title" id="qrModalLabel">QR Code Scanner</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                      </button>
+                  </div>
+                  <div class="modal-body">
+                      <div id="reader"></div>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
               </div>
-              <input type="hidden" name="selected_date" value="{{ selected_date }}">
-              <input type="hidden" name="selected_room" value="{{ selected_room.id }}">
-              <button type="submit" class="btn btn-outline-primary ml-2">Submit Attendance</button>
-          </form>
-      </div>
-      
-    
-    
-            
-      
+          </div>
+        </div>
       </div>
     </div>
  
@@ -477,8 +503,6 @@
     <div id="top-of-site-pixel-anchor"></div>
   </div>
 </main>
-
-
     <!-- ======= Footer ======= -->
     <footer id="footer" class="footer">
       <div class="copyright">
@@ -488,36 +512,58 @@
         Developed by Dhruvil 
       </div>
     </footer>
-    <script>
-      function submitForm(student_rollout_id) {
-          document.getElementById("attendanceForm_" + student_rollout_id).submit();
-      }
-  
-function submitAttendance() {
-    const input = document.getElementById('attendanceInput').value;
-    const last4Digits = input.split(',').map(d => d.trim());
-    const enrollmentNumbers = document.querySelectorAll('.enrollment-number');
-    const selectedDate = document.getElementById('weekpicker').value;
-    const selectedRoom = document.getElementById('room').value;
 
-    enrollmentNumbers.forEach(enrollmentNumber => {
-        const number = enrollmentNumber.textContent;
-        const last4 = number.slice(-4);
-        const form = enrollmentNumber.closest('.details').querySelector('form');
-        const formDate = form.querySelector('input[name="class_date"]').value;
-        const formRoom = form.querySelector('input[name="room"]').value;
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9W5+2QpHp7FZE9Ns7UJ0B4RvDxH47auKJ39MX" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="{%static 'js/Students.js'%}"></script>
+<script src="{% static 'js/html5-qrcode.min.js' %}"></script>
+<script>
+    let html5QrcodeScanner;
 
-        // Check if the current enrollment number matches any of the entered last 4 digits
-        if (last4Digits.some(digit => last4.includes(digit)) && formDate === selectedDate && formRoom === selectedRoom) {
-            const checkbox = form.querySelector('input[type="checkbox"]');
-            checkbox.checked = true;
-            form.submit();// Submit the form immediately after ticking the checkbox
+    // Function to handle successful QR code scan
+    function handleScanSuccess(qrCodeMessage) {
+        const textarea = document.getElementById('attendanceInput');
+        let existingData = textarea.value.split(',').map(item => item.trim()).filter(item => item);
+
+        // Check if the scanned QR code message is already present
+        if (!existingData.includes(qrCodeMessage)) {
+            existingData.push(qrCodeMessage);
+            textarea.value = existingData.join(', ') + ', ';
+        }
+    }
+
+    // Function to handle errors
+    function handleScanError(err) {
+        console.error(err);
+    }
+
+    // Event listener for modal show to start the QR code scanner
+    $('#qrModal').on('shown.bs.modal', function () {
+        html5QrcodeScanner = new Html5QrcodeScanner('reader', {
+            qrbox: {
+                width: 250,
+                height: 250,
+            },
+            fps: 20,
+        });
+        html5QrcodeScanner.render(handleScanSuccess, handleScanError);
+    });
+
+    // Event listener for modal hide to clear the QR code scanner
+    $('#qrModal').on('hidden.bs.modal', function () {
+        html5QrcodeScanner.clear();
+        const readerElement = document.getElementById('reader');
+        while (readerElement.firstChild) {
+            readerElement.removeChild(readerElement.firstChild);
         }
     });
-}
-  </script>
-  
-      
+</script>
+<script>
+      function submitForm(student_rollout_id) {
+          document.getElementById("attendanceForm_" + student_rollout_id).submit();
+      } 
+</script>      
     <!-- <script src="{%static 'js/index.js'%}"></script> -->
     <script
       src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
