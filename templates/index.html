@@ -301,7 +301,7 @@
                     <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                         {% csrf_token %}
                         <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
                         <p style="margin-top: -22px; margin-left: 17px">
                             <label for="attendance">Attendance</label>
                         </p>
@@ -476,7 +476,7 @@
         &copy; Copyright <strong><span>Anything</span></strong>. All Rights Reserved
       </div>
       <div class="credits">
-        Developed by Dhruvil , Krisha , Krishi , Ravi.
+        Developed by Dhruvil 
       </div>
     </footer>
     <script>

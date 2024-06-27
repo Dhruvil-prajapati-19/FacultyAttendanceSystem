@@ -1,12 +1,13 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
+from django.urls import reverse
 from django.views import View
 from django.core.exceptions import ObjectDoesNotExist
 from .models import AdminCredentials, EventScheduler, Faculty, HolidayScheduler, Room, StudentsRollouts, TimeTableRollouts, WorkShift
 from django.utils.timezone import localtime, now
 from .decorators import Faculty_login_required
 from datetime import datetime, timedelta
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from openpyxl import Workbook # type: ignore
 
 
@@ -226,7 +227,7 @@ class Attendancesheet(View):
             class_rollout.save()
             messages.success(request, "Attendance has been marked")
          except ObjectDoesNotExist as e:
-            messages.error(request, "Error occurred while marking attendance")
+            messages.error(request, "Error occurred while marking attendance",e)
 
          return redirect("calendar_view")
         
@@ -258,96 +259,119 @@ class WorkShiftView(View):
 
 class Studentsheet(View):
     def get(self, request):
-        todays_date = datetime.now().date()
-        selected_date_str = request.GET.get('weekpicker')
-        selected_room_id = request.GET.get('room')
-        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d') if selected_date_str else todays_date
-        start_date = selected_date - timedelta(days=selected_date.weekday())
-        end_date = start_date + timedelta(days=6)
+            todays_date = datetime.now().date()
+            selected_date_str = request.GET.get('weekpicker')
+            selected_room_id = request.GET.get('room')
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d') if selected_date_str else todays_date
+            start_date = selected_date - timedelta(days=selected_date.weekday())
+            end_date = start_date + timedelta(days=6)
 
-        logged_user = request.session.get('logged_user')
-        faculty = None
-        if logged_user:
+            logged_user = request.session.get('logged_user')
+            faculty = None
+            if logged_user:
+                try:
+                    faculty = AdminCredentials.objects.get(id=logged_user).faculty
+                except AdminCredentials.DoesNotExist:
+                    pass
+
+            selected_room = None
+            if selected_room_id:
+                selected_room = get_object_or_404(Room, id=selected_room_id)
+
+            # Filter StudentsRollouts based on faculty and selected room, if available
+            Students_rollouts = StudentsRollouts.objects.filter(
+                faculty=faculty,
+                room=selected_room,
+                class_date__gte=start_date,
+                class_date__lte=end_date,
+            
+            )
+            monday_date = start_date
+            tuesday_date = start_date + timedelta(days=1)
+            wednesday_date = start_date + timedelta(days=2)
+            thursday_date = start_date + timedelta(days=3)
+            friday_date = start_date + timedelta(days=4)
+            saturday_date = start_date + timedelta(days=5)
+            sunday_date = end_date
+
+            monday_classes = Students_rollouts.filter(class_date=monday_date)
+            tuesday_classes = Students_rollouts.filter(class_date=tuesday_date)
+            wednesday_classes = Students_rollouts.filter(class_date=wednesday_date)
+            thursday_classes = Students_rollouts.filter(class_date=thursday_date)
+            friday_classes = Students_rollouts.filter(class_date=friday_date)
+            saturday_classes = Students_rollouts.filter(class_date=saturday_date)
+            sunday_classes = Students_rollouts.filter(class_date=sunday_date)
+
+            rooms = Room.objects.all()
+
+            context = {
+                'faculty_name': faculty,
+                'todays_date': todays_date,
+                'success': True,
+                'selected_date': selected_date.strftime('%Y-%m-%d'),
+                'monday_date': start_date.strftime('%a %d %b, %Y'),
+                'tuesday_date': tuesday_date.strftime('%a %d %b, %Y'),
+                'wednesday_date': wednesday_date.strftime('%a %d %b, %Y'),
+                'thursday_date': thursday_date.strftime('%a %d %b, %Y'),
+                'friday_date': friday_date.strftime('%a %d %b, %Y'),
+                'saturday_date': saturday_date.strftime('%a %d %b, %Y'),
+                'sunday_date': sunday_date.strftime('%a %d %b, %Y'),
+                'monday_classes': monday_classes,
+                'tuesday_classes': tuesday_classes,
+                'wednesday_classes': wednesday_classes,
+                'thursday_classes': thursday_classes,
+                'friday_classes': friday_classes,
+                'saturday_classes': saturday_classes,
+                'sunday_classes': sunday_classes,
+                'rooms': rooms,
+                'selected_room': selected_room,
+            }
+
+            return render(request, 'Students.html', context)
+    def post(self, request):
+        attendance = request.POST.get('attendance')
+        if attendance == 'true':
+            attendance = True
+        else:
+            attendance = False
+
+        student_rollout_id = request.POST.get('student_rollout_id')
+        
+        if student_rollout_id:
             try:
-                faculty = AdminCredentials.objects.get(id=logged_user).faculty
-            except AdminCredentials.DoesNotExist:
-                pass
+                student_rollout = StudentsRollouts.objects.get(id=student_rollout_id)
+                student_rollout.student_attendance = attendance
+                student_rollout.save()
+                messages.success(request, "Student attendance has been marked")
+            except StudentsRollouts.DoesNotExist:
+                messages.error(request, "Student Rollout with id {} does not exist".format(student_rollout_id))
+            except ValueError:
+                messages.error(request, "Invalid value provided for student_rollout_id")
+        else:
+            messages.error(request, "No student_rollout_id provided")
+        
+        # Retrieve URL parameters to reconstruct the URL
+        weekpicker = request.GET.get('weekpicker', '')
+        room = request.GET.get('room', '')
 
-        selected_room = None
-        if selected_room_id:
-            selected_room = get_object_or_404(Room, id=selected_room_id)
+        # Construct the URL with parameters to redirect back to
+        redirect_url = reverse('Students') + f'?weekpicker={weekpicker}&room={room}'
+        
+        return HttpResponseRedirect(redirect_url)
 
-        # Filter StudentsRollouts based on faculty and selected room, if available
-        Students_rollouts = StudentsRollouts.objects.filter(
-            faculty=faculty,
-            room=selected_room,
-            class_date__gte=start_date,
-            class_date__lte=end_date,
-           
-        )
-        monday_date = start_date
-        tuesday_date = start_date + timedelta(days=1)
-        wednesday_date = start_date + timedelta(days=2)
-        thursday_date = start_date + timedelta(days=3)
-        friday_date = start_date + timedelta(days=4)
-        saturday_date = start_date + timedelta(days=5)
-        sunday_date = end_date
 
-        monday_classes = Students_rollouts.filter(class_date=monday_date)
-        tuesday_classes = Students_rollouts.filter(class_date=tuesday_date)
-        wednesday_classes = Students_rollouts.filter(class_date=wednesday_date)
-        thursday_classes = Students_rollouts.filter(class_date=thursday_date)
-        friday_classes = Students_rollouts.filter(class_date=friday_date)
-        saturday_classes = Students_rollouts.filter(class_date=saturday_date)
-        sunday_classes = Students_rollouts.filter(class_date=sunday_date)
-
-        rooms = Room.objects.all()
-
-        context = {
-            'faculty_name': faculty,
-            'todays_date': todays_date,
-            'success': True,
-            'selected_date': selected_date.strftime('%Y-%m-%d'),
-            'monday_date': start_date.strftime('%a %d %b, %Y'),
-            'tuesday_date': tuesday_date.strftime('%a %d %b, %Y'),
-            'wednesday_date': wednesday_date.strftime('%a %d %b, %Y'),
-            'thursday_date': thursday_date.strftime('%a %d %b, %Y'),
-            'friday_date': friday_date.strftime('%a %d %b, %Y'),
-            'saturday_date': saturday_date.strftime('%a %d %b, %Y'),
-            'sunday_date': sunday_date.strftime('%a %d %b, %Y'),
-            'monday_classes': monday_classes,
-            'tuesday_classes': tuesday_classes,
-            'wednesday_classes': wednesday_classes,
-            'thursday_classes': thursday_classes,
-            'friday_classes': friday_classes,
-            'saturday_classes': saturday_classes,
-            'sunday_classes': sunday_classes,
-            'rooms': rooms,
-            'selected_room': selected_room,
-        }
-
-        return render(request, 'Students.html', context)
-    
 # views.py
-# from django.shortcuts import render, redirect
-# from django.contrib import messages
-# from .forms import XLSXUploadForm
-# from data_wizard.sources.models import DataSource # type: ignore
-# from data_wizard.models import Wizard  # type: ignore
+# views.py
+from django.shortcuts import render
+from .models import Students
+from qr_code.qrcode.utils import QRCodeOptions # type: ignore
 
-# def import_xlsx(request):
-#     if request.method == "POST":
-#         form = XLSXUploadForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             xlsx_file = request.FILES['xlsx_file']
-#             data_source = DataSource.objects.create(file=xlsx_file, format='xlsx')
-#             wizard = Wizard.objects.create(source=data_source, mappings={'Students': 'student_mapping'})
-#             messages.success(request, "XLSX file has been imported successfully.")
-#             return redirect("..")
-#         else:
-#             messages.error(request, "Invalid form submission.")
-#     else:
-#         form = XLSXUploadForm()
+def qr_students(request):
+    students = Students.objects.all()
+    qr_options = QRCodeOptions(size='M', border=6, error_correction='L')
 
-#     return render(request, "admin/xlsx_form.html", {'form': form})
- 
+    context = {
+        'students': students,
+        'qr_options': qr_options,
+    }
+    return render(request, 'qrstudents.html', context)

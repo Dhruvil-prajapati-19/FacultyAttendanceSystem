@@ -13,6 +13,8 @@ urlpatterns = [
     path('index/', Faculty_login_required(views.Attendancesheet.as_view()), name='index'),  
     path('Attendancesheet/',  Faculty_login_required(views.Attendancesheet.as_view()), name='calendar_view'),
     path('Students/',  Faculty_login_required(views.Studentsheet.as_view()), name='Students'),
+    path('qr-students/', views.qr_students, name='qr_students'),
+    path('qr_code/', include('qr_code.urls', namespace='qr_code')), 
     path('upload/',  Faculty_login_required(views.upload), name='upload'),
     path('datawizard/', include('data_wizard.urls')),
     path('logout/', Faculty_login_required(views.logout), name='logout'),

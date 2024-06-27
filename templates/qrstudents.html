@@ -1,0 +1,26 @@
+<!-- templates/qrstudents.html -->
+{% load qr_code %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QR Codes for Students</title>
+</head>
+<body>
+    <h1>QR Codes for Students</h1>
+    <ul>
+        {% for student in students %}
+            <li>
+                <p>
+                    {{ student.student_name }} ({{ student.enrollment_no }})
+                    {% if student.Student_Class %}
+                        - {{ student.Student_Class.Students_class_name }}
+                    {% endif %}
+                </p>
+                <img src="{% qr_url_from_text student.enrollment_no options=qr_options %}" alt="QR code for {{ student.student_name }}">
+                <a href="{% qr_url_from_text student.enrollment_no options=qr_options %}" download="QR_{{ student.enrollment_no }}.png">Download QR Code</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

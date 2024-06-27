@@ -133,12 +133,12 @@
     border: 1px solid #ebebeb;
     border-top: 0;
     background: var(--body-bg);
-    height: 12em;
+    height: 8em;
     padding: 1em;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: fit-content;
+    width: 165px;
   }
   
   .entry:not(:last-of-type) {
@@ -182,7 +182,7 @@
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
     border: 1px solid #EBECEE;
     border-left: 3px solid var(--theme-bg);
-    height: fit-content;
+    height: 100%;
   }
   
   h3 {
