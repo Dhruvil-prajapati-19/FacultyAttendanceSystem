@@ -1,14 +1,11 @@
 asgiref==3.8.1
 Django==5.0.4
 django-filter==24.2
-et-xmlfile==1.1.0
-gunicorn==22.0.0
 Markdown==3.6
 MarkupSafe==2.1.5
-ngrok==1.2.0
 openpyxl==3.1.2
 packaging==24.0
-sqlparse==0.4.4
 whitenoise==6.6.0
-pandas
 django-unfold==0.29.1
+data-wizard
+django-qr-code

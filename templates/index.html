@@ -100,13 +100,6 @@
         </a>
       </li>
 
-      <li class="nav-item"></li>
-      <a class="nav-link " href="{% url 'upload' %}">
-        <i class="bi bi-grid"></i>
-        <span>Upload_data</span>
-      </a>
-    </li>
-
       <li class="nav-heading">Pages</li>
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
@@ -312,30 +305,28 @@
             {% endfor %}
           </div>
 
-<!-- TUESDAY -->
-<div class="track yellow">
-  {% for class_rollout in tuesday_classes %}
-  <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
-    <div class="details">
-      <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-      <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-      <p>{{ class_rollout.subject.name }}</p>
- 
- 
-      <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-          <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
-              {% csrf_token %}
-              <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-              <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
-              <p style="margin-top: -22px; margin-left: 17px">
-                  <label for="attendance">Attendance</label>
-              </p>
-          </form>
-      </div>
-  </div>
-  </div>
-  {% endfor %}
-</div>
+            <!-- TUESDAY -->
+            <div class="track yellow">
+              {% for class_rollout in tuesday_classes %}
+              <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
+                <div class="details">
+                  <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
+                  <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
+                  <p>{{ class_rollout.subject.name }}</p>
+                  <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                      <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+                          <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                          <p style="margin-top: -22px; margin-left: 17px">
+                              <label for="attendance">Attendance</label>
+                          </p>
+                      </form>
+                  </div>
+              </div>
+              </div>
+              {% endfor %}
+            </div>
 
           <!--Wednesday-->
           <div class="track yellow">
@@ -345,8 +336,6 @@
                 <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
                 <p>{{ class_rollout.subject.name }}</p>
-           
-           
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                     <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                         {% csrf_token %}
@@ -397,8 +386,6 @@
               <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
               <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
               <p>{{ class_rollout.subject.name }}</p>
-         
-         
               <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                   <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                       {% csrf_token %}

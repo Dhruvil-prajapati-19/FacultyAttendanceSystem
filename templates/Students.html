@@ -112,13 +112,6 @@
         </a>
       </li>
 
-      <li class="nav-item"></li>
-      <a class="nav-link " href="{% url 'upload' %}">
-        <i class="bi bi-grid"></i>
-        <span>Upload_data</span>
-      </a>
-    </li>
-
       <li class="nav-heading">Pages</li>
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
@@ -272,7 +265,7 @@
           <form id="attendanceForm" method="POST" action="{% url 'Students' %}" class="form-inline">
             {% csrf_token %}
             <div class="input-group mb-3">
-                <textarea id="attendanceInput" name="attendanceInput" class="form-control" rows="2" cols="40" placeholder="Enrollment numbers or last 4 digits, separated by commas"></textarea>
+                <textarea id="attendanceInput" name="attendanceInput" class="form-control" rows="2" cols="40" placeholder="Enrollment numbers"></textarea>
             </div>
             <input type="hidden" name="selected_date" value="{{ selected_date }}">
             <input type="hidden" name="selected_room" value="{{ selected_room.id }}">
@@ -341,10 +334,10 @@
                 {% for student_rollout in monday_classes %}
                 <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
                   <div class="details">
-                    <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
+                    <h3>{{ student_rollout.subject.short_name }} ({{ student_rollout.duration.duration_short_name }})-({{ student_rollout.start_time }})</h3>
                     <p class="enrollment-number">{{ student_rollout.student.enrollment_no }}</p>
                     <p>{{ student_rollout.student.student_name }}</p>
-                    <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 20px;">
+                    <div class="attendance" style="display: flex; padding-top: 5px; margin-left: 20px;">
                       <form id="attendanceForm_{{ student_rollout.id }}" method="POST" action="{% url 'Students' %}">
                           {% csrf_token %}
                           <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}" />
@@ -363,7 +356,7 @@
                 {% for student_rollout in tuesday_classes %}
                 <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
                   <div class="details">
-                    <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
+                    <h3>{{ student_rollout.subject.short_name }} ({{ student_rollout.duration.duration_short_name }})-({{ student_rollout.start_time }})</h3>
                     <p class="enrollment-number">{{ student_rollout.student.enrollment_no }}</p>
                     <p>{{ student_rollout.student.student_name }}</p>
                     <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 20px;">
@@ -385,7 +378,7 @@
               {% for student_rollout in wednesday_classes %}
               <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
                 <div class="details">
-                  <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
+                  <h3>{{ student_rollout.subject.short_name }} ({{ student_rollout.duration.duration_short_name }})-({{ student_rollout.start_time }})</h3>
                   <p class="enrollment-number">{{ student_rollout.student.enrollment_no }}</p>
                   <p>{{ student_rollout.student.student_name }}</p>
                   <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 20px;">
@@ -407,7 +400,7 @@
             {% for student_rollout in thursday_classes %}
             <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
               <div class="details">
-                <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
+                <h3>{{ student_rollout.subject.short_name }} ({{ student_rollout.duration.duration_short_name }})-({{ student_rollout.start_time }})</h3>
                 <p class="enrollment-number">{{ student_rollout.student.enrollment_no }}</p>
                 <p>{{ student_rollout.student.student_name }}</p>
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 20px;">
@@ -430,7 +423,7 @@
             {% for student_rollout in friday_classes %}
             <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
                 <div class="details">
-                    <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
+                  <h3>{{ student_rollout.subject.short_name }} ({{ student_rollout.duration.duration_short_name }})-({{ student_rollout.start_time }})</h3>
                     <p>{{ student_rollout.start_time }} - {{ student_rollout.end_time }}</p>
                     <p>{{ student_rollout.student.enrollment_no }}</p>
                     <p>{{ student_rollout.student.student_name }}</p>
@@ -453,7 +446,7 @@
             {% for student_rollout in saturday_classes %}
             <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
                 <div class="details">
-                    <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
+                  <h3>{{ student_rollout.subject.short_name }} ({{ student_rollout.duration.duration_short_name }})-({{ student_rollout.start_time }})</h3>
                     <p>{{ student_rollout.start_time }} - {{ student_rollout.end_time }}</p>
                     <p>{{ student_rollout.student.enrollment_no }}</p>
                     <p>{{ student_rollout.student.student_name }}</p>
@@ -475,7 +468,7 @@
             {% for student_rollout in sunday_classes %}
             <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
                 <div class="details">
-                    <h3>{{ student_rollout.room.room_name }} ({{ student_rollout.duration.duration_short_name }})</h3>
+                  <h3>{{ student_rollout.subject.short_name }} ({{ student_rollout.duration.duration_short_name }})-({{ student_rollout.start_time }})</h3>
                     <p>{{ student_rollout.start_time }} - {{ student_rollout.end_time }}</p>
                     <p>{{ student_rollout.student.enrollment_no }}</p>
                     <p>{{ student_rollout.student.student_name }}</p>
