@@ -315,11 +315,3 @@ margin-top: auto; /* Add some top margin for spacing */
 .button-container button {
 margin-left: auto; /* Add some left margin between buttons */
 }
-
-@media (max-width: 576px) {
-  /* Example of CSS rules for small devices (e.g., mobile phones) */
-  .modal-dialog {
-      max-width: 100%;
-      margin: 1rem;
-  }
-}
