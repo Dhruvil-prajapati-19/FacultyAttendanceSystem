@@ -3,13 +3,14 @@ from django.contrib import messages
 from django.urls import reverse
 from django.views import View
 from django.core.exceptions import ObjectDoesNotExist
-from .models import AdminCredentials, EventScheduler, Faculty, HolidayScheduler, Room, StudentsRollouts, TimeTableRollouts, WorkShift
+from .models import AdminCredentials, Students, StudentsRollouts, HolidayScheduler, Room, StudentsRollouts, TimeTableRollouts, WorkShift
 from django.utils.timezone import localtime, now
 from .decorators import Faculty_login_required
 from datetime import datetime, timedelta
 from django.http import HttpResponse, HttpResponseRedirect
 from openpyxl import Workbook # type: ignore
-from django.urls import reverse
+from .forms import EnrollmentForm 
+from qr_code.qrcode.utils import QRCodeOptions # type: ignore
 
 '''def error_404(request, exception):
     return render(request, 'pages-error-404.html', status=404)'''
@@ -119,11 +120,6 @@ class LoginView(View):
 
         messages.error(request, error_message)
         return render(request, 'login.html')
-
-
-from datetime import datetime, timedelta
-from django.shortcuts import render
-from .models import AdminCredentials, TimeTableRollouts, HolidayScheduler, WorkShift
 
 class Attendancesheet(View):
 
@@ -337,11 +333,6 @@ class Studentsheet(View):
         # Redirect back to the same selected_date page after processing
         return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')
 
-# views.py
-from django.shortcuts import render
-from .models import Students
-from qr_code.qrcode.utils import QRCodeOptions # type: ignore
-
 def qr_students(request):
     students = Students.objects.all()
     qr_options = QRCodeOptions(size='M', border=6, error_correction='L')
@@ -352,8 +343,15 @@ def qr_students(request):
     }
     return render(request, 'qrstudents.html', context)
 
+from django.shortcuts import render, get_object_or_404
+from django.views import View
+from django.core.exceptions import ObjectDoesNotExist
+from .models import Students, StudentsRollouts, AdminCredentials  # Adjust import paths as needed
+from .forms import EnrollmentForm
+
 class Datasheet(View):
     def get(self, request):
+        form = EnrollmentForm()
         logged_user = request.session.get('logged_user')
         faculty = None
         if logged_user:
@@ -362,6 +360,59 @@ class Datasheet(View):
             except AdminCredentials.DoesNotExist:
                 pass
         context = {
-            'faculty_name': faculty,  
-            }  
+            'form': form,
+            'faculty_name': faculty
+        }
         return render(request, 'datasheet.html', context)
+
+    def post(self, request):
+        form = EnrollmentForm(request.POST)
+        
+        if form.is_valid():
+            enrollment_no = form.cleaned_data['enrollment_no']
+            
+            try:
+                student = Students.objects.get(enrollment_no=enrollment_no)
+            except Students.DoesNotExist:
+                error_message = 'Student does not exist for the given enrollment number.'
+                return render(request, 'datasheet.html', {'form': form, 'error_message': error_message})
+            
+            # Fetch all rollouts for the student
+            rollouts = StudentsRollouts.objects.filter(student=student)
+            
+            # Dictionary to store attendance data by faculty and subject
+            attendance_data = {}
+            
+            # Calculate attendance data by faculty and subject
+            for rollout in rollouts:
+                faculty_name = rollout.faculty.name if rollout.faculty else "Unknown Faculty"
+                subject_name = rollout.subject.name if rollout.subject else "Unknown Subject"
+                
+                # Initialize faculty entry if not exists
+                if faculty_name not in attendance_data:
+                    attendance_data[faculty_name] = {}
+                
+                # Initialize subject entry under faculty if not exists
+                if subject_name not in attendance_data[faculty_name]:
+                    attendance_data[faculty_name][subject_name] = {'attended': 0, 'total': 0}
+                
+                # Count attendance based on the student_attendance flag
+                if rollout.student_attendance:
+                    attendance_data[faculty_name][subject_name]['attended'] += 1
+                attendance_data[faculty_name][subject_name]['total'] += 1
+            
+            # Calculate total attendance across all subjects
+            total_attended = sum(sum(data['attended'] for data in subjects.values()) for subjects in attendance_data.values())
+            total_classes = sum(sum(data['total'] for data in subjects.values()) for subjects in attendance_data.values())
+            
+            context = {
+                'form': form,
+                'student': student,
+                'attendance_data': attendance_data,
+                'total_attended': total_attended,
+                'total_classes': total_classes,
+            }
+            return render(request, 'datasheet.html', context)
+        
+        # If form is invalid, render the form again with validation errors
+        return render(request, 'datasheet.html', {'form': form})
