@@ -15,7 +15,7 @@ urlpatterns = [
     path('Students/',  Faculty_login_required(views.Studentsheet.as_view()), name='Students'),
     path('qr-students/', views.qr_students, name='qr_students'),
     path('qr_code/', include('qr_code.urls', namespace='qr_code')), 
-    path('upload/',  Faculty_login_required(views.upload), name='upload'),
+    path('datasheet/',  Faculty_login_required(views.Datasheet.as_view()), name='datasheet'),
     path('datawizard/', include('data_wizard.urls')),
     path('logout/', Faculty_login_required(views.logout), name='logout'),
     path('download/',  Faculty_login_required(views.download_data), name='download_data'),

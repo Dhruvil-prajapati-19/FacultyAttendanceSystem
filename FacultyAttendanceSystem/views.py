@@ -351,3 +351,17 @@ def qr_students(request):
         'qr_options': qr_options,
     }
     return render(request, 'qrstudents.html', context)
+
+class Datasheet(View):
+    def get(self, request):
+        logged_user = request.session.get('logged_user')
+        faculty = None
+        if logged_user:
+            try:
+                faculty = AdminCredentials.objects.get(id=logged_user).faculty
+            except AdminCredentials.DoesNotExist:
+                pass
+        context = {
+            'faculty_name': faculty,  
+            }  
+        return render(request, 'datasheet.html', context)
