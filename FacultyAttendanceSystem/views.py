@@ -349,6 +349,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import Students, StudentsRollouts, AdminCredentials  # Adjust import paths as needed
 from .forms import EnrollmentForm
 
+from django.views import View
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from openpyxl import Workbook # type: ignore
+from .forms import EnrollmentForm
+from .models import Students, StudentsRollouts, AdminCredentials
+
 class Datasheet(View):
     def get(self, request):
         form = EnrollmentForm()
@@ -416,3 +423,110 @@ class Datasheet(View):
         
         # If form is invalid, render the form again with validation errors
         return render(request, 'datasheet.html', {'form': form})
+
+    def create_excel_workbook(self, attendance_data, student, total_attended, total_classes):
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Student Attendance"
+        
+        # Add headers to the worksheet
+        ws.append(["Student Name", "Enrollment Number", "Total Attendance (%)"])
+        
+        # Calculate total attendance percentage
+        if total_classes > 0:
+            total_attendance_percentage = (total_attended / total_classes) * 100
+        else:
+            total_attendance_percentage = 0
+        
+        # Append student data
+        ws.append([student.student_name, student.enrollment_no, total_attendance_percentage])
+        
+        # Save the workbook to a HttpResponse
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename={student.student_name}_Attendance.xlsx'
+        
+        wb.save(response)
+        return response
+
+def download_attendance_data(request, enrollment_no):
+        try:
+            student = Students.objects.get(enrollment_no=enrollment_no)
+        except Students.DoesNotExist:
+            return HttpResponse("Student not found.", status=404)
+
+        rollouts = StudentsRollouts.objects.filter(student=student)
+
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Attendance Data"
+
+        # Header row
+        ws.append(["Faculty", "Subject", "Attended", "Total Classes", "Percentage"])
+
+        attendance_data = {}
+        for rollout in rollouts:
+            faculty_name = rollout.faculty.name if rollout.faculty else "Unknown Faculty"
+            subject_name = rollout.subject.name if rollout.subject else "Unknown Subject"
+            
+            if faculty_name not in attendance_data:
+                attendance_data[faculty_name] = {}
+            
+            if subject_name not in attendance_data[faculty_name]:
+                attendance_data[faculty_name][subject_name] = {'attended': 0, 'total': 0}
+            
+            if rollout.student_attendance:
+                attendance_data[faculty_name][subject_name]['attended'] += 1
+            attendance_data[faculty_name][subject_name]['total'] += 1
+        
+        for faculty, subjects in attendance_data.items():
+            for subject, data in subjects.items():
+                attended = data['attended']
+                total = data['total']
+                percentage = (attended / total * 100) if total > 0 else 0
+                ws.append([faculty, subject, attended, total, percentage])
+
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename=attendance_{enrollment_no}.xlsx'
+
+        wb.save(response)
+        return response
+
+def download_all_attendance_data(request):
+    students = Students.objects.all()
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Attendance Data"
+
+    # Header row
+    ws.append(["Enrollment Number", "Student Name", "Faculty", "Subject", "Attended", "Total Classes", "Percentage"])
+
+    for student in students:
+        rollouts = StudentsRollouts.objects.filter(student=student)
+        attendance_data = {}
+        for rollout in rollouts:
+            faculty_name = rollout.faculty.name if rollout.faculty else "Unknown Faculty"
+            subject_name = rollout.subject.name if rollout.subject else "Unknown Subject"
+            
+            if faculty_name not in attendance_data:
+                attendance_data[faculty_name] = {}
+            
+            if subject_name not in attendance_data[faculty_name]:
+                attendance_data[faculty_name][subject_name] = {'attended': 0, 'total': 0}
+            
+            if rollout.student_attendance:
+                attendance_data[faculty_name][subject_name]['attended'] += 1
+            attendance_data[faculty_name][subject_name]['total'] += 1
+        
+        for faculty, subjects in attendance_data.items():
+            for subject, data in subjects.items():
+                attended = data['attended']
+                total = data['total']
+                percentage = (attended / total * 100) if total > 0 else 0
+                ws.append([student.enrollment_no, student.student_name, faculty, subject, attended, total, percentage])
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=all_students_attendance.xlsx'
+
+    wb.save(response)
+    return response

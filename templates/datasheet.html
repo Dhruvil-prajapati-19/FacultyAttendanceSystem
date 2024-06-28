@@ -100,6 +100,8 @@
         </a>
       </li>
 
+      
+
       <li class="nav-item">
           <a class="nav-link " href="{% url 'Students' %}">
           <i class="bi bi-grid"></i>
@@ -109,9 +111,9 @@
 
       <li class="nav-heading">Pages</li>
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
-          <i class="bi bi-person"></i>
-          <span>Profile</span>
+        <a class="nav-link collapsed" href="{% url 'qr_students' %}">
+          <i class="bi bi-qr-code-scan"></i>
+          <span>Students Qr codes</span>
         </a>
       </li>
       
@@ -131,7 +133,7 @@
       <!-- End Contact Page Nav -->
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'datasheet' %}">
-          <i class="bi bi-database"></i>
+          <i class="bi bi-database-down"></i>
           <span>data</span>
         </a>
       </li>
@@ -165,76 +167,81 @@
     <!-- End Sidebar-->
   
     <main id="main" class="main">
-      <div class="pagetitle">
-        <nav>
-          <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-            <li class="breadcrumb-item active">DataSheet(beta version)</li>
-          </ol>
-        </nav>
-      </div>
- <div class="container">
-    <div class="container mt-4">
-        <h2 class="mt-4 mb-4">Student Datasheet</h2>
-        {% if error_message %}
-        <div class="alert alert-danger" role="alert">
-            {{ error_message }}
+        <div class="pagetitle">
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                    <li class="breadcrumb-item active" ><a href="{% url 'datasheet' %}">DataSheet(beta version)</a></li>
+                </ol>
+            </nav>
         </div>
-    {% else %}
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Submit</button>
-        </form>
-
-        {% if student %}
-            <h2 class="mt-4 mb-4">Attendance Details</h2>
-            {% if attendance_data %}
-                {% for faculty, subjects in attendance_data.items %}
-                    <h5>Class of {{ faculty }}</h5>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped">
-                            <thead class="thead-dark">
-                                <tr>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Subject</th>
-                                    <th scope="col">Attended</th>
-                                    <th scope="col">Total Classes</th>
-                                    <th scope="col">Percentage</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for subject, data in subjects.items %}
-                                    <tr>
-                                        <td>{{ student.student_name }}</td>
-                                        <td>{{ subject }}</td>
-                                        <td>{{ data.attended }}</td>
-                                        <td>{{ data.total }}</td>
-                                        <td>
-                                            <span id="percentage_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"></span>
-                                            <script>
-                                                document.getElementById('percentage_{{ forloop.parentloop.counter }}_{{ forloop.counter }}').textContent = calculatePercentage({{ data.attended }}, {{ data.total }}); 
-                                            </script>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+        <div class="container">
+            <div class="container mt-4">
+                <h2 class="mt-4 mb-4">Student Datasheet</h2>
+                {% if error_message %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error_message }}
                     </div>
-                {% endfor %}
-            {% else %}
-                <p>No attendance data found.</p>
-            {% endif %}
-        {% endif %}
-    {% endif %}
-    <form method="get" action="{% url 'download_attendance_data' student.enrollment_no %}">
-        <button type="submit">Download Attendance Data</button>
-    </form>
-    </div>
-    </div>
-    <div id="top-of-site-pixel-anchor"></div>
-  </div>
-</main>
+                {% else %}
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Submit</button>
+                    </form>
+    
+                    {% if student %}
+                        <h2 class="mt-4 mb-4">Attendance Details</h2>
+                        {% if attendance_data %}
+                            {% for faculty, subjects in attendance_data.items %}
+                                <h5>Class of {{ faculty }}</h5>
+                                <div class="table-responsive"> 
+                                    <table class="table table-bordered table-striped">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Subject</th>
+                                                <th scope="col">Attended</th>
+                                                <th scope="col">Total Classes</th>
+                                                <th scope="col">Percentage</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for subject, data in subjects.items %}
+                                                <tr>
+                                                    <td>{{ student.student_name }}</td>
+                                                    <td>{{ subject }}</td>
+                                                    <td>{{ data.attended }}</td>
+                                                    <td>{{ data.total }}</td>
+                                                    <td>
+                                                        <span id="percentage_{{ forloop.parentloop.counter }}_{{ forloop.counter }}"></span>
+                                                        <script>
+                                                            document.getElementById('percentage_{{ forloop.parentloop.counter }}_{{ forloop.counter }}').textContent = calculatePercentage({{ data.attended }}, {{ data.total }}); 
+                                                        </script>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No attendance data found.</p>
+                        {% endif %}
+                        <form method="get" action="{% url 'download_attendance_data' student.enrollment_no %}">
+                            <button type="submit" class="btn btn-sm btn-outline-primary" >Download Attendance Data</button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+                <form method="get" action="{% url 'download_all_attendance_data' %}">
+                    <button type="submit" class="btn btn-sm btn-outline-primary" >Download All Students Attendance Data</button>
+                </form>
+            </div>
+        </div>
+        <div id="top-of-site-pixel-anchor"></div>
+    </main>
+    
+    
+    
 
 
     <!-- ======= Footer ======= -->
