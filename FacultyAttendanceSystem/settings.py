@@ -146,3 +146,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/'
 
 
+BASE_URL = 'http://localhost:8000'  # Adjust according to your actual base URL

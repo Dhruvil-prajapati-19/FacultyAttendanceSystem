@@ -1,4 +1,3 @@
-<!-- templates/qrstudents.html -->
 {% load qr_code %}
 <!DOCTYPE html>
 <html lang="en">
@@ -8,19 +7,28 @@
 </head>
 <body>
     <h1>QR Codes for Students</h1>
-    <ul>
-        {% for student in students %}
-            <li>
-                <p>
-                    {{ student.student_name }} ({{ student.enrollment_no }})
-                    {% if student.Student_Class %}
-                        - {{ student.Student_Class.Students_class_name }}
-                    {% endif %}
-                </p>
-                <img src="{% qr_url_from_text student.enrollment_no options=qr_options %}" alt="QR code for {{ student.student_name }}">
-                <a href="{% qr_url_from_text student.enrollment_no options=qr_options %}" download="QR_{{ student.enrollment_no }}.png">Download QR Code</a>
-            </li>
-        {% endfor %}
-    </ul>
+    
+    <form method="post" action="{% url 'qr_students' %}">
+        {% csrf_token %}
+        <label for="enrollment_no">Enter Enrollment Number:</label>
+        <input type="text" id="enrollment_no" name="enrollment_no" required>
+        <button type="submit">Generate QR Code</button>
+    </form>
+    
+    {% if student %}
+        <h2>Student Details</h2>
+        <p>Name: {{ student.student_name }}</p>
+        <p>Enrollment No: {{ student.enrollment_no }}</p>
+        {% if student.Student_Class %}
+            <!-- <p>Class: {{ student.Student_Class.Students_class_name }}</p> -->
+        {% endif %}
+        <h2>QR Code for {{ enrollment_no }}</h2>
+        <img src="{% qr_url_from_text student.enrollment_no options=qr_options %}" alt="QR code for {{ student.student_name }}">
+        <a href="{% qr_url_from_text student.enrollment_no options=qr_options %}" download="QR_{{ student.enrollment_no }}.png">Download QR Code</a>
+    {% endif %}
+    
+    {% if error_message %}
+        <p>{{ error_message }}</p>
+    {% endif %}
 </body>
 </html>

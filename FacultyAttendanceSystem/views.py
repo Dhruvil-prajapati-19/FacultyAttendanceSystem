@@ -7,7 +7,7 @@ from .models import AdminCredentials, Students, StudentsRollouts, HolidaySchedul
 from django.utils.timezone import localtime, now
 from .decorators import Faculty_login_required
 from datetime import datetime, timedelta
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from openpyxl import Workbook # type: ignore
 from .forms import EnrollmentForm 
 from qr_code.qrcode.utils import QRCodeOptions # type: ignore
@@ -333,15 +333,32 @@ class Studentsheet(View):
         # Redirect back to the same selected_date page after processing
         return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')
 
-def qr_students(request):
-    students = Students.objects.all()
-    qr_options = QRCodeOptions(size='M', border=6, error_correction='L')
+from django.shortcuts import render
+from django.http import HttpResponseBadRequest
+from qr_code.qrcode.utils import QRCodeOptions # type: ignore
+from .models import Students
 
-    context = {
-        'students': students,
-        'qr_options': qr_options,
-    }
+def qr_students(request):
+    context = {}
+    if request.method == 'POST':
+        enrollment_no = request.POST.get('enrollment_no', None)
+        if enrollment_no:
+            try:
+                student = Students.objects.get(enrollment_no=enrollment_no)
+                qr_options = QRCodeOptions(size='H', border=6, error_correction='L')
+                context = {
+                    'enrollment_no': enrollment_no,
+                    'student': student,
+                    'qr_options': qr_options,
+                }
+            except Students.DoesNotExist:
+                context['error_message'] = 'Student not found.'
+        else:
+            context['error_message'] = 'Enrollment number not provided.'
     return render(request, 'qrstudents.html', context)
+
+
+
 
 from django.shortcuts import render, get_object_or_404
 from django.views import View
