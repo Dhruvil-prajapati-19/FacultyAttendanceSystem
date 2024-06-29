@@ -18,7 +18,7 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
   
     <!-- Vendor CSS Files -->
-    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet"> -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet"> 
     <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/quill/quill.snow.css' %}" rel="stylesheet">
@@ -56,14 +56,14 @@
      <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
      <style>
-    /* Custom CSS to position the modal at the top-left */
+
     .top-left-modal .modal-dialog {
       position: absolute;
       top: 10%;
       left: 4%;
-      max-width: 90%; /* Adjust the width as needed */
-      width: auto; /* Adjust the width as needed */
-      height: auto; /* Adjust the height as needed */
+      max-width: 90%; 
+      width: auto;
+      height: auto; 
     }
 
     .top-left-modal .modal-content {
@@ -73,22 +73,21 @@
     #reader {
       width: 100%;
       height: 100%;
-      padding-bottom: 25%; /* Ensure full use of height */
-      background-color: #f8f9fa; /* Light background */
-      border: 1px solid #dee2e6; /* Border */
-      border-radius: 0.25rem; /* Rounded corners */
+      padding-bottom: 25%; 
+      background-color: #f8f9fa; 
+      border: 1px solid #dee2e6; 
+      border-radius: 0.25rem; 
     }
      #attendanceInput {
-             width: 100%;
-             height: 100px;           
-         }
+      width: 100%;
+      height: 100px;           
+    }
 
-         .modal-body {
+    .modal-body {
       height: calc(100% - 110px); /* Adjust according to modal footer height */
       overflow-y: auto; /* Add scroll if needed */
     }    
-     </style>
-     
+     </style>   
  </head>
   </head>
 
@@ -109,8 +108,7 @@
             <a class="nav-link d-flex align-items-center pe-3" >
               <img src="{% static 'img/default-profile-picture.jpg' %}" alt="Profile" class="rounded-circle" height="50px" width="50px">
               <span >{{ faculty_name }}</span>
-            </a><!-- End Profile Image Icon -->
-          <!-- End Profile Nav -->
+            </a>
         </ul>
       </nav>
       
@@ -127,16 +125,12 @@
           <span>Attendance Sheet</span>
         </a>
       </li>
-
-      
-
       <li class="nav-item">
           <a class="nav-link " href="{% url 'Students' %}">
           <i class="bi bi-grid"></i>
           <span>Students Attendance Sheet</span>
         </a>
       </li>
-
       <li class="nav-heading">Pages</li>
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'qr_students' %}">
@@ -144,7 +138,6 @@
           <span>Students Qr codes</span>
         </a>
       </li>
-      
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
           <i class="bi bi-question-circle"></i>
@@ -181,7 +174,6 @@
           </a>
         </li>
       </li>
- 
       <li class="nav-item">
        <a  href="{% url 'download_work_shift' %}" class="nav-link collapsed" >
           <i class="bi bi-file-earmark"></i>
@@ -189,7 +181,6 @@
           <span>Download Work Shift Data</span>
         </a>
       </li>
-
       </ul>
     </aside>
     <!-- End Sidebar-->
@@ -204,7 +195,6 @@
         </nav>
       </div>
       </div>
-
     {% if messages %}
     {% for message in messages %}
     <div class="alert alert-{{ message.tags }} " role="alert">
@@ -247,21 +237,6 @@
             <span>Present</span>
           </div>
         </div>
-        <!-- <div class="col">
-          <div class="row" style="width: 500px;">
-          <div class="col" style="margin-top: 20px;">
-          <p><b>Last punch time:</b> {{ punch_time }}</p>
-          <p><b>Your attendance:</b>{{ attended_classes }}/{{ total_classes }}</p>
-          </div>
-          {# punch in #}
-          <div class="col">
-          <div class="form-inline">
-            <form action="{% url 'punch' %}" method="POST" class="form-inline" style="margin: 10px;">
-                {% csrf_token %}
-                // Add any form fields if needed 
-                <button class="btn btn-sm {% if is_punch_out %}btn-outline-primary{% else %}btn btn-primary{% endif %}" type="submit" style="font-family: 'Andale Mono', monospace;">{% if is_punch_out %}Punch Out {% else %}Punch In{% endif %}</button>
-            </form>
-        </div> -->
           </div>
       </div>
         </div>
@@ -298,7 +273,6 @@
             <button type="submit" class="btn btn-outline-primary ml-2">Submit Attendance</button>
         </form>
         </div>
-        <!-- QR Scanner Modal -->
         <div class="modal fade top-left-modal" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -319,7 +293,6 @@
         </div>
       </div>
     </div>
- 
     <div class="wrapper">
       <div class="table">
         <div class="headers">
@@ -353,7 +326,6 @@
         {% endif %}
 
         <div class="tracks syncscroll" name="myElements">
-        
               <!-- Monday -->
               <div class="track yellow">
                 {% for student_rollout in monday_classes %}

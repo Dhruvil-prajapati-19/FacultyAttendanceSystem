@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'FacultyAttendanceSystem.apps.FacultyAttendanceSystemConfig',
     'data_wizard',
     'data_wizard.sources',
-    'qr_code',
     #  'FacultyAttendanceSystem',
 ]
 

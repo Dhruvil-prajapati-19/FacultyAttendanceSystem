@@ -1,3 +1,4 @@
+from urllib import request
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.urls import reverse
@@ -5,12 +6,10 @@ from django.views import View
 from django.core.exceptions import ObjectDoesNotExist
 from .models import AdminCredentials, Students, StudentsRollouts, HolidayScheduler, Room, StudentsRollouts, TimeTableRollouts, WorkShift
 from django.utils.timezone import localtime, now
-from .decorators import Faculty_login_required
 from datetime import datetime, timedelta
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from openpyxl import Workbook # type: ignore
 from .forms import EnrollmentForm 
-from qr_code.qrcode.utils import QRCodeOptions # type: ignore
 
 '''def error_404(request, exception):
     return render(request, 'pages-error-404.html', status=404)'''
@@ -94,6 +93,9 @@ def Students(request):
 
 def upload(request):
     return render(request, 'upload.html')
+
+def qr_students(request):
+    return render(request, 'qrstudents.html')
 
 class LoginView(View):
 
@@ -333,45 +335,13 @@ class Studentsheet(View):
         # Redirect back to the same selected_date page after processing
         return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')
 
-from django.shortcuts import render
-from django.http import HttpResponseBadRequest
-from qr_code.qrcode.utils import QRCodeOptions # type: ignore
-from .models import Students
-
-def qr_students(request):
-    context = {}
-    if request.method == 'POST':
-        enrollment_no = request.POST.get('enrollment_no', None)
-        if enrollment_no:
-            try:
-                student = Students.objects.get(enrollment_no=enrollment_no)
-                qr_options = QRCodeOptions(size='H', border=6, error_correction='L')
-                context = {
-                    'enrollment_no': enrollment_no,
-                    'student': student,
-                    'qr_options': qr_options,
-                }
-            except Students.DoesNotExist:
-                context['error_message'] = 'Student not found.'
-        else:
-            context['error_message'] = 'Enrollment number not provided.'
-    return render(request, 'qrstudents.html', context)
-
-
-
-
 from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.core.exceptions import ObjectDoesNotExist
-from .models import Students, StudentsRollouts, AdminCredentials  # Adjust import paths as needed
+from .models import Students, StudentsRollouts, AdminCredentials 
 from .forms import EnrollmentForm
-
-from django.views import View
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from openpyxl import Workbook # type: ignore
-from .forms import EnrollmentForm
-from .models import Students, StudentsRollouts, AdminCredentials
 
 class Datasheet(View):
     def get(self, request):
