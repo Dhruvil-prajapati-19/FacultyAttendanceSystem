@@ -107,7 +107,6 @@ from django.http import HttpResponse
 import datetime
 
 COOLDOWN_PERIOD = datetime.timedelta(minutes=1)
-
 class LoginView(View):
     def get(self, request):
         return render(request, 'login.html')
@@ -176,6 +175,7 @@ class LoginView(View):
         # If neither student nor faculty login data is provided
         messages.error(request, "Please provide your credentials")
         return redirect('login')
+
 
 def student_logout_view(request):
     if request.user.is_authenticated:
