@@ -10,8 +10,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from openpyxl import Workbook # type: ignore
 from .forms import EnrollmentForm 
 
-def error_404(request, exception):
-    return render(request, 'pages-error-404.html', status=404)
+# def error_404(request, exception):
+#     return render(request, 'pages-error-404.html', status=404)
 
 def logout(request):
     if 'logged_user' in request.session:
@@ -96,38 +96,116 @@ def upload(request):
 def qr_students(request):
     return render(request, 'qrstudents.html')
 
-class LoginView(View):
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.utils import timezone
+from django.contrib.auth import login, authenticate, logout as auth_logout
+from django.views import View
+from .models import Students, AdminCredentials, ActiveSession
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+import datetime
 
+COOLDOWN_PERIOD = datetime.timedelta(minutes=1)
+
+class LoginView(View):
     def get(self, request):
         return render(request, 'login.html')
-    
-    
+
     def post(self, request):
+        # Handle Faculty login
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        try:
-            admin_credentials = AdminCredentials.objects.get(username=username)
+        if username and password:
+            try:
+                admin_credentials = AdminCredentials.objects.get(username=username)
+                if admin_credentials.password == password:
+                    logged_user = admin_credentials.faculty.id
+                    request.session['logged_user'] = logged_user
+                    messages.success(request, f'You have successfully logged in as {admin_credentials.faculty}')
+                    return redirect('index/')
+                else:
+                    messages.error(request, 'Invalid password')
+                    return render(request, 'login.html')
+            except AdminCredentials.DoesNotExist:
+                messages.error(request, 'Invalid username or password')
+                return render(request, 'login.html')
 
-            if admin_credentials.password == password:
-                logged_user = admin_credentials.faculty.id
-                request.session['logged_user'] = logged_user
-                messages.success(request, f'You have successfully logged in as {admin_credentials.faculty}')
-                return redirect('index/')
-            else:
-                error_message = 'Invalid password'
-        except AdminCredentials.DoesNotExist:
-            error_message = 'Invalid username or password'
+        # Handle Student login
+        enrollment_no = request.POST.get('enrollment_no')
+        student_password = request.POST.get('student_password')
 
-        messages.error(request, error_message)
-        return render(request, 'login.html')
+        if enrollment_no and student_password:
+            try:
+                student = Students.objects.get(enrollment_no=enrollment_no)
+
+                if student.Student_password == student_password:  # Directly compare passwords
+                    user_ip = request.META['REMOTE_ADDR']
+
+                    active_session = ActiveSession.objects.filter(ip_address=user_ip).first()
+                    if active_session:
+                        if active_session.enrollment_no != enrollment_no:
+                            if active_session.last_logout:
+                                cooldown_end = active_session.last_logout + COOLDOWN_PERIOD
+                                if timezone.now() < cooldown_end:
+                                    return HttpResponse(f"Access Denied: This IP address ({user_ip}) is temporarily blocked from logging into another account and is associated with user {active_session.enrollment_no}")
+                            else:
+                                return HttpResponse(f"Access Denied: This IP address ({user_ip}) is already associated with user {active_session.enrollment_no}. You can only login as {active_session.enrollment_no}")
+
+                    # Authenticate user
+                    django_user, created = User.objects.get_or_create(username=enrollment_no)
+                    login(request, django_user)
+
+                    # Update active session
+                    if active_session:
+                        active_session.enrollment_no = enrollment_no
+                        active_session.last_logout = None
+                    else:
+                        active_session = ActiveSession(enrollment_no=enrollment_no, ip_address=user_ip)
+                    active_session.save()
+
+                    return redirect('welcome')
+                else:
+                    messages.error(request, "Invalid password")
+                    return redirect('login')
+            except Students.DoesNotExist:
+                messages.error(request, "Invalid enrollment number or password")
+                return redirect('login')
+
+        # If neither student nor faculty login data is provided
+        messages.error(request, "Please provide your credentials")
+        return redirect('login')
+
+def student_logout_view(request):
+    if request.user.is_authenticated:
+        user_ip = request.META['REMOTE_ADDR']
+        active_session = ActiveSession.objects.filter(ip_address=user_ip).first()
+        if active_session:
+            active_session.last_logout = timezone.now()
+            active_session.save()
+        auth_logout(request)
+    return redirect('/')
+
+def welcome_view(request):
+    if not request.user.is_authenticated:
+        return redirect('/')
+    return render(request, 'welcome.html')
+
+
+from django.shortcuts import render, redirect
+from django.views import View
+from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib import messages
+from .models import AdminCredentials, TimeTableRollouts, HolidayScheduler, WorkShift
+from datetime import timedelta
 
 class Attendancesheet(View):
-
     def get(self, request):
-        todays_date = datetime.now().date()
+        todays_date = timezone.localdate()
         selected_date_str = request.GET.get('weekpicker')
-        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d') if selected_date_str else todays_date
+        selected_date = timezone.datetime.strptime(selected_date_str, '%Y-%m-%d').date() if selected_date_str else todays_date
         start_date = selected_date - timedelta(days=selected_date.weekday())
         end_date = start_date + timedelta(days=6)
 
@@ -145,12 +223,10 @@ class Attendancesheet(View):
             except AdminCredentials.DoesNotExist:
                 pass
 
-        class_rollouts = TimeTableRollouts.objects.filter(faculty=faculty, class_date__gte=start_date, class_date__lte=end_date)
-        holiday_today = HolidayScheduler.objects.filter(date=todays_date)
-        
-        # if holiday_today.exists():  # Check if there is a holiday scheduled for today
-        #    holiday_today = holiday_today.first().Title
+        class_rollouts = TimeTableRollouts.objects.filter(faculty=faculty, class_date__range=[start_date, end_date])
+        holiday_today = HolidayScheduler.objects.filter(date=todays_date).first()
 
+        # Prepare dates for each day of the week
         monday_date = start_date
         tuesday_date = start_date + timedelta(days=1)
         wednesday_date = start_date + timedelta(days=2)
@@ -159,6 +235,7 @@ class Attendancesheet(View):
         saturday_date = start_date + timedelta(days=5)
         sunday_date = end_date
 
+        # Filter class rollouts for each day of the week
         monday_classes = class_rollouts.filter(class_date=monday_date)
         tuesday_classes = class_rollouts.filter(class_date=tuesday_date)
         wednesday_classes = class_rollouts.filter(class_date=wednesday_date)
@@ -173,12 +250,11 @@ class Attendancesheet(View):
         try:
             punch_time = WorkShift.objects.filter(faculty=faculty).last()
             if punch_time:
-                if punch_time.punch_in is not None and punch_time.punch_out is None:
+                if punch_time.punch_in and not punch_time.punch_out:
                     final_punch_time = punch_time.punch_in
                     is_punch_out = True
-                else:
-                    if punch_time.punch_in and punch_time.punch_out is not None:
-                        final_punch_time = punch_time.punch_out
+                elif punch_time.punch_in and punch_time.punch_out:
+                    final_punch_time = punch_time.punch_out
                 punch_date_time = f"{punch_time.date} {final_punch_time.strftime('%H:%M')}"
         except WorkShift.DoesNotExist:
             punch_date_time = None
@@ -190,7 +266,7 @@ class Attendancesheet(View):
             'todays_date': todays_date,
             'success': True,
             'selected_date': selected_date.strftime('%Y-%m-%d'),
-            'monday_date': start_date.strftime('%a %d %b, %Y'),
+            'monday_date': monday_date.strftime('%a %d %b, %Y'),
             'tuesday_date': tuesday_date.strftime('%a %d %b, %Y'),
             'wednesday_date': wednesday_date.strftime('%a %d %b, %Y'),
             'thursday_date': thursday_date.strftime('%a %d %b, %Y'),
@@ -212,22 +288,19 @@ class Attendancesheet(View):
         return render(request, 'index.html', context)
         
     def post(self, request):
-         attendance = request.POST.get('attendance')
-         if attendance == 'true':
-            attendance = True
-         else:
-            attendance = False
-         class_rollout_id = request.POST.get('class_rollout_id')
-         try:
+        attendance = request.POST.get('attendance') == 'true'
+        class_rollout_id = request.POST.get('class_rollout_id')
+        
+        try:
             class_rollout = TimeTableRollouts.objects.get(id=class_rollout_id)
             class_rollout.class_attedance = attendance
             class_rollout.save()
             messages.success(request, "Attendance has been marked")
-         except ObjectDoesNotExist as e:
-            messages.error(request, "Error occurred while marking attendance",e)
+        except ObjectDoesNotExist as e:
+            messages.error(request, "Error occurred while marking attendance: " + str(e))
 
-         return redirect("calendar_view")
-        
+        return redirect("calendar_view")
+
 class WorkShiftView(View):
     def punch(request):
         logged_user = request.session.get('logged_user')

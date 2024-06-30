@@ -165,11 +165,12 @@ class TimeTableRollouts(models.Model):
 class Students(models.Model):
     enrollment_no = models.CharField(max_length=20, unique=True, verbose_name='Enrollment Number')
     student_name = models.CharField(max_length=100, verbose_name='Student Name')
-    Student_Class = models.ForeignKey(StudentClass, on_delete=models.SET_NULL, blank=True, null=True)
+    Student_Class = models.ForeignKey(StudentClass, on_delete=models.SET_NULL, blank=True, null=True, verbose_name='Student Class')
     Student_password = models.CharField(max_length=50, verbose_name='Student Password', blank=True, null=True)
     
-    def __str__(self):  
+    def __str__(self):
         return f'{self.student_name} ({self.enrollment_no}) - {self.Student_Class.Students_class_name if self.Student_Class else ""}'
+
 
 
 from .models import Students, Room, Subject, ClassDuration, Timetable, User
@@ -203,3 +204,11 @@ class StudentsRollouts(models.Model):
         start_time_str = self.start_time.strftime("%H:%M") if self.start_time else ""
         end_time_str = self.end_time.strftime("%H:%M") if self.end_time else ""
         return f"Class for: {subject_name} on {self.class_date} from {start_time_str} to {end_time_str}"
+
+class ActiveSession(models.Model):
+    enrollment_no = models.CharField(max_length=20)
+    ip_address = models.GenericIPAddressField()
+    last_logout = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.enrollment_no} - {self.ip_address}"

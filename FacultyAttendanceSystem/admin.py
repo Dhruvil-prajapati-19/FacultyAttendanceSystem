@@ -180,3 +180,7 @@ class StudentsRolloutsAdmin(admin.ModelAdmin):
 class StudentClassAdmin(admin.ModelAdmin):
     list_display = ('Students_class_name', 'semester')  # Fields to display in the admin list view
     search_fields = ('Students_class_name',)   
+
+@admin.register(models.ActiveSession)
+class ActiveSessionAdmin(admin.ModelAdmin):
+     pass    

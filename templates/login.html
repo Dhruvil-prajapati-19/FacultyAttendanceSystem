@@ -83,20 +83,20 @@
                                         <h5 class="card-title text-center pb-0 fs-4">Login to Your Account</h5>
                                         <p class="text-center">Welcome to Kdpp Attendance System</p>
                                         <p class="text-center small">Please enter the username and password provided by the administrator.</p>
-                                        <!-- {% if messages %}
+                                        {% if messages %}
                                             {% for message in messages %}
-                                                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
+                                                <div class="alert alert-danger {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
                                                     {{ message }}
                                                 </div>
                                             {% endfor %}
-                                        {% endif %} -->
+                                        {% endif %}
                                     </div>
                                     <ul class="nav nav-tabs justify-content-center">
                                         <li class="nav-item">
-                                            <a class="nav-link active" aria-current="page" href="#" id="user-tab">Faculty Login</a>
+                                            <a class="nav-link active" id="user-tab" style="cursor: pointer;">Faculty Login</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#" id="admin-tab">Student Login</a>
+                                            <a class="nav-link" id="admin-tab" style="cursor: pointer;">Student Login</a>
                                         </li>
                                     </ul>
 
@@ -123,25 +123,25 @@
                                     </div>
 
                                     <div id="admin-login" class="tab-content">
-                                        <form method="post" action="" class="row g-3 needs-validation" novalidate>
-                                            <!-- {% csrf_token %} -->
+                                        <form method="post" action="{% url 'login' %}" class="row g-3 needs-validation" novalidate>
+                                            {% csrf_token %}
                                             <div class="col-12">
-                                                <label for="adminUsername" class="form-label">Student Username</label>
+                                                <label for="enrollment_no" class="form-label">Student Enrollment Number</label>
                                                 <div class="input-group has-validation">
                                                     <span class="input-group-text" id="inputGroupPrepend"><h7 class="bi bi-person-circle"></h7></span>
-                                                    <input type="text" name="adminUsername" class="form-control" id="adminUsername" required>
-                                                    <div class="invalid-feedback">Please enter your admin username.</div>
+                                                    <input type="text" name="enrollment_no" class="form-control" id="enrollment_no" required>
+                                                    <div class="invalid-feedback">Please enter your student enrollment number.</div>
                                                 </div>
                                             </div>
                                             <div class="col-12">
-                                                <label for="adminPassword" class="form-label">Password</label>
-                                                <input type="password" name="adminPassword" class="form-control" id="adminPassword" required>
-                                                <div class="invalid-feedback">Please enter your admin password!</div>
+                                                <label for="student_password" class="form-label">Password</label>
+                                                <input type="password" name="student_password" class="form-control" id="student_password" required>
+                                                <div class="invalid-feedback">Please enter your student password!</div>
                                             </div>
                                             <div class="col-12">
                                                 <button class="btn btn-primary w-100" type="submit">Login</button>
                                             </div>
-                                        </form>
+                                        </form>                                        
                                     </div>
 
                                 </div>
@@ -166,14 +166,16 @@
 
     <!-- Custom JS for Tab Switching -->
     <script>
-        document.getElementById('user-tab').addEventListener('click', function () {
+        document.getElementById('user-tab').addEventListener('click', function (event) {
+            event.preventDefault();
             document.getElementById('user-login').classList.add('active');
             document.getElementById('admin-login').classList.remove('active');
             this.classList.add('active');
             document.getElementById('admin-tab').classList.remove('active');
         });
 
-        document.getElementById('admin-tab').addEventListener('click', function () {
+        document.getElementById('admin-tab').addEventListener('click', function (event) {
+            event.preventDefault();
             document.getElementById('admin-login').classList.add('active');
             document.getElementById('user-login').classList.remove('active');
             this.classList.add('active');
@@ -181,4 +183,5 @@
         });
     </script>
 </body>
+
 </html>
