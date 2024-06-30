@@ -22,7 +22,7 @@ class ClassDurationAdmin(admin.ModelAdmin):
 @admin.register(models.Faculty)
 class FacultyAdmin(admin.ModelAdmin):
     search_fields = ('name', 'short_name')
-    list_display = ('id','name', 'short_name')
+    list_display = ('name', 'short_name')
 
 @admin.register(models.Subject)
 class SubjectAdmin(admin.ModelAdmin):
@@ -136,7 +136,7 @@ class HolidaySchedulerAdmin(admin.ModelAdmin):
 # admin.py
 @admin.register(Students)
 class StudentsAdmin(admin.ModelAdmin):
-    list_display = ('enrollment_no', 'student_name', 'get_students_class_name')
+    list_display = ('enrollment_no', 'student_name', 'get_students_class_name', 'Student_password')
     list_filter = ('Student_Class__Students_class_name',)
     search_fields = ('enrollment_no', 'student_name')
     ordering = ('enrollment_no',)

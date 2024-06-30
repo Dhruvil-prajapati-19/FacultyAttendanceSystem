@@ -1,0 +1,6 @@
+asgiref==3.8.1
+Django==5.0.4
+openpyxl==3.1.2
+whitenoise==6.6.0
+data-wizard
+django-unfold

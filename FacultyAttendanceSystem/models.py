@@ -165,8 +165,9 @@ class TimeTableRollouts(models.Model):
 class Students(models.Model):
     enrollment_no = models.CharField(max_length=20, unique=True, verbose_name='Enrollment Number')
     student_name = models.CharField(max_length=100, verbose_name='Student Name')
-    Student_Class = models.ForeignKey(StudentClass, on_delete=models.CASCADE, blank=True, null=True)
-
+    Student_Class = models.ForeignKey(StudentClass, on_delete=models.SET_NULL, blank=True, null=True)
+    Student_password = models.CharField(max_length=50, verbose_name='Student Password', blank=True, null=True)
+    
     def __str__(self):  
         return f'{self.student_name} ({self.enrollment_no}) - {self.Student_Class.Students_class_name if self.Student_Class else ""}'
 

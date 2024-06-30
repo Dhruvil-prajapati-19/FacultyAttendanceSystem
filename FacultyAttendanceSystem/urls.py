@@ -5,7 +5,7 @@ from .decorators import Faculty_login_required
 admin.site.site_header = "KDPP Faculty Attendance Administration"
 admin.site.site_title = "KDPP Faculty Attendance Administration Portal"
 admin.site.index_title = "Welcome to KDPP Faculty Attendance Administration Portal"
-#handler404 = 'FacultyAttendanceSystem.views.error_404'
+handler404 = 'FacultyAttendanceSystem.views.error_404'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -14,7 +14,6 @@ urlpatterns = [
     path('Attendancesheet/',  Faculty_login_required(views.Attendancesheet.as_view()), name='calendar_view'),
     path('Students/',  Faculty_login_required(views.Studentsheet.as_view()), name='Students'),
     path('qr-students/',views.qr_students, name='qr_students'),
-    path('qr_code/', include('qr_code.urls', namespace='qr_code')), 
     path('datasheet/',Faculty_login_required(views.Datasheet.as_view()), name='datasheet'),
     path('download_attendance/<str:enrollment_no>/', Faculty_login_required(views.download_attendance_data), name='download_attendance_data'),
     path('download_all_attendance/', Faculty_login_required(views.download_all_attendance_data), name='download_all_attendance_data'),

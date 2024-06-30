@@ -1,4 +1,3 @@
-from urllib import request
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.urls import reverse
@@ -11,8 +10,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from openpyxl import Workbook # type: ignore
 from .forms import EnrollmentForm 
 
-'''def error_404(request, exception):
-    return render(request, 'pages-error-404.html', status=404)'''
+def error_404(request, exception):
+    return render(request, 'pages-error-404.html', status=404)
 
 def logout(request):
     if 'logged_user' in request.session:

@@ -25,18 +25,15 @@ SECRET_KEY = 'django-insecure-2^-98x+ue$mk%l-!ixdrw0aup2fm+^=s97dth_53x)^n84qg(z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '8f08-103-159-201-207.ngrok-free.app']
-CSRF_TRUSTED_ORIGINS = ["https://*.ngrok.io"]
-CSRF_TRUSTED_ORIGINS = [
-  'https://8f08-103-159-201-207.ngrok-free.app' 
-]
+ALLOWED_HOSTS = ['localhost']
+
 
 # https://b2a5-103-148-164-116.ngrok-free.app
 
 # Application definition
 
 INSTALLED_APPS = [
-    # "unfold",
+    # "unfold", 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -51,7 +48,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -129,13 +125,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # This path is used by the collectstatic command
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Enable the WhiteNoise storage backend only in production
-if not DEBUG:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -143,6 +139,3 @@ if not DEBUG:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/'
-
-
-BASE_URL = 'http://localhost:8000'  # Adjust according to your actual base URL
