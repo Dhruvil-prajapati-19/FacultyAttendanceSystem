@@ -1,13 +1,12 @@
 from django.contrib import admin
 from . import models
-from django.contrib import admin
-from .models import Students, Timetable,HolidayScheduler
-from django.contrib import admin
+from .models import Timetable,HolidayScheduler
+
 import data_wizard # type: ignore
+from FacultyAttendanceSystem.models import Students 
 data_wizard.register(Students)
 data_wizard.register(Timetable)
 data_wizard.register(HolidayScheduler)
-
 
 @admin.register(models.AdminCredentials)
 class AdminCredentialsAdmin(admin.ModelAdmin):
@@ -131,8 +130,7 @@ class HolidaySchedulerAdmin(admin.ModelAdmin):
     list_display = ('date', 'Title')
     list_filter = ('date', 'Title')
     search_fields = ('Title',)
-    
-# admin.py
+
 @admin.register(Students)
 class StudentsAdmin(admin.ModelAdmin):
     list_display = ('enrollment_no', 'student_name', 'get_students_class_name', 'Student_password')
@@ -144,9 +142,6 @@ class StudentsAdmin(admin.ModelAdmin):
         return obj.Student_Class.Students_class_name if obj.Student_Class else ''
     get_students_class_name.short_description = 'Class Name'
 
-
-
-    
 @admin.register(models.StudentsRollouts)
 class StudentsRolloutsAdmin(admin.ModelAdmin):
     list_display = ('student','faculty','subject', 'room', 'start_time', 'end_time', 'formatted_class_date', 'class_status' , 'student_attendance')
@@ -174,6 +169,7 @@ class StudentsRolloutsAdmin(admin.ModelAdmin):
         }),
     )
     readonly_fields = ('create_date', 'modified_date')
+
 
 @admin.register(models.StudentClass)
 class StudentClassAdmin(admin.ModelAdmin):

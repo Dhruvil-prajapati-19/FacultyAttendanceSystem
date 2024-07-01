@@ -33,7 +33,6 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    # "unfold", 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,8 +42,9 @@ INSTALLED_APPS = [
     'FacultyAttendanceSystem.apps.FacultyAttendanceSystemConfig',
     'data_wizard',
     'data_wizard.sources',
-    #  'FacultyAttendanceSystem',
+    'students',  # Ensure this is in the correct order based on dependencies
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -54,7 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'FacultyAttendanceSystem.middleware.StudentIPAuthMiddleware'
+    'students.middleware.StudentIPAuthMiddleware'
 ]
 
 ROOT_URLCONF = 'FacultyAttendanceSystem.urls'

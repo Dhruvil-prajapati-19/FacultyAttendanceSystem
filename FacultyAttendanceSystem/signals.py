@@ -7,7 +7,8 @@ from datetime import timedelta
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
-from .models import EventScheduler, HolidayScheduler, Students, Timetable, TimeTableRollouts, StudentsRollouts
+from FacultyAttendanceSystem.models import EventScheduler, HolidayScheduler,  Timetable, TimeTableRollouts
+from FacultyAttendanceSystem.models import Students, StudentsRollouts
 from datetime import timedelta
 
 @receiver(post_save, sender=Timetable)
