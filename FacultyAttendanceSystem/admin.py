@@ -3,7 +3,6 @@ from . import models
 from django.contrib import admin
 from .models import Students, Timetable,HolidayScheduler
 from django.contrib import admin
-from datetime import datetime
 import data_wizard # type: ignore
 data_wizard.register(Students)
 data_wizard.register(Timetable)

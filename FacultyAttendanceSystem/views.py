@@ -83,7 +83,6 @@ def Download_WorkShift(request):
 def index_redirect(request):
     return redirect('index/')
 
-
 def error_404_view(request):
     return render(request, 'pages-error-404.html')
 
@@ -99,14 +98,20 @@ def qr_students(request):
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils import timezone
-from django.contrib.auth import login, authenticate, logout as auth_logout
+from django.contrib.auth import login, logout as auth_logout
 from django.views import View
 from .models import Students, AdminCredentials, ActiveSession
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 import datetime
+from geopy.distance import geodesic # type: ignore
+from .models import AdminCredentials, Students, ActiveSession, User
 
-COOLDOWN_PERIOD = datetime.timedelta(minutes=1)
+# Constants for geographic authentication
+ALLOWED_LOCATION = (23.850872, 72.117408)
+MAX_DISTANCE_KM = 5  # Set your desired maximum distance in kilometers
+COOLDOWN_PERIOD = timezone.timedelta(minutes=10)  # Adjust as needed
+
 class LoginView(View):
     def get(self, request):
         return render(request, 'login.html')
@@ -134,13 +139,27 @@ class LoginView(View):
         # Handle Student login
         enrollment_no = request.POST.get('enrollment_no')
         student_password = request.POST.get('student_password')
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
 
         if enrollment_no and student_password:
+            if not latitude or not longitude:
+                messages.error(request, 'Location not provided')
+                return render(request, 'login.html')
+
             try:
                 student = Students.objects.get(enrollment_no=enrollment_no)
 
                 if student.Student_password == student_password:  # Directly compare passwords
                     user_ip = request.META['REMOTE_ADDR']
+
+                    # Check if the student is within the allowed location
+                    user_location = (float(latitude), float(longitude))
+                    distance = geodesic(ALLOWED_LOCATION, user_location).km
+
+                    if distance > MAX_DISTANCE_KM:
+                        messages.error(request, 'You are not within the allowed location')
+                        return render(request, 'login.html')
 
                     active_session = ActiveSession.objects.filter(ip_address=user_ip).first()
                     if active_session:
@@ -148,9 +167,9 @@ class LoginView(View):
                             if active_session.last_logout:
                                 cooldown_end = active_session.last_logout + COOLDOWN_PERIOD
                                 if timezone.now() < cooldown_end:
-                                    return HttpResponse(f"Access Denied: This IP address ({user_ip}) is temporarily blocked from logging into another account and is associated with user {active_session.enrollment_no}")
+                                    return HttpResponse(f"Access Denied:  your session  is temporarily blocked from logging into another account and is associated with user {active_session.enrollment_no}")
                             else:
-                                return HttpResponse(f"Access Denied: This IP address ({user_ip}) is already associated with user {active_session.enrollment_no}. You can only login as {active_session.enrollment_no}")
+                                return HttpResponse(f"Access Denied: your session is already associated with user {active_session.enrollment_no}. You can only login as {active_session.enrollment_no}")
 
                     # Authenticate user
                     django_user, created = User.objects.get_or_create(username=enrollment_no)
@@ -176,7 +195,6 @@ class LoginView(View):
         messages.error(request, "Please provide your credentials")
         return redirect('login')
 
-
 def student_logout_view(request):
     if request.user.is_authenticated:
         user_ip = request.META['REMOTE_ADDR']
@@ -185,12 +203,27 @@ def student_logout_view(request):
             active_session.last_logout = timezone.now()
             active_session.save()
         auth_logout(request)
-    return redirect('/')
+    return redirect('login')
 
-def welcome_view(request):
-    if not request.user.is_authenticated:
-        return redirect('/')
-    return render(request, 'welcome.html')
+class WelcomeView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            enrollment_no = request.user.username  # Assuming enrollment_no is the username
+            try:
+                student = Students.objects.get(enrollment_no=enrollment_no)
+                # Assuming Student_Class is a ForeignKey to another model (e.g., StudentClass)
+                student_class_details = student.Student_Class if student.Student_Class else None
+                context = {
+                    'student_name': student.student_name,
+                    'enrollment_no': student.enrollment_no,
+            
+                }
+                return render(request, 'welcome.html', context)
+            except Students.DoesNotExist:
+                messages.error(request, "Student not found")
+                return redirect('login')
+        else:
+            return redirect('login')
 
 
 from django.shortcuts import render, redirect
