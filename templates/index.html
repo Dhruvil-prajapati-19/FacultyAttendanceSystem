@@ -53,7 +53,6 @@
   <body>
       <!-- ======= Header ======= -->
       <header id="header" class="header fixed-top d-flex align-items-center">
-
         <div class="d-flex align-items-center justify-content-between">
           <a class="logo d-flex align-items-center">
               <img src="{% static 'img/logoX.jpg' %}" alt="Logo">
@@ -67,13 +66,9 @@
             <a class="nav-link d-flex align-items-center pe-3" >
               <img src="{% static 'img/default-profile-picture.jpg' %}" alt="Profile" class="rounded-circle" height="50px" width="50px">
               <span >{{ faculty_name }}</span>
-            </a><!-- End Profile Image Icon -->
-  
-          <!-- End Profile Nav -->
-  
+            </a>  
         </ul>
       </nav>
-      
       </header>
 
   <!-- ======= Sidebar ======= -->
@@ -87,8 +82,6 @@
           <span>Attendance Sheet</span>
         </a>
       </li>
-
-      
 
       <li class="nav-item">
           <a class="nav-link " href="{% url 'Students' %}">

@@ -94,9 +94,11 @@ class LoginView(View):
                             if active_session.last_logout:
                                 cooldown_end = active_session.last_logout + COOLDOWN_PERIOD
                                 if timezone.now() < cooldown_end:
-                                    return HttpResponse(f"Access Denied:  your session  is temporarily blocked from logging into another account and is associated with user {active_session.enrollment_no}")
+                                    messages.error(request, f"Access Denied: Your session is temporarily blocked for 24h from logging into another account and is associated with user {active_session.enrollment_no} if it not you then contact your admin")
+                                    return render(request, 'login.html')
                             else:
-                                return HttpResponse(f"Access Denied: your session is already associated with user {active_session.enrollment_no}. You can only login as {active_session.enrollment_no}")
+                                messages.error(request, f"Access Denied: Your session is already associated with user {active_session.enrollment_no}. You can only login as {active_session.enrollment_no} if it not you then contact your admin")
+                                return render(request, 'login.html')
 
                     # Authenticate user
                     django_user, created = User.objects.get_or_create(username=enrollment_no)
@@ -113,15 +115,14 @@ class LoginView(View):
                     return redirect('welcome')
                 else:
                     messages.error(request, "Invalid password")
-                    return redirect('login')
+                    return render(request, 'login.html')
             except Students.DoesNotExist:
                 messages.error(request, "Invalid enrollment number or password")
-                return redirect('login')
+                return render(request, 'login.html')
 
         # If neither student nor faculty login data is provided
         messages.error(request, "Please provide your credentials")
-        return redirect('login')
-
+        return render(request, 'login.html')
 
 def logout(request):
     if 'logged_user' in request.session:

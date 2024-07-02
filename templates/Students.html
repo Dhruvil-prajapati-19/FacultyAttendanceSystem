@@ -87,8 +87,7 @@
  </head>
   </head>
 
- <body>
-
+  <body>
       <!-- ======= Header ======= -->
       <header id="header" class="header fixed-top d-flex align-items-center">
 
@@ -107,7 +106,8 @@
               <span >{{ faculty_name }}</span>
             </a>
         </ul>
-      </nav>      
+      </nav>
+      
       </header>
 
   <!-- ======= Sidebar ======= -->
@@ -118,7 +118,7 @@
       <li class="nav-item">
         <a class="nav-link " href="{% url 'index' %}">
           <i class="bi bi-grid"></i>
-          <span>Faculty Attendance Sheet</span>
+          <span>Attendance Sheet</span>
         </a>
       </li>
       <li class="nav-item">
@@ -237,43 +237,39 @@
       </div>
         </div>
         <div class="container mt-4">
-            <!-- Students.html -->
+            <form method="GET" action="{% url 'Students' %}" class="form-inline mb-3">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="date" id="weekpicker" name="weekpicker" class="form-control form-control-sm" value="{{ selected_date }}">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Select Date</button>
+                    </div>
+                </div>
+                <div class="input-group ml-2">
+                    <select id="room" name="room" class="form-control form-control-sm">
+                        <option value="">Select a room</option>
+                        {% for room in rooms %}
+                        <option value="{{ room.id }}" {% if selected_room and room.id == selected_room.id %}selected{% endif %}>{{ room.room_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Select Room</button>
+                    </div>
+                </div>
+                <button style="margin-top: 10px;" type="submit" class="btn btn-sm btn-outline-primary ml-2">Filter</button>
+            </form>
 
-<form method="GET" action="{% url 'Students' %}" class="form-inline mb-3">
-  {% csrf_token %}
-  <div class="input-group">
-      <input type="date" id="weekpicker" name="weekpicker" class="form-control form-control-sm" value="{{ selected_date }}">
-      <div class="input-group-append">
-          <button type="submit" class="btn btn-sm btn-outline-primary">Select Date</button>
-      </div>
-  </div>
-  <div class="input-group ml-2">
-      <select id="room" name="room" class="form-control form-control-sm">
-          <option value="">Select a room</option>
-          {% for room in rooms %}
-          <option value="{{ room.id }}" {% if selected_room and room.id == selected_room.id %}selected{% endif %}>{{ room.room_name }}</option>
-          {% endfor %}
-      </select>
-      <div class="input-group-append">
-          <button type="submit" class="btn btn-sm btn-outline-primary">Select Room</button>
-      </div>
-  </div>
-  <button style="margin-top: 10px;" type="submit" class="btn btn-sm btn-outline-primary ml-2">Filter</button>
-</form>
-
-<form id="attendanceForm" method="POST" action="{% url 'Students' %}" class="form-inline">
-  {% csrf_token %}
-  <div class="input-group mb-3">
-      <textarea id="attendanceInput" name="attendanceInput" class="form-control" rows="2" cols="40" placeholder="Enter Enrollment numbers manually or via scan qr code "></textarea>
-  </div>
-  <input type="hidden" name="selected_date" value="{{ selected_date }}">
-  <input type="hidden" name="selected_room" value="{{ selected_room.id }}">
-  <input type="hidden" name="enrollment_no" value="{{ enrollment_no }}"> <!-- Hidden field for enrollment_no -->
-  <button type="button" id="scanQRButton" class="btn btn-outline-primary ml-2" data-toggle="modal" data-target="#qrModal">Scan QR Code</button>
-  <button type="button" id="scanQRButton" class="btn btn-outline-primary ml-2" data-toggle="modal" data-target="#qrCodeModal">Generate QR Code</button>
-  <button type="submit" class="btn btn-outline-primary ml-2">Submit Attendance</button>
-</form>
-
+            <form id="attendanceForm" method="POST" action="{% url 'Students' %}" class="form-inline">
+              {% csrf_token %}
+              <div class="input-group mb-3">
+                  <textarea id="attendanceInput" name="attendanceInput" class="form-control" rows="2" cols="40" placeholder="Enter Enrollment numbers manually or via scan qr code "></textarea>
+              </div>
+              <input type="hidden" name="selected_date" value="{{ selected_date }}">
+              <input type="hidden" name="selected_room" value="{{ selected_room.id }}">
+              <button type="button" id="scanQRButton" class="btn btn-outline-primary ml-2" data-toggle="modal" data-target="#qrModal">Scan QR Code</button>
+              <button type="button" id="scanQRButton" class="btn btn-outline-primary ml-2" data-toggle="modal" data-target="#qrCodeModal">Generate QR Code</button>
+              <button type="submit" class="btn btn-outline-primary ml-2">Submit Attendance</button>
+            </form>
              </div>
 
             <!-- QR Code Display Modal -->
@@ -294,7 +290,7 @@
                     {% endif %}
                   </div>
                   <div class="modal-footer">
-                    <!-- <button id="downloadButton" class="btn btn-primary btn-block">Save</button> -->
+                    <button id="downloadButton" class="btn btn-primary btn-block">Save</button>
                     <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
                   </div>
                 </div>

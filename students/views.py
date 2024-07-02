@@ -102,23 +102,8 @@ class Studentsheet(View):
         messages.success(request, "Attendance successfully marked")
         return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')
     
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.views import View
-from datetime import datetime, timedelta
-from FacultyAttendanceSystem.models import Room, Students, Faculty, StudentsRollouts
-
 class WelcomeView(View):
     def get(self, request):
-        todays_date = datetime.now().date()
-        selected_date_str = request.GET.get('weekpicker')
-        selected_room_id = request.GET.get('room')
-        
-        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d') if selected_date_str else todays_date
-        start_date = selected_date - timedelta(days=selected_date.weekday())
-        end_date = start_date + timedelta(days=6)
-
         if request.user.is_authenticated:
             enrollment_no = request.user.username  # Assuming enrollment_no is the username
             try:
@@ -126,16 +111,7 @@ class WelcomeView(View):
                 context = {
                     'student_name': student.student_name,
                     'enrollment_no': student.enrollment_no,
-                    'rooms': Room.objects.all(),
-                    'faculties': Faculty.objects.all(),  # Pass all faculties to the context
-                    'selected_date': selected_date,
-                    'selected_room': None,
                 }
-
-                if selected_room_id:
-                    selected_room = get_object_or_404(Room, id=selected_room_id)
-                    context.update({'selected_room': selected_room})
-
                 return render(request, 'welcome.html', context)
             except Students.DoesNotExist:
                 messages.error(request, "Student not found")
@@ -150,13 +126,7 @@ class WelcomeView(View):
         selected_faculty_id = request.POST.get('selected_faculty')
 
         if not attendance_input or not selected_date_str or not selected_room_id or not selected_faculty_id:
-            messages.error(request, "Incomplete attendance data provided")
-            return redirect("welcome")
-
-        try:
-            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
-        except ValueError:
-            messages.error(request, "Invalid date format")
+            messages.error(request, "Incomplete Qr code provided")
             return redirect("welcome")
 
         selected_room = get_object_or_404(Room, id=selected_room_id)
@@ -165,11 +135,11 @@ class WelcomeView(View):
         try:
             faculty = get_object_or_404(Faculty, id=selected_faculty_id)
         except Faculty.DoesNotExist:
-            messages.error(request, "Faculty not found")
+            messages.error(request, "Faculty not found from Qr code")
             return redirect("welcome")
 
         students_to_mark = StudentsRollouts.objects.filter(
-            class_date=selected_date,
+            class_date=selected_date_str,
             room=selected_room,
             faculty=faculty,
             student__enrollment_no__in=enrollment_numbers
@@ -180,9 +150,11 @@ class WelcomeView(View):
             student_rollout.save()
 
         messages.success(request, "Attendance successfully marked")
-        return HttpResponseRedirect(reverse('welcome') + f'?weekpicker={selected_date_str}&room={selected_room_id}&faculty={selected_faculty_id}')
+        return redirect("welcome")
 
-from django.contrib.auth import login, logout as auth_logout
+from django.contrib.auth import logout as auth_logout
+from django.utils import timezone
+
 def student_logout_view(request):
     if request.user.is_authenticated:
         user_ip = request.META['REMOTE_ADDR']
