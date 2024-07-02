@@ -20,7 +20,7 @@ class ClassDurationAdmin(admin.ModelAdmin):
 @admin.register(models.Faculty)
 class FacultyAdmin(admin.ModelAdmin):
     search_fields = ('name', 'short_name')
-    list_display = ('name', 'short_name')
+    list_display = ('id','name', 'short_name')
 
 @admin.register(models.Subject)
 class SubjectAdmin(admin.ModelAdmin):

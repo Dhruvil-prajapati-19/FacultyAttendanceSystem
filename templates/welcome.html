@@ -6,49 +6,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-      
-        #reader {
-          width: 100%;
-          height: 100%;
-          padding-bottom: 25%; 
-          background-color: #f8f9fa; 
-          border: 1px solid #dee2e6; 
-          border-radius: 0.25rem; 
-        }
-   
-    </style> 
 </head>
 <body>
     <div class="container mt-4">
         <h1>Welcome, {{ student_name }}</h1>
         <p>Enrollment Number: {{ enrollment_no }}</p>
-        <button type="button" id="scanQRButton" class="btn btn-outline-primary ml-2" data-toggle="modal" data-target="#qrModal">Scan QR Code</button>
+
+        <!-- Form for selecting date, room, and faculty -->
+        <form method="POST" action="{% url 'welcome' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="selected_date">Select Date:</label>
+                <input type="date" id="selected_date" name="selected_date" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="selected_room">Select Room:</label>
+                <select id="selected_room" name="selected_room" class="form-control" required>
+                    <option value="">Select a room</option>
+                    {% for room in rooms %}
+                        <option value="{{ room.id }}">{{ room.room_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="selected_faculty">Select Faculty:</label>
+                <select id="selected_faculty" name="selected_faculty" class="form-control" required>
+                    <option value="">Select a faculty</option>
+                    {% for faculty in faculties %}
+                        <option value="{{ faculty.id }}">{{ faculty.faculty_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="attendanceInput">Enter Enrollment Numbers (comma-separated):</label>
+                <textarea id="attendanceInput" name="attendanceInput" class="form-control" rows="3" placeholder="Enter Enrollment numbers manually or via scan QR code" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Attendance</button>
+        </form>
     </div>
-          <!-- QR Scan Modal -->
-          <div class="modal fade top-left-modal" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header" style="cursor: move;">
-                  <h5 class="modal-title" id="qrModalLabel">QR Code Scanner</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
+
+    <!-- QR Code scanning modal (if needed in the future) -->
+    <!--
+    <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="qrModalLabel">Scan QR Code</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
-                  <div id="reader"></div>
+                    <p>QR code scanning functionality will be implemented here.</p>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
-              </div>
             </div>
-          </div>          
-          <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-          <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-          <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-          <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-          <script src="{%static 'js/Students.js'%}"></script>
-          <script src="{% static 'js/html5-qrcode.min.js' %}"></script>
+        </div>
+    </div>
+    -->
+
+    <!-- Optional JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
