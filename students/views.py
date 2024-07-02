@@ -1,13 +1,14 @@
-from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
-from datetime import datetime, timedelta, timezone
-from django.http import HttpResponse, HttpResponseRedirect
 from django.views import View
-from FacultyAttendanceSystem.models import AdminCredentials, Room
-from FacultyAttendanceSystem.models import ActiveSession, Students, StudentsRollouts
-from django.core.exceptions import ObjectDoesNotExist
-from django.urls import reverse
+from datetime import datetime, timedelta, timezone
+from FacultyAttendanceSystem.models import ActiveSession, AdminCredentials, Room, StudentsRollouts, Students
+from django.contrib import messages
+import qrcode # type: ignore
+from django.http import HttpResponse, HttpResponseRedirect
+from io import BytesIO
+import base64
+
 
 class Studentsheet(View):
     def get(self, request):
@@ -30,38 +31,52 @@ class Studentsheet(View):
         if selected_room_id:
             selected_room = get_object_or_404(Room, id=selected_room_id)
 
-        Students_rollouts = StudentsRollouts.objects.filter(
-            faculty=faculty,
-            room=selected_room,
-            class_date__gte=start_date,
-            class_date__lte=end_date,
-        )
-
         context = {
             'faculty_name': faculty,
             'todays_date': todays_date,
-            'success': True,
-            'selected_date': selected_date.strftime('%Y-%m-%d'),
-            'monday_date': start_date.strftime('%a %d %b, %Y'),
-            'tuesday_date': (start_date + timedelta(days=1)).strftime('%a %d %b, %Y'),
-            'wednesday_date': (start_date + timedelta(days=2)).strftime('%a %d %b, %Y'),
-            'thursday_date': (start_date + timedelta(days=3)).strftime('%a %d %b, %Y'),
-            'friday_date': (start_date + timedelta(days=4)).strftime('%a %d %b, %Y'),
-            'saturday_date': (start_date + timedelta(days=5)).strftime('%a %d %b, %Y'),
-            'sunday_date': end_date.strftime('%a %d %b, %Y'),
-            'monday_classes': Students_rollouts.filter(class_date=start_date),
-            'tuesday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=1)),
-            'wednesday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=2)),
-            'thursday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=3)),
-            'friday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=4)),
-            'saturday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=5)),
-            'sunday_classes': Students_rollouts.filter(class_date=end_date),
             'rooms': Room.objects.all(),
-            'selected_room': selected_room,
+            'success': False,  # default to False
         }
+
+        if faculty and selected_date_str and selected_room_id:
+            Students_rollouts = StudentsRollouts.objects.filter(
+                faculty=faculty,
+                room=selected_room,
+                class_date__gte=start_date,
+                class_date__lte=end_date,
+            )
+
+            # Generate QR code data
+            qr_data = f'{faculty.id},{selected_room.id},{selected_date_str}'
+            qr_img = qrcode.make(qr_data)
+            buffer = BytesIO()
+            qr_img.save(buffer, format="PNG")
+            qr_code_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+            context.update({
+                'success': True,
+                'selected_date': selected_date.strftime('%Y-%m-%d'),
+                'monday_date': start_date.strftime('%a %d %b, %Y'),
+                'tuesday_date': (start_date + timedelta(days=1)).strftime('%a %d %b, %Y'),
+                'wednesday_date': (start_date + timedelta(days=2)).strftime('%a %d %b, %Y'),
+                'thursday_date': (start_date + timedelta(days=3)).strftime('%a %d %b, %Y'),
+                'friday_date': (start_date + timedelta(days=4)).strftime('%a %d %b, %Y'),
+                'saturday_date': (start_date + timedelta(days=5)).strftime('%a %d %b, %Y'),
+                'sunday_date': end_date.strftime('%a %d %b, %Y'),
+                'monday_classes': Students_rollouts.filter(class_date=start_date),
+                'tuesday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=1)),
+                'wednesday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=2)),
+                'thursday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=3)),
+                'friday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=4)),
+                'saturday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=5)),
+                'sunday_classes': Students_rollouts.filter(class_date=end_date),
+                'selected_room': selected_room,
+                'qr_code_data': qr_code_data,
+            })
 
         return render(request, 'Students.html', context)
 
+    
     def post(self, request):
         attendance_input = request.POST.get('attendanceInput')
         selected_date = request.POST.get('selected_date')
@@ -96,12 +111,9 @@ class WelcomeView(View):
             enrollment_no = request.user.username  # Assuming enrollment_no is the username
             try:
                 student = Students.objects.get(enrollment_no=enrollment_no)
-                # Assuming Student_Class is a ForeignKey to another model (e.g., StudentClass)
-                student_class_details = student.Student_Class if student.Student_Class else None
                 context = {
                     'student_name': student.student_name,
                     'enrollment_no': student.enrollment_no,
-            
                 }
                 return render(request, 'welcome.html', context)
             except Students.DoesNotExist:
@@ -109,6 +121,7 @@ class WelcomeView(View):
                 return redirect('login')
         else:
             return redirect('login')
+
  
 from django.contrib.auth import login, logout as auth_logout
 def student_logout_view(request):

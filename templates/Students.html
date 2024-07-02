@@ -237,58 +237,90 @@
       </div>
         </div>
         <div class="container mt-4">
-          <form method="GET" action="{% url 'Students' %}" class="form-inline mb-3">
+            <form method="GET" action="{% url 'Students' %}" class="form-inline mb-3">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="date" id="weekpicker" name="weekpicker" class="form-control form-control-sm" value="{{ selected_date }}">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Select Date</button>
+                    </div>
+                </div>
+                <div class="input-group ml-2">
+                    <select id="room" name="room" class="form-control form-control-sm">
+                        <option value="">Select a room</option>
+                        {% for room in rooms %}
+                        <option value="{{ room.id }}" {% if selected_room and room.id == selected_room.id %}selected{% endif %}>{{ room.room_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Select Room</button>
+                    </div>
+                </div>
+                <button style="margin-top: 10px;" type="submit" class="btn btn-sm btn-outline-primary ml-2">Filter</button>
+            </form>
+
+            <form id="attendanceForm" method="POST" action="{% url 'Students' %}" class="form-inline">
               {% csrf_token %}
-              <div class="input-group">
-                  <input type="date" id="weekpicker" name="weekpicker" class="form-control form-control-sm" value="{{ selected_date }}">
-                  <div class="input-group-append">
-                      <button type="submit" class="btn btn-sm btn-outline-primary">Select Date</button>
-                  </div>
+              <div class="input-group mb-3">
+                  <textarea id="attendanceInput" name="attendanceInput" class="form-control" rows="2" cols="40" placeholder="Enter Enrollment numbers manually or via scan qr code "></textarea>
               </div>
-              <div class="input-group ml-2">
-                  <select id="room" name="room" class="form-control form-control-sm">
-                      <option value="">Select a room</option>
-                      {% for room in rooms %}
-                      <option value="{{ room.id }}" {% if selected_room and room.id == selected_room.id %}selected{% endif %}>{{ room.room_name }}</option>
-                      {% endfor %}
-                  </select>
-                  <div class="input-group-append">
-                      <button type="submit" class="btn btn-sm btn-outline-primary">Select Room</button>
+              <input type="hidden" name="selected_date" value="{{ selected_date }}">
+              <input type="hidden" name="selected_room" value="{{ selected_room.id }}">
+              <button type="button" id="scanQRButton" class="btn btn-outline-primary ml-2" data-toggle="modal" data-target="#qrModal">Scan QR Code</button>
+              <button type="button" id="scanQRButton" class="btn btn-outline-primary ml-2" data-toggle="modal" data-target="#qrCodeModal">Generate QR Code</button>
+              <button type="submit" class="btn btn-outline-primary ml-2">Submit Attendance</button>
+            </form>
+             </div>
+
+            <!-- QR Code Display Modal -->
+            <div class="modal fade top-left-modal" id="qrCodeModal" tabindex="-1" role="dialog" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header" style="cursor: move;" draggable="true">
+                    <h5 class="modal-title" id="qrModalLabel">QR Code Generate</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
                   </div>
+                  <div class="modal-body">
+                    {% if qr_code_data %}
+                    <div class="mt-4">
+                        <img id="qrCodeImage" src="data:image/png;base64,{{ qr_code_data }}" alt="QR Code" class="img-fluid">
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="modal-footer">
+                    <!-- <button id="downloadButton" class="btn btn-primary btn-block">Save</button> -->
+                    <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
               </div>
-              <button type="submit" class="btn btn-sm btn-outline-primary ml-2">Filter</button>
-          </form>
-          <form id="attendanceForm" method="POST" action="{% url 'Students' %}" class="form-inline">
-            {% csrf_token %}
-            <div class="input-group mb-3">
-                <textarea id="attendanceInput" name="attendanceInput" class="form-control" rows="2" cols="40" placeholder="Enrollment numbers"></textarea>
             </div>
-            <input type="hidden" name="selected_date" value="{{ selected_date }}">
-            <input type="hidden" name="selected_room" value="{{ selected_room.id }}">
-            <button type="button" id="scanQRButton" class="btn btn-outline-primary ml-2" data-toggle="modal" data-target="#qrModal">Scan QR Code</button>
-            <button type="submit" class="btn btn-outline-primary ml-2">Submit Attendance</button>
-        </form>
-        </div>
-        <div class="modal fade top-left-modal" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
-          <div class="modal-dialog" role="document">
-            <div class="modal-content">
-              <div class="modal-header" style="cursor: move;">
-                <h5 class="modal-title" id="qrModalLabel">QR Code Scanner</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <div id="reader"></div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
+
+
+          <!-- QR Scan Modal -->
+          <div class="modal fade top-left-modal" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header" style="cursor: move;">
+                  <h5 class="modal-title" id="qrModalLabel">QR Code Scanner</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div id="reader"></div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+
       </div>
     </div>
+
     <div class="wrapper">
       <div class="table">
         <div class="headers">
@@ -493,39 +525,64 @@
         Developed by Dhruvil 
       </div>
     </footer>
-    <script>
-      // JavaScript to make modal draggable
-      document.addEventListener('DOMContentLoaded', function() {
-        var modal = document.getElementById('qrModal');
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var modals = document.querySelectorAll('#qrCodeModal, #qrModal');
+
+    modals.forEach(function(modal) {
         var header = modal.querySelector('.modal-header');
-  
         var posX = 0, posY = 0, posX1 = 0, posY1 = 0;
-  
+
         header.addEventListener('mousedown', dragMouseDown);
-  
+
         function dragMouseDown(e) {
-          e.preventDefault();
-          posX1 = e.clientX;
-          posY1 = e.clientY;
-          document.onmouseup = closeDragElement;
-          document.onmousemove = elementDrag;
+            e.preventDefault();
+            posX1 = e.clientX;
+            posY1 = e.clientY;
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
         }
-  
+
         function elementDrag(e) {
-          e.preventDefault();
-          posX = posX1 - e.clientX;
-          posY = posY1 - e.clientY;
-          posX1 = e.clientX;
-          posY1 = e.clientY;
-          modal.style.top = (modal.offsetTop - posY) + "px";
-          modal.style.left = (modal.offsetLeft - posX) + "px";
+            e.preventDefault();
+            posX = posX1 - e.clientX;
+            posY = posY1 - e.clientY;
+            posX1 = e.clientX;
+            posY1 = e.clientY;
+            modal.style.top = (modal.offsetTop - posY) + "px";
+            modal.style.left = (modal.offsetLeft - posX) + "px";
         }
-  
+
         function closeDragElement() {
-          document.onmouseup = null;
-          document.onmousemove = null;
+            document.onmouseup = null;
+            document.onmousemove = null;
         }
-      });
+    });
+});
+
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+  var downloadButton = document.getElementById('downloadButton');
+  var qrCodeImage = document.getElementById('qrCodeImage');
+
+  if (downloadButton && qrCodeImage) {
+    downloadButton.addEventListener('click', function() {
+      var roomName = "{{ selected_room.name }}"; // Adjust this if room name comes differently
+      var selectedDate = "{{ selected_date|date:'Y-m-d' }}"; // Adjust this if date comes differently
+
+      var link = document.createElement('a');
+      link.href = qrCodeImage.src;
+      link.download = `QR_Code_${roomName}_${selectedDate}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  }
+});
+
     </script>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9W5+2QpHp7FZE9Ns7UJ0B4RvDxH47auKJ39MX" crossorigin="anonymous"></script>

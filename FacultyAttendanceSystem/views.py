@@ -36,7 +36,7 @@ from .models import AdminCredentials, Students, ActiveSession, User
 
 # Constants for geographic authentication
 ALLOWED_LOCATION = (23.850872, 72.117408)
-MAX_DISTANCE_KM = 5  # Set your desired maximum distance in kilometers
+MAX_DISTANCE_KM = 50  # Set your desired maximum distance in kilometers
 COOLDOWN_PERIOD = timezone.timedelta(minutes=1440)  # Adjust as needed
 
 class LoginView(View):
