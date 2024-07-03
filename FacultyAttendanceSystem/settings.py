@@ -25,12 +25,12 @@ SECRET_KEY = 'django-insecure-2^-98x+ue$mk%l-!ixdrw0aup2fm+^=s97dth_53x)^n84qg(z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '1193-103-148-164-80.ngrok-free.app']
+ALLOWED_HOSTS = ['localhost', 'c423-103-148-164-105.ngrok-free.app']
 CSRF_TRUSTED_ORIGINS = ["https://*.ngrok.io"]
 CSRF_TRUSTED_ORIGINS = [
-  'https://1193-103-148-164-80.ngrok-free.app' 
+  'https://c423-103-148-164-105.ngrok-free.app' 
 ]
-# https://1193-103-148-164-80.ngrok-free.app
+
 
 # Application definition
 
@@ -110,6 +110,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# 
+# settings.py
+SECRET_KEY = '$itjp1obideu95=sty9*%q+df&e&*)tlwh%%8m$+u4gd&-rp3!'
+QR_SECRET_KEY = 'd@^#-__e%7afsov31n(njz-sgjwmerue(ik_##1e(*wym%0oy1'  
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

@@ -7,7 +7,10 @@ from datetime import datetime, timedelta, timezone
 import qrcode # type: ignore
 from io import BytesIO
 import base64
+from FacultyAttendanceSystem import settings 
 from FacultyAttendanceSystem.models import ActiveSession, AdminCredentials, Faculty, Room, StudentsRollouts, Students
+from django.core import signing
+
 
 class Studentsheet(View):
     def get(self, request):
@@ -101,7 +104,22 @@ class Studentsheet(View):
 
         messages.success(request, "Attendance successfully marked")
         return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')
-    
+
+class MarkAttendanceButtonView(View):
+    def post(self, request):
+        student_rollout_id = request.POST.get('student_rollout_id')
+        attendance = request.POST.get('attendance') == 'true'
+        
+        try:
+            class_rollout = StudentsRollouts.objects.get(id=student_rollout_id)
+            class_rollout.student_attendance = attendance
+            class_rollout.save()
+            messages.success(request, "Attendance has been marked")
+        except StudentsRollouts.DoesNotExist:
+            messages.error(request, "Student rollout not found.")
+        
+        return redirect("Students")
+        
 class WelcomeView(View):
     def get(self, request):
         if request.user.is_authenticated:
