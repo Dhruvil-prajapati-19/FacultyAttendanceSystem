@@ -17,7 +17,7 @@ class Studentsheet(View):
         todays_date = datetime.now().date()
         selected_date_str = request.GET.get('weekpicker')
         selected_room_id = request.GET.get('room')
-        
+
         selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d') if selected_date_str else todays_date
         start_date = selected_date - timedelta(days=selected_date.weekday())
         end_date = start_date + timedelta(days=6)
@@ -31,79 +31,97 @@ class Studentsheet(View):
                 pass
 
         selected_room = None
+        students_rollouts = StudentsRollouts.objects.none()  # Initialize as empty queryset
+        qr_code_data = None
+
         if selected_room_id:
             selected_room = get_object_or_404(Room, id=selected_room_id)
 
+            if faculty:
+                students_rollouts = StudentsRollouts.objects.filter(
+                    faculty=faculty,
+                    room=selected_room,
+                    class_date__gte=start_date,
+                    class_date__lte=end_date,
+                )
+
+                # Generate QR code data with a token
+                qr_data = f'{faculty.id},{selected_room.id},{selected_date_str}'
+                token = signing.dumps(qr_data, key=settings.QR_SECRET_KEY)
+                qr_img = qrcode.make(token)
+                buffer = BytesIO()
+                qr_img.save(buffer, format="PNG")
+                qr_code_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
+
         context = {
+            'success': True,
             'faculty_name': faculty,
             'todays_date': todays_date,
             'rooms': Room.objects.all(),
-            'success': False,
+            'selected_date': selected_date.strftime('%Y-%m-%d'),
+            'monday_date': start_date.strftime('%a %d %b, %Y'),
+            'tuesday_date': (start_date + timedelta(days=1)).strftime('%a %d %b, %Y'),
+            'wednesday_date': (start_date + timedelta(days=2)).strftime('%a %d %b, %Y'),
+            'thursday_date': (start_date + timedelta(days=3)).strftime('%a %d %b, %Y'),
+            'friday_date': (start_date + timedelta(days=4)).strftime('%a %d %b, %Y'),
+            'saturday_date': (start_date + timedelta(days=5)).strftime('%a %d %b, %Y'),
+            'sunday_date': end_date.strftime('%a %d %b, %Y'),
+            'monday_classes': students_rollouts.filter(class_date=start_date),
+            'tuesday_classes': students_rollouts.filter(class_date=start_date + timedelta(days=1)),
+            'wednesday_classes': students_rollouts.filter(class_date=start_date + timedelta(days=2)),
+            'thursday_classes': students_rollouts.filter(class_date=start_date + timedelta(days=3)),
+            'friday_classes': students_rollouts.filter(class_date=start_date + timedelta(days=4)),
+            'saturday_classes': students_rollouts.filter(class_date=start_date + timedelta(days=5)),
+            'sunday_classes': students_rollouts.filter(class_date=end_date),
+            'selected_room': selected_room,
+            'qr_code_data': qr_code_data,
         }
-
-        if faculty and selected_date_str and selected_room_id:
-            Students_rollouts = StudentsRollouts.objects.filter(
-                faculty=faculty,
-                room=selected_room,
-                class_date__gte=start_date,
-                class_date__lte=end_date,
-            )
-
-            # Generate QR code data
-            qr_data = f'{faculty.id},{selected_room.id},{selected_date_str}'
-            qr_img = qrcode.make(qr_data)
-            buffer = BytesIO()
-            qr_img.save(buffer, format="PNG")
-            qr_code_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
-
-            context.update({
-                'success': True,
-                'selected_date': selected_date.strftime('%Y-%m-%d'),
-                'monday_date': start_date.strftime('%a %d %b, %Y'),
-                'tuesday_date': (start_date + timedelta(days=1)).strftime('%a %d %b, %Y'),
-                'wednesday_date': (start_date + timedelta(days=2)).strftime('%a %d %b, %Y'),
-                'thursday_date': (start_date + timedelta(days=3)).strftime('%a %d %b, %Y'),
-                'friday_date': (start_date + timedelta(days=4)).strftime('%a %d %b, %Y'),
-                'saturday_date': (start_date + timedelta(days=5)).strftime('%a %d %b, %Y'),
-                'sunday_date': end_date.strftime('%a %d %b, %Y'),
-                'monday_classes': Students_rollouts.filter(class_date=start_date),
-                'tuesday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=1)),
-                'wednesday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=2)),
-                'thursday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=3)),
-                'friday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=4)),
-                'saturday_classes': Students_rollouts.filter(class_date=start_date + timedelta(days=5)),
-                'sunday_classes': Students_rollouts.filter(class_date=end_date),
-                'selected_room': selected_room,
-                'qr_code_data': qr_code_data,
-            })
 
         return render(request, 'Students.html', context)
 
     def post(self, request):
-        attendance_input = request.POST.get('attendanceInput')
-        selected_date = request.POST.get('selected_date')
-        selected_room_id = request.POST.get('selected_room')
-        enrollment_no = request.POST.get('enrollment_no')
+            attendance_input = request.POST.get('attendanceInput')
+            selected_date = request.POST.get('selected_date')
+            selected_room_id = request.POST.get('selected_room')
+             
+            if not attendance_input or not selected_date or not selected_room_id:
+                messages.error(request, "Incomplete attendance data provided")
+                return redirect("Students")
 
-        if not attendance_input or not selected_date or not selected_room_id:
-            messages.error(request, "Incomplete attendance data provided")
-            return redirect("Students")
+            selected_room = get_object_or_404(Room, id=selected_room_id)
+            enrollment_numbers = [enrollment.strip() for enrollment in attendance_input.split(',') if enrollment.strip()]
+            
+            students_to_mark = StudentsRollouts.objects.filter(
+                class_date=selected_date,
+                room=selected_room,
+                student__enrollment_no__in=enrollment_numbers
+            )
 
-        selected_room = get_object_or_404(Room, id=selected_room_id)
-        enrollment_numbers = [enrollment.strip() for enrollment in attendance_input.split(',') if enrollment.strip()]
+            # Check if there are multiple students to mark attendance for
+            unique_enrollment_numbers = students_to_mark.values_list('student__enrollment_no', flat=True).distinct()
+            if len(unique_enrollment_numbers) > 1:
+                # Get the start and end time of the class
+                class_start_time = students_to_mark.first().start_time
+                class_end_time = students_to_mark.first().end_time
 
-        students_to_mark = StudentsRollouts.objects.filter(
-            class_date=selected_date,
-            room=selected_room,
-            student__enrollment_no__in=enrollment_numbers
-        )
+                # Get current time
+                current_time = datetime.now().time()
 
-        for student_rollout in students_to_mark:
-            student_rollout.student_attendance = True
-            student_rollout.save()
+                for student_rollout in students_to_mark:
+                    # Check if current time is between start and end time of the class
+                    if class_start_time <= current_time <= class_end_time:
+                        student_rollout.student_attendance = True
+                        student_rollout.save()
+                    else:
+                        messages.error(request, f"Cannot mark attendance for student {student_rollout.student} outside class time.")
+            else:
+                # Mark attendance without time restriction for single student scenario
+                for student_rollout in students_to_mark:
+                    student_rollout.student_attendance = True
+                    student_rollout.save()
 
-        messages.success(request, "Attendance successfully marked")
-        return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')
+            messages.success(request, "Attendance successfully marked")
+            return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')
 
 class MarkAttendanceButtonView(View):
     def post(self, request):
@@ -170,9 +188,9 @@ class WelcomeView(View):
         messages.success(request, "Attendance successfully marked")
         return redirect("welcome")
 
+
 from django.contrib.auth import logout as auth_logout
 from django.utils import timezone
-
 def student_logout_view(request):
     if request.user.is_authenticated:
         user_ip = request.META['REMOTE_ADDR']
