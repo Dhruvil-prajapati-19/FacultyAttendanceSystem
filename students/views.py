@@ -80,48 +80,43 @@ class Studentsheet(View):
         return render(request, 'Students.html', context)
 
     def post(self, request):
-            attendance_input = request.POST.get('attendanceInput')
-            selected_date = request.POST.get('selected_date')
-            selected_room_id = request.POST.get('selected_room')
-             
-            if not attendance_input or not selected_date or not selected_room_id:
-                messages.error(request, "Incomplete attendance data provided")
-                return redirect("Students")
+        attendance_input = request.POST.get('attendanceInput')
+        selected_date = request.POST.get('selected_date')
+        selected_room_id = request.POST.get('selected_room')
 
-            selected_room = get_object_or_404(Room, id=selected_room_id)
-            enrollment_numbers = [enrollment.strip() for enrollment in attendance_input.split(',') if enrollment.strip()]
-            
-            students_to_mark = StudentsRollouts.objects.filter(
-                class_date=selected_date,
-                room=selected_room,
-                student__enrollment_no__in=enrollment_numbers
-            )
+        if not attendance_input or not selected_date or not selected_room_id:
+            messages.error(request, "Incomplete attendance data provided")
+            return redirect("Students")
 
-            # Check if there are multiple students to mark attendance for
-            unique_enrollment_numbers = students_to_mark.values_list('student__enrollment_no', flat=True).distinct()
-            if len(unique_enrollment_numbers) > 1:
-                # Get the start and end time of the class
-                class_start_time = students_to_mark.first().start_time
-                class_end_time = students_to_mark.first().end_time
+        selected_room = get_object_or_404(Room, id=selected_room_id)
+        enrollment_numbers = [enrollment.strip() for enrollment in attendance_input.split(',') if enrollment.strip()]
 
-                # Get current time
-                current_time = datetime.now().time()
+        students_to_mark = StudentsRollouts.objects.filter(
+            class_date=selected_date,
+            room=selected_room,
+            student__enrollment_no__in=enrollment_numbers
+        )
 
-                for student_rollout in students_to_mark:
-                    # Check if current time is between start and end time of the class
-                    if class_start_time <= current_time <= class_end_time:
-                        student_rollout.student_attendance = True
-                        student_rollout.save()
-                    else:
-                        messages.error(request, f"Cannot mark attendance for student {student_rollout.student} outside class time.")
+        # Get the current time
+        current_time = datetime.now().time()
+
+        # Iterate over students to mark attendance
+        for student_rollout in students_to_mark:
+            student_enrollment = student_rollout.student.enrollment_no
+
+            # Get the start and end time of the class
+            class_start_time = student_rollout.start_time
+            class_end_time = student_rollout.end_time
+
+            # Check if current time is between start and end time of the class
+            if class_start_time <= current_time <= class_end_time:
+                student_rollout.student_attendance = True
+                student_rollout.save()
             else:
-                # Mark attendance without time restriction for single student scenario
-                for student_rollout in students_to_mark:
-                    student_rollout.student_attendance = True
-                    student_rollout.save()
+                messages.error(request, f"Cannot mark attendance for student {student_rollout.student} outside class time.")
 
-            messages.success(request, "Attendance successfully marked")
-            return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')
+        messages.success(request, "Attendance successfully marked")
+        return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')
 
 class MarkAttendanceButtonView(View):
     def post(self, request):
