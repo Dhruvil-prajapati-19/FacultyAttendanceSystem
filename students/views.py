@@ -161,38 +161,51 @@ class WelcomeView(View):
             return redirect('login')
 
     def post(self, request):
-        attendance_input = request.POST.get('attendanceInput')
-        selected_date_str = request.POST.get('selected_date')
-        selected_room_id = request.POST.get('selected_room')
-        selected_faculty_id = request.POST.get('selected_faculty')
+            # Get the QR code data and attendance input from the form
+            attendance_input = request.POST.get('attendanceInput')
+            qr_code_data = request.POST.get('qr_code_data')
 
-        if not attendance_input or not selected_date_str or not selected_room_id or not selected_faculty_id:
-            messages.error(request, "Incomplete Qr code provided")
+            try:
+                # Decode the QR code data
+                decoded_data = signing.loads(qr_code_data, key=settings.QR_SECRET_KEY)
+                faculty_id, room_id, selected_date_str = decoded_data.split(',')
+                selected_faculty_id = int(faculty_id)
+                selected_room_id = int(room_id)
+            except signing.BadSignature:
+                messages.error(request, "Invalid QR code provided")
+                return redirect("welcome")
+            except ValueError:
+                messages.error(request, "Malformed QR code data")
+                return redirect("welcome")
+
+            # Retrieve the Faculty and Room objects based on IDs
+            try:
+                faculty = get_object_or_404(Faculty, id=selected_faculty_id)
+            except Faculty.DoesNotExist:
+                messages.error(request, "Faculty not found from QR code")
+                return redirect("welcome")
+
+            selected_room = get_object_or_404(Room, id=selected_room_id)
+
+            # Assuming you have the student's enrollment number stored in the session
+            enrollment_number = attendance_input
+
+            # Query for students to mark attendance
+            students_to_mark = StudentsRollouts.objects.filter(
+                class_date=selected_date_str,
+                room=selected_room,
+                faculty=faculty,
+                student__enrollment_no=enrollment_number
+            )
+
+            # Mark attendance for each student found
+            for student_rollout in students_to_mark:
+                student_rollout.student_attendance = True
+                student_rollout.save()
+
+            # Display success message
+            messages.success(request, "Attendance successfully marked")
             return redirect("welcome")
-
-        selected_room = get_object_or_404(Room, id=selected_room_id)
-        enrollment_numbers = [enrollment.strip() for enrollment in attendance_input.split(',') if enrollment.strip()]
-
-        try:
-            faculty = get_object_or_404(Faculty, id=selected_faculty_id)
-        except Faculty.DoesNotExist:
-            messages.error(request, "Faculty not found from Qr code")
-            return redirect("welcome")
-
-        students_to_mark = StudentsRollouts.objects.filter(
-            class_date=selected_date_str,
-            room=selected_room,
-            faculty=faculty,
-            student__enrollment_no__in=enrollment_numbers
-        )
-
-        for student_rollout in students_to_mark:
-            student_rollout.student_attendance = True
-            student_rollout.save()
-
-        messages.success(request, "Attendance successfully marked")
-        return redirect("welcome")
-
 
 from django.contrib.auth import logout as auth_logout
 from django.utils import timezone

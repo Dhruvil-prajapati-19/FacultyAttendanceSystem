@@ -210,14 +210,16 @@
                     {% endif %}
                 {% endif %}
                 <form method="get" action="{% url 'download_all_attendance_data' %}">
-                    <button type="submit" class="btn btn-sm btn-outline-primary" >Download All Students Attendance Data</button>
+                    <button style="margin-top: 10px;" type="submit" class="btn btn-sm btn-outline-primary" >Download All Students Attendance Data</button>
                 </form>
+                <div class="container-fluid" style="margin-top: 10px;">
                 <a href="{% url 'download_data' %}">
                     <button type="submit" class="btn btn-sm btn-outline-primary" >Download Faculty Attendance Data</button>
                 </a>
                 <a href="{% url 'download_work_shift' %}">
                     <button type="submit" class="btn btn-sm btn-outline-primary" >Download Work Shift Data</button>
                 </a>
+              </div>
             </div>
         </div>
         <div id="top-of-site-pixel-anchor"></div>
