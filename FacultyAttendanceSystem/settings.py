@@ -112,8 +112,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # 
 # settings.py
-SECRET_KEY = '$itjp1obideu95=sty9*%q+df&e&*)tlwh%%8m$+u4gd&-rp3!'
-QR_SECRET_KEY = 'd@^#-__e%7afsov31n(njz-sgjwmerue(ik_##1e(*wym%0oy1'  
+# settings.py
+
+import secrets
+
+# Generate a random key of 32 bytes (256 bits)
+QR_SECRET_KEY = b'R\xd5\xde\x86_\x84\x036o3\xd4\x95\xcb\x99\xe6\xf8<\x9co\xf9\x84Y\xe3\x9a\xa9^,\xa8\xd8\xd3\x93\xa4'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

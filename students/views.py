@@ -3,13 +3,15 @@ from django.views import View
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from datetime import datetime, timedelta, timezone 
+from datetime import datetime, timedelta
 import qrcode # type: ignore
 from io import BytesIO
 import base64
-from FacultyAttendanceSystem import settings 
-from FacultyAttendanceSystem.models import ActiveSession, AdminCredentials, Faculty, Room, StudentsRollouts, Students
-from django.core import signing
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import padding
+from django.conf import settings
+from FacultyAttendanceSystem.models import ActiveSession, AdminCredentials, Faculty, Room, StudentsRollouts
 from django.db.models import Count
 
 class Studentsheet(View):
@@ -18,7 +20,11 @@ class Studentsheet(View):
         selected_date_str = request.GET.get('weekpicker')
         selected_room_id = request.GET.get('room')
 
-        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d') if selected_date_str else todays_date
+        try:
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d') if selected_date_str else todays_date
+        except ValueError:
+            selected_date = todays_date
+
         start_date = selected_date - timedelta(days=selected_date.weekday())
         end_date = start_date + timedelta(days=6)
 
@@ -44,11 +50,16 @@ class Studentsheet(View):
                     class_date__gte=start_date,
                     class_date__lte=end_date,
                 )
-
-                # Generate QR code data with a token
+            
+            # Generate QR code data with a token
+            if faculty and selected_room:
                 qr_data = f'{faculty.id},{selected_room.id},{selected_date_str}'
-                token = signing.dumps(qr_data, key=settings.QR_SECRET_KEY)
-                qr_img = qrcode.make(token)
+
+                # Encrypt the QR data
+                encrypted_token = self.encrypt_data(qr_data)
+
+                # Generate QR code image
+                qr_img = qrcode.make(encrypted_token)
                 buffer = BytesIO()
                 qr_img.save(buffer, format="PNG")
                 qr_code_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
@@ -79,54 +90,77 @@ class Studentsheet(View):
 
         return render(request, 'Students.html', context)
 
+    def encrypt_data(self, data):
+        # Ensure key is bytes and 32 bytes long for AES-256
+        key = settings.QR_SECRET_KEY
+        if len(key) != 32:
+            raise ValueError("Key must be 32 bytes (256 bits) for AES-256 encryption")
+
+        # Generate a random initialization vector (IV)
+        iv = bytes([0] * 16)  # Use all zeros for testing, replace with a proper random_bytes call
+
+        # Encrypt data with AES-256 in CBC mode
+        cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+        padder = padding.PKCS7(algorithms.AES.block_size).padder()
+        padded_data = padder.update(data.encode()) + padder.finalize()
+        encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
+
+        # Combine IV and encrypted data and encode in base64
+        iv_base64 = base64.b64encode(iv).decode()
+        encrypted_data_base64 = base64.b64encode(encrypted_data).decode()
+        encrypted_token = f"{iv_base64}:{encrypted_data_base64}"
+
+        return encrypted_token
+
     def post(self, request):
-            attendance_input = request.POST.get('attendanceInput')
-            selected_date = request.POST.get('selected_date')
-            selected_room_id = request.POST.get('selected_room')
+        attendance_input = request.POST.get('attendanceInput')
+        selected_date = request.POST.get('selected_date')
+        selected_room_id = request.POST.get('selected_room')
 
-            if not attendance_input or not selected_date or not selected_room_id:
-                messages.error(request, "Incomplete attendance data provided")
-                return redirect("Students")
+        if not attendance_input or not selected_date or not selected_room_id:
+            messages.error(request, "Incomplete attendance data provided")
+            return redirect("Students")
 
-            selected_room = get_object_or_404(Room, id=selected_room_id)
-            enrollment_numbers = [enrollment.strip() for enrollment in attendance_input.split(',') if enrollment.strip()]
+        selected_room = get_object_or_404(Room, id=selected_room_id)
+        enrollment_numbers = [enrollment.strip() for enrollment in attendance_input.split(',') if enrollment.strip()]
 
-            students_to_mark = StudentsRollouts.objects.filter(
-                class_date=selected_date,
-                room=selected_room,
-                student__enrollment_no__in=enrollment_numbers
-            )
+        students_to_mark = StudentsRollouts.objects.filter(
+            class_date=selected_date,
+            room=selected_room,
+            student__enrollment_no__in=enrollment_numbers
+        )
 
-            # Check for duplicate enrollment numbers on the same date, in the same room, and for the same faculty
-            enrollment_counts = students_to_mark.values('student__enrollment_no').annotate(count=Count('id'))
-            has_duplicates = any(enrollment['count'] > 1 for enrollment in enrollment_counts)
+        # Check for duplicate enrollment numbers on the same date, in the same room, and for the same faculty
+        enrollment_counts = students_to_mark.values('student__enrollment_no').annotate(count=Count('id'))
+        has_duplicates = any(enrollment['count'] > 1 for enrollment in enrollment_counts)
 
-            # Get the current time
-            current_time = datetime.now().time()
+        # Get the current time
+        current_time = datetime.now().time()
 
-            if has_duplicates:
-                # Iterate over students to mark attendance with time restriction
-                for student_rollout in students_to_mark:
-                    student_enrollment = student_rollout.student.enrollment_no
+        if has_duplicates:
+            # Iterate over students to mark attendance with time restriction
+            for student_rollout in students_to_mark:
+                student_enrollment = student_rollout.student.enrollment_no
 
-                    # Get the start and end time of the class
-                    class_start_time = student_rollout.start_time
-                    class_end_time = student_rollout.end_time
+                # Get the start and end time of the class
+                class_start_time = student_rollout.start_time
+                class_end_time = student_rollout.end_time
 
-                    # Check if current time is between start and end time of the class
-                    if class_start_time <= current_time <= class_end_time:
-                        student_rollout.student_attendance = True
-                        student_rollout.save()
-                    else:
-                        messages.error(request, f"Cannot mark attendance for student {student_rollout.student} outside class time.")
-            else:
-                # Mark attendance without time restriction
-                for student_rollout in students_to_mark:
+                # Check if current time is between start and end time of the class
+                if class_start_time <= current_time <= class_end_time:
                     student_rollout.student_attendance = True
                     student_rollout.save()
+                else:
+                    messages.error(request, f"Cannot mark attendance for student {student_rollout.student} outside class time.")
+        else:
+            # Mark attendance without time restriction
+            for student_rollout in students_to_mark:
+                student_rollout.student_attendance = True
+                student_rollout.save()
 
-                messages.success(request, "Attendance successfully marked")
-            return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')
+            messages.success(request, "Attendance successfully marked")
+        return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')
 
 class MarkAttendanceButtonView(View):
     def post(self, request):
@@ -142,7 +176,18 @@ class MarkAttendanceButtonView(View):
             messages.error(request, "Student rollout not found.")
         
         return redirect("Students")
-        
+    
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views import View
+from django.contrib import messages
+from datetime import datetime
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import padding
+import base64
+from FacultyAttendanceSystem.models import Faculty, Room, StudentsRollouts, Students
+from django.conf import settings
+
 class WelcomeView(View):
     def get(self, request):
         if request.user.is_authenticated:
@@ -161,51 +206,104 @@ class WelcomeView(View):
             return redirect('login')
 
     def post(self, request):
-            # Get the QR code data and attendance input from the form
-            attendance_input = request.POST.get('attendanceInput')
-            qr_code_data = request.POST.get('qr_code_data')
+        # Get the QR code data and attendance input from the form
+        attendance_input = request.POST.get('attendanceInput')
+        qr_code_data = request.POST.get('qr_code_data')
 
-            try:
-                # Decode the QR code data
-                decoded_data = signing.loads(qr_code_data, key=settings.QR_SECRET_KEY)
-                faculty_id, room_id, selected_date_str = decoded_data.split(',')
-                selected_faculty_id = int(faculty_id)
-                selected_room_id = int(room_id)
-            except signing.BadSignature:
-                messages.error(request, "Invalid QR code provided")
-                return redirect("welcome")
-            except ValueError:
-                messages.error(request, "Malformed QR code data")
-                return redirect("welcome")
+        try:
+            # Decrypt the QR code data
+            decrypted_data = self.decrypt_data(qr_code_data)
 
-            # Retrieve the Faculty and Room objects based on IDs
-            try:
-                faculty = get_object_or_404(Faculty, id=selected_faculty_id)
-            except Faculty.DoesNotExist:
-                messages.error(request, "Faculty not found from QR code")
-                return redirect("welcome")
+            # Split decrypted data into components
+            decrypted_data_parts = decrypted_data.split(',')
+            if len(decrypted_data_parts) != 3:
+                raise ValueError("Malformed QR code data")
 
-            selected_room = get_object_or_404(Room, id=selected_room_id)
+            faculty_id = int(decrypted_data_parts[0])
+            room_id = int(decrypted_data_parts[1])
+            selected_date_str = decrypted_data_parts[2]
 
-            # Assuming you have the student's enrollment number stored in the session
-            enrollment_number = attendance_input
+        except ValueError:
+            messages.error(request, "Malformed QR code data")
+            return redirect("welcome")
+        except Exception as e:
+            messages.error(request, f"Error decoding QR code: {str(e)}")
+            return redirect("welcome")
 
-            # Query for students to mark attendance
-            students_to_mark = StudentsRollouts.objects.filter(
-                class_date=selected_date_str,
-                room=selected_room,
-                faculty=faculty,
-                student__enrollment_no=enrollment_number
-            )
+        # Retrieve the Faculty and Room objects based on IDs
+        try:
+            faculty = get_object_or_404(Faculty, id=faculty_id)
+        except Faculty.DoesNotExist:
+            messages.error(request, "Faculty not found from QR code")
+            return redirect("welcome")
 
-            # Mark attendance for each student found
+        selected_room = get_object_or_404(Room, id=room_id)
+
+        # Query for students to mark attendance
+        students_to_mark = StudentsRollouts.objects.filter(
+            class_date=selected_date_str,
+            room=selected_room,
+            faculty=faculty,
+            student__enrollment_no=attendance_input
+        )
+
+        # Check for duplicate enrollment numbers on the same date, in the same room, and for the same faculty
+        enrollment_counts = students_to_mark.values('student__enrollment_no').annotate(count=Count('id'))
+        has_duplicates = any(enrollment['count'] > 1 for enrollment in enrollment_counts)
+
+        # Get the current time
+        current_time = datetime.now().time()
+
+        if has_duplicates:
+            # Iterate over students to mark attendance with time restriction
+            for student_rollout in students_to_mark:
+                student_enrollment = student_rollout.student.enrollment_no
+
+                # Get the start and end time of the class
+                class_start_time = student_rollout.start_time
+                class_end_time = student_rollout.end_time
+
+                # Check if current time is between start and end time of the class
+                if class_start_time <= current_time <= class_end_time:
+                    student_rollout.student_attendance = True
+                    student_rollout.save()
+                    messages.success(request, "Attendance successfully marked")
+                else:
+                    messages.error(request, f"Cannot mark attendance for student {student_rollout.student} outside lecture time.")
+        else:
+            # Mark attendance without time restriction
             for student_rollout in students_to_mark:
                 student_rollout.student_attendance = True
                 student_rollout.save()
 
-            # Display success message
             messages.success(request, "Attendance successfully marked")
-            return redirect("welcome")
+        return redirect("welcome")
+
+    def decrypt_data(self, encrypted_token):
+        try:
+            # Split encrypted token into IV and encrypted data
+            iv_base64, encrypted_data_base64 = encrypted_token.split(':')
+            iv = base64.b64decode(iv_base64)
+            encrypted_data = base64.b64decode(encrypted_data_base64)
+
+            # Convert key to bytes and ensure it's 32 bytes long for AES-256
+            key = settings.QR_SECRET_KEY
+            if len(key) != 32:
+                raise ValueError("Key must be 32 bytes (256 bits) for AES-256 encryption")
+
+            # Decrypt data with AES-256 in CBC mode
+            cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+            decryptor = cipher.decryptor()
+            decrypted_data = decryptor.update(encrypted_data) + decryptor.finalize()
+
+            # Unpad decrypted data
+            unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
+            unpadded_data = unpadder.update(decrypted_data) + unpadder.finalize()
+
+            return unpadded_data.decode()
+        except Exception as e:
+            raise ValueError(f"Error decrypting data: {str(e)}")
+
 
 from django.contrib.auth import logout as auth_logout
 from django.utils import timezone
