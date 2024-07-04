@@ -47,7 +47,24 @@
      href="{% static 'css/template.css' %}"
      rel="stylesheet"
      >
-    
+    <style>
+      .container {
+    margin-top: 20px;
+}
+
+.bg-warning {
+    background-color: #ffd800 !important;
+}
+
+.bg-success {
+    background-color: #86f250 !important;
+}
+
+.form-inline .form-control-sm {
+    width: auto;
+}
+
+    </style>
   </head>
 
   <body>
@@ -149,7 +166,7 @@
         </button>
         </div> 
     {% endif %}
-    <div class="container">
+    <div class="container-fluid">
       <div class="row">
         <div class="col">
           <div style="display: flex; align-items: center; padding-right: 30px">
@@ -246,7 +263,9 @@
           </div>
         </div>
         {% else %}
-        <h3>plz Select date or reload page</h3>
+        <div class="alert alert-primary" role="alert">
+          if you find this message then this page is not gonna work properly error !1 ^_^
+        </div>
         {% endif %}
 
         <div class="tracks syncscroll" name="myElements">
