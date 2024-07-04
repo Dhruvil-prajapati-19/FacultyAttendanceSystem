@@ -85,6 +85,14 @@ class HolidayScheduler(models.Model):
     def __str__(self):
         return f"{self.date}-{self.Title}"
 
+class Midexamscheduler(models.Model):
+    date = models.DateField(null=True, blank=True, verbose_name="Mid Exam Date")
+    Title = models.CharField(max_length=255, blank=True, null=True, verbose_name="Mid Exam Title")
+    semester = models.ForeignKey(Semester, on_delete=models.SET_NULL, related_name='related_midexams', null=True)
+
+    def __str__(self):
+        return f"{self.date} - {self.Title}"
+    
 class StudentClass(models.Model):
     Students_class_name = models.CharField(max_length=200, verbose_name='Class Name', null=True)
     semester = models.ForeignKey(Semester, on_delete=models.SET_NULL, related_name='related_classes', null=True)

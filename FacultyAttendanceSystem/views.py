@@ -6,8 +6,6 @@ from django.utils.timezone import localtime, now
 from datetime import datetime, timedelta
 from django.http import HttpResponse, HttpResponseRedirect
 
-# def error_404(request, exception):
-#     return render(request, 'pages-error-404.html', status=404)
 
 def index_redirect(request):
     return redirect('index/')
@@ -17,13 +15,6 @@ def error_404_view(request):
 
 def Students(request):
     return render(request, 'Students.html')
-
-def upload(request):
-    return render(request, 'upload.html')
-
-def qr_students(request):
-    return render(request, 'qrstudents.html')
-
 
 from django.utils import timezone
 from django.contrib.auth import login, logout as auth_logout

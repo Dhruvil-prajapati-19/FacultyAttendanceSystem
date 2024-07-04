@@ -1,6 +1,6 @@
 from django.contrib import admin
 from . import models
-from .models import Timetable,HolidayScheduler
+from .models import Timetable,HolidayScheduler , Midexamscheduler
 
 import data_wizard # type: ignore
 from FacultyAttendanceSystem.models import Students 
@@ -130,6 +130,17 @@ class HolidaySchedulerAdmin(admin.ModelAdmin):
     list_display = ('date', 'Title')
     list_filter = ('date', 'Title')
     search_fields = ('Title',)
+
+@admin.register(models.Midexamscheduler)
+class MidexamschedulerAdmin(admin.ModelAdmin):
+    list_display = ('date', 'Title', 'get_semester')
+    search_fields = ('Title',)
+    list_filter = ('semester',)
+
+    def get_semester(self, obj):
+        return obj.semester.name if obj.semester else None
+    get_semester.short_description = 'Semester'
+
 
 @admin.register(Students)
 class StudentsAdmin(admin.ModelAdmin):

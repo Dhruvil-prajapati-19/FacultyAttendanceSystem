@@ -110,7 +110,7 @@ def update_students_rollouts(instance):
 
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from .models import EventScheduler, HolidayScheduler, TimeTableRollouts
+from .models import EventScheduler, HolidayScheduler, TimeTableRollouts , Midexamscheduler
 
 @receiver(post_save, sender=EventScheduler)
 @receiver(post_delete, sender=EventScheduler)
@@ -137,3 +137,12 @@ def handle_holiday_scheduler(sender, instance, **kwargs):
     # Remove all classes on the holiday date
     TimeTableRollouts.objects.filter(class_date=holiday_date).delete()
     StudentsRollouts.objects.filter(class_date=holiday_date).delete()
+
+@receiver(post_save, sender=Midexamscheduler)
+@receiver(post_delete, sender=Midexamscheduler)
+def handle_midexamscheduler(sender, instance, **kwargs):
+    midexam_date = instance.date
+    for_semester = instance.semester  
+
+    TimeTableRollouts.objects.filter(class_date=midexam_date, class_id__semester=for_semester).delete()
+    StudentsRollouts.objects.filter(class_date=midexam_date, class_id__semester=for_semester).delete()

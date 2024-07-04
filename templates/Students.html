@@ -53,14 +53,24 @@
      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
      <style>
 
-    .top-left-modal .modal-dialog {
-      position: absolute;
-      top: 10%;
-      left: 4%;
-      max-width: 90%; 
-      width: auto;
-      height: auto; 
-    }
+.top-left-modal .qr-code-dialog {
+  position: absolute;
+  top: 5%;
+  left: 3%;
+  max-width: 100%;
+  width: 340px;
+  height: auto; 
+}
+
+.top-left-modal .qr-scan-dialog {
+  /* Adjust styles for QR Scan modal here */
+  position: absolute;
+  top: 8%; /* Example adjustment */
+  left: 1%; /* Example adjustment */
+  max-width: 100%;
+  width: 400px;
+  height: fit-content;
+}
 
     .top-left-modal .modal-content {
       height: 100%;
@@ -129,9 +139,9 @@
       </li>
       <li class="nav-heading">Pages</li>
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'qr_students' %}">
-          <i class="bi bi-qr-code-scan"></i>
-          <span>Students Qr codes</span>
+        <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
+          <i class="bi bi-person"></i>
+          <span>Profile</span>
         </a>
       </li>
       <li class="nav-item">
@@ -161,22 +171,6 @@
             <span>Logout</span>
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link collapsed" href="{% url 'download_data' %}">
-            
-            <i class="bi bi-file-earmark"></i>
-            {% csrf_token %}
-            <span>Download Attendance Data</span>
-          </a>
-        </li>
-      </li>
-      <li class="nav-item">
-       <a  href="{% url 'download_work_shift' %}" class="nav-link collapsed" >
-          <i class="bi bi-file-earmark"></i>
-          {% csrf_token %}
-          <span>Download Work Shift Data</span>
-        </a>
-      </li>
       </ul>
     </aside>
     <!-- End Sidebar-->
@@ -256,7 +250,7 @@
                         <button type="submit" class="btn btn-sm btn-outline-primary">Select Room</button>
                     </div>
                 </div>
-                <button style="margin-top: 10px;" type="submit" class="btn btn-sm btn-outline-primary ml-2">Filter</button>
+                <button style="margin-top: 2px;" type="submit" class="btn btn-sm btn-outline-primary ml-2">Filter</button>
             </form>
 
             <form id="attendanceForm" method="POST" action="{% url 'Students' %}" class="form-inline">
@@ -273,50 +267,51 @@
           </form>
              </div>
 
-            <!-- QR Code Display Modal -->
-            <div class="modal fade top-left-modal" id="qrCodeModal" tabindex="-1" role="dialog" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
-              <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                  <div class="modal-header" style="cursor: move;" draggable="true">
-                    <h5 class="modal-title" id="qrModalLabel">QR Code Generate</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                    {% if qr_code_data %}
-                    <div class="mt-4">
-                        <img id="qrCodeImage" src="data:image/png;base64,{{ qr_code_data }}" alt="QR Code" class="img-fluid">
-                    </div>
-                    {% endif %}
-                  </div>
-                  <div class="modal-footer">
-                    <button id="downloadButton" class="btn btn-primary btn-block">Save</button>
-                    <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+<!-- QR Code Display Modal -->
+<div class="modal fade top-left-modal" id="qrCodeModal" tabindex="-1" role="dialog" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
+  <div class="modal-dialog qr-code-dialog" role="document"> <!-- Added class qr-code-dialog -->
+    <div class="modal-content">
+      <div class="modal-header" style="cursor: move;" draggable="true">
+        <h5 class="modal-title" id="qrModalLabel">QR Code Generate</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% if qr_code_data %}
+        <div class="mt-4">
+            <img id="qrCodeImage" src="data:image/png;base64,{{ qr_code_data }}" alt="QR Code" class="img-fluid">
+        </div>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button id="downloadButton" class="btn btn-primary btn-block">Save</button>
+        <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-          <!-- QR Scan Modal -->
-          <div class="modal fade top-left-modal" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header" style="cursor: move;">
-                  <h5 class="modal-title" id="qrModalLabel">QR Code Scanner</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-                </div>
-                <div class="modal-body">
-                  <div id="reader"></div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
-                </div>
-              </div>
-            </div>
-          </div>
+<!-- QR Scan Modal -->
+<div class="modal fade top-left-modal" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
+  <div class="modal-dialog qr-scan-dialog" role="document"> <!-- Added class qr-scan-dialog -->
+    <div class="modal-content">
+      <div class="modal-header" style="cursor: move;">
+        <h5 class="modal-title" id="qrModalLabel">QR Code Scanner</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="reader"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
       </div>
     </div>

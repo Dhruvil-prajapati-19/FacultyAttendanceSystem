@@ -10,7 +10,7 @@ import base64
 from FacultyAttendanceSystem import settings 
 from FacultyAttendanceSystem.models import ActiveSession, AdminCredentials, Faculty, Room, StudentsRollouts, Students
 from django.core import signing
-
+from django.db.models import Count
 
 class Studentsheet(View):
     def get(self, request):
@@ -80,43 +80,53 @@ class Studentsheet(View):
         return render(request, 'Students.html', context)
 
     def post(self, request):
-        attendance_input = request.POST.get('attendanceInput')
-        selected_date = request.POST.get('selected_date')
-        selected_room_id = request.POST.get('selected_room')
+            attendance_input = request.POST.get('attendanceInput')
+            selected_date = request.POST.get('selected_date')
+            selected_room_id = request.POST.get('selected_room')
 
-        if not attendance_input or not selected_date or not selected_room_id:
-            messages.error(request, "Incomplete attendance data provided")
-            return redirect("Students")
+            if not attendance_input or not selected_date or not selected_room_id:
+                messages.error(request, "Incomplete attendance data provided")
+                return redirect("Students")
 
-        selected_room = get_object_or_404(Room, id=selected_room_id)
-        enrollment_numbers = [enrollment.strip() for enrollment in attendance_input.split(',') if enrollment.strip()]
+            selected_room = get_object_or_404(Room, id=selected_room_id)
+            enrollment_numbers = [enrollment.strip() for enrollment in attendance_input.split(',') if enrollment.strip()]
 
-        students_to_mark = StudentsRollouts.objects.filter(
-            class_date=selected_date,
-            room=selected_room,
-            student__enrollment_no__in=enrollment_numbers
-        )
+            students_to_mark = StudentsRollouts.objects.filter(
+                class_date=selected_date,
+                room=selected_room,
+                student__enrollment_no__in=enrollment_numbers
+            )
 
-        # Get the current time
-        current_time = datetime.now().time()
+            # Check for duplicate enrollment numbers on the same date, in the same room, and for the same faculty
+            enrollment_counts = students_to_mark.values('student__enrollment_no').annotate(count=Count('id'))
+            has_duplicates = any(enrollment['count'] > 1 for enrollment in enrollment_counts)
 
-        # Iterate over students to mark attendance
-        for student_rollout in students_to_mark:
-            student_enrollment = student_rollout.student.enrollment_no
+            # Get the current time
+            current_time = datetime.now().time()
 
-            # Get the start and end time of the class
-            class_start_time = student_rollout.start_time
-            class_end_time = student_rollout.end_time
+            if has_duplicates:
+                # Iterate over students to mark attendance with time restriction
+                for student_rollout in students_to_mark:
+                    student_enrollment = student_rollout.student.enrollment_no
 
-            # Check if current time is between start and end time of the class
-            if class_start_time <= current_time <= class_end_time:
-                student_rollout.student_attendance = True
-                student_rollout.save()
+                    # Get the start and end time of the class
+                    class_start_time = student_rollout.start_time
+                    class_end_time = student_rollout.end_time
+
+                    # Check if current time is between start and end time of the class
+                    if class_start_time <= current_time <= class_end_time:
+                        student_rollout.student_attendance = True
+                        student_rollout.save()
+                    else:
+                        messages.error(request, f"Cannot mark attendance for student {student_rollout.student} outside class time.")
             else:
-                messages.error(request, f"Cannot mark attendance for student {student_rollout.student} outside class time.")
+                # Mark attendance without time restriction
+                for student_rollout in students_to_mark:
+                    student_rollout.student_attendance = True
+                    student_rollout.save()
 
-        messages.success(request, "Attendance successfully marked")
-        return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')
+                messages.success(request, "Attendance successfully marked")
+            return HttpResponseRedirect(reverse('Students') + f'?weekpicker={selected_date}&room={selected_room_id}')
 
 class MarkAttendanceButtonView(View):
     def post(self, request):

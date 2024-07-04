@@ -97,8 +97,6 @@
         </a>
       </li>
 
-      
-
       <li class="nav-item">
           <a class="nav-link " href="{% url 'Students' %}">
           <i class="bi bi-grid"></i>
@@ -108,9 +106,9 @@
 
       <li class="nav-heading">Pages</li>
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'qr_students' %}">
-          <i class="bi bi-qr-code-scan"></i>
-          <span>Students Qr codes</span>
+        <a class="nav-link collapsed" href="{% url 'pages-error-404' %}">
+          <i class="bi bi-person"></i>
+          <span>Profile</span>
         </a>
       </li>
       
@@ -141,24 +139,6 @@
             <span>Logout</span>
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link collapsed" href="{% url 'download_data' %}">
-            
-            <i class="bi bi-file-earmark"></i>
-            {% csrf_token %}
-            <span>Download Attendance Data</span>
-          </a>
-        </li>
-      </li>
- 
-      <li class="nav-item">
-       <a  href="{% url 'download_work_shift' %}" class="nav-link collapsed" >
-          <i class="bi bi-file-earmark"></i>
-          {% csrf_token %}
-          <span>Download Work Shift Data</span>
-        </a>
-      </li>
-
       </ul>
     </aside>
     <!-- End Sidebar-->
@@ -232,6 +212,12 @@
                 <form method="get" action="{% url 'download_all_attendance_data' %}">
                     <button type="submit" class="btn btn-sm btn-outline-primary" >Download All Students Attendance Data</button>
                 </form>
+                <a href="{% url 'download_data' %}">
+                    <button type="submit" class="btn btn-sm btn-outline-primary" >Download Faculty Attendance Data</button>
+                </a>
+                <a href="{% url 'download_work_shift' %}">
+                    <button type="submit" class="btn btn-sm btn-outline-primary" >Download Work Shift Data</button>
+                </a>
             </div>
         </div>
         <div id="top-of-site-pixel-anchor"></div>

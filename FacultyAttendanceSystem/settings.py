@@ -25,10 +25,10 @@ SECRET_KEY = 'django-insecure-2^-98x+ue$mk%l-!ixdrw0aup2fm+^=s97dth_53x)^n84qg(z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'c423-103-148-164-105.ngrok-free.app']
+ALLOWED_HOSTS = ['localhost', '554c-103-148-164-105.ngrok-free.app']
 CSRF_TRUSTED_ORIGINS = ["https://*.ngrok.io"]
 CSRF_TRUSTED_ORIGINS = [
-  'https://c423-103-148-164-105.ngrok-free.app' 
+  'https://554c-103-148-164-105.ngrok-free.app' 
 ]
 
 
