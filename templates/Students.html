@@ -267,52 +267,52 @@
           </form>
              </div>
 
-<!-- QR Code Display Modal -->
-<div class="modal fade top-left-modal" id="qrCodeModal" tabindex="-1" role="dialog" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
-  <div class="modal-dialog qr-code-dialog" role="document"> <!-- Added class qr-code-dialog -->
-    <div class="modal-content">
-      <div class="modal-header" style="cursor: move;" draggable="true">
-        <h5 class="modal-title" id="qrModalLabel">QR Code Generate</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        {% if qr_code_data %}
-        <div class="mt-4">
-            <img id="qrCodeImage" src="data:image/png;base64,{{ qr_code_data }}" alt="QR Code" class="img-fluid">
-        </div>
-        {% endif %}
-      </div>
-      <div class="modal-footer">
-        <button id="downloadButton" class="btn btn-primary btn-block">Save</button>
-        <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
+            <!-- QR Code Display Modal -->
+            <div class="modal fade top-left-modal" id="qrCodeModal" tabindex="-1" role="dialog" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
+              <div class="modal-dialog qr-code-dialog" role="document"> <!-- Added class qr-code-dialog -->
+                <div class="modal-content">
+                  <div class="modal-header" style="cursor: move;" draggable="true">
+                    <h5 class="modal-title" id="qrModalLabel">QR Code Generate</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    {% if qr_code_data %}
+                    <div class="mt-4">
+                        <img id="qrCodeImage" src="data:image/png;base64,{{ qr_code_data }}" alt="QR Code" class="img-fluid">
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="modal-footer">
+                    <button id="downloadButton" class="btn btn-primary btn-block">Save</button>
+                    <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-<!-- QR Scan Modal -->
-<div class="modal fade top-left-modal" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
-  <div class="modal-dialog qr-scan-dialog" role="document"> <!-- Added class qr-scan-dialog -->
-    <div class="modal-content">
-      <div class="modal-header" style="cursor: move;">
-        <h5 class="modal-title" id="qrModalLabel">QR Code Scanner</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div id="reader"></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-</div>
+            <!-- QR Scan Modal -->
+            <div class="modal fade top-left-modal" id="qrModal" tabindex="-1" role="dialog" aria-labelledby="qrModalLabel" aria-hidden="true">
+              <div class="modal-dialog qr-scan-dialog" role="document"> <!-- Added class qr-scan-dialog -->
+                <div class="modal-content">
+                  <div class="modal-header" style="cursor: move;">
+                    <h5 class="modal-title" id="qrModalLabel">QR Code Scanner</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <div id="reader"></div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            </div>
+            </div>
 
     <div class="wrapper">
       <div class="table">
@@ -349,27 +349,25 @@
         {% endif %}
 
         <div class="tracks syncscroll" name="myElements">
-              <!-- Monday -->
-              <div class="track yellow">
-                {% for student_rollout in monday_classes %}
-                <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
-                  <div class="details">
-                    <h3>{{ student_rollout.subject.short_name }} ({{ student_rollout.duration.duration_short_name }})-({{ student_rollout.start_time }})</h3>
-                    <p class="enrollment-number">{{ student_rollout.student.enrollment_no }}</p>
-                    <p>{{ student_rollout.student.student_name }}</p>
-                    <div class="attendance" style="display: flex; padding-top: 5px; margin-left: 20px;">
-                      <form id="attendanceForm_{{ student_rollout.id }}" method="POST" action="{% url 'MarkAttendanceButton' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="form_type" value="button_form" />
-                        <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ student_rollout.id }}')" {% if student_rollout.student_attendance %} checked {% endif %} />
-                        <label for="attendance" style="margin-left: 1px;">Attendance</label>
-                    </form>                
+                  <!-- Monday -->
+                  <div class="track yellow">
+                    {% for student_rollout in monday_classes %}
+                    <div class="entry {% if student_rollout.student_attendance %}green{% else %}yellow{% endif %}">
+                      <div class="details">
+                        <h3 id="attendance_mark_{{ student_rollout.id }}" data-student-rollout-id="{{ student_rollout.id }}" style="cursor: pointer;">{{ student_rollout.timetable_rollout.subject.short_name }} ({{ student_rollout.timetable_rollout.duration.duration_short_name }}) - {{ student_rollout.timetable_rollout.start_time }}</h3>
+                        <p class="enrollment-number">{{ student_rollout.student.enrollment_no }}</p>
+                        <p>{{ student_rollout.student.student_name }}</p>
+                        
+                        <!-- Hidden form for marking attendance -->
+                        <form id="attendanceForm_{{ student_rollout.id }}" method="POST" action="{% url 'MarkAttendanceButton' %}" style="display: none;">
+                          {% csrf_token %}
+                          <input type="hidden" name="student_rollout_id" value="{{ student_rollout.id }}">
+                          <input type="hidden" name="attendance" value="true">
+                        </form>
+                      </div>
+                    </div>
+                    {% endfor %}
                   </div>
-                  </div>
-                </div>
-                {% endfor %}
-              </div>
 
               <!-- Tuesday -->
               <div class="track yellow">
@@ -517,7 +515,21 @@
         Developed by Dhruvil 
       </div>
     </footer>
-
+    
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var attendanceMarkElements = document.querySelectorAll('[id^="attendance_mark_"]');
+        
+        attendanceMarkElements.forEach(function(element) {
+          element.addEventListener('click', function() {
+            var studentRolloutId = this.getAttribute('data-student-rollout-id');
+            
+            // Submit the corresponding form
+            document.getElementById('attendanceForm_' + studentRolloutId).submit();
+          });
+        });
+      });
+      </script>
     <script>
       function submitForm(student_rollout_id) {
         document.getElementById("attendanceForm_" + student_rollout_id).submit();
@@ -588,6 +600,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="{% static 'js/html5-qrcode.min.js' %}"></script>
+
 <script>
 $(document).ready(function(){
     $('#qrModal').on('hidden.bs.modal', function (e) {

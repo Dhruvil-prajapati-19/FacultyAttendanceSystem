@@ -122,13 +122,14 @@
     align-items: center;
     border: solid var(--bd-color);
     border-width: 1px;
-    color: hsla(210, 5%, 40%, 1);
+    color: rgb(16, 10, 34);
     background: var(--thead-bg);
-    font-weight: 50;
+    font-weight: 6px;
     font-size: 14px;
     font-family: sans-serif;
   }
   
+
   .entry {
     border: 1px solid #ebebeb;
     border-top: 0;
@@ -140,6 +141,7 @@
     justify-content: space-between;
     height: fit-content;
   }
+  
   
   .entry:not(:last-of-type) {
     border-bottom-style: dashed;
@@ -188,7 +190,7 @@
   h3 {
     font-size: 12px;
     background: var(--theme-bg);
-    padding: 2px 5px;
+    padding: 6px 8px;
     font-weight: 600;
     line-height: 1.4;
     border-radius: 2px;
@@ -226,15 +228,15 @@
     --theme-bg: #BBBCBC;
   }
   
-  p {
-    font-size: 12px;
-    color: #333;
-    font-weight: 500;
-    margin: 0px 0px 0px 4px;
-  }
+p {
+  font-size: 12px;
+  color: #000000;
+  font-weight: 500;
+  margin: 0px 0px 0px 4px;
+}
   
   p + p {
-    color: #858585;
+    color: #000000;
     margin-top: 5px;
     font-weight: 400;
   }
@@ -316,4 +318,29 @@
   margin-left: auto; /* Add some left margin between buttons */
 }
 
+.top-left-modal .qr-code-dialog {
+  position: absolute;
+  top: 5%;
+  left: 3%;
+  max-width: 100%;
+  width: 340px;
+  height: auto; 
+}
 
+.top-left-modal .modal-content {
+  height: 100%;
+}
+
+#reader {
+  width: 100%;
+  height: 100%;
+  padding-bottom: 25%; 
+  background-color: #f8f9fa; 
+  border: 1px solid #dee2e6; 
+  border-radius: 0.25rem; 
+}
+
+.modal-body {
+  height: calc(100% - 110px); /* Adjust according to modal footer height */
+  overflow-y: auto; /* Add scroll if needed */
+}   

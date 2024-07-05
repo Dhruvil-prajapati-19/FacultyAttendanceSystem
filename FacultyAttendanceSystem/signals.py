@@ -1,15 +1,11 @@
 from datetime import timedelta
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from .models import Timetable, TimeTableRollouts
-from datetime import timedelta
-
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
-from FacultyAttendanceSystem.models import EventScheduler, HolidayScheduler,  Timetable, TimeTableRollouts
-from FacultyAttendanceSystem.models import Students, StudentsRollouts
-from datetime import timedelta
+from .models import (
+    Timetable, TimeTableRollouts, Students, StudentsRollouts,
+    EventScheduler, HolidayScheduler, Midexamscheduler
+)
 
 @receiver(post_save, sender=Timetable)
 def create_or_update_rollouts(sender, instance, created, **kwargs):
@@ -21,7 +17,7 @@ def create_or_update_rollouts(sender, instance, created, **kwargs):
 @receiver(post_delete, sender=Timetable)
 def delete_rollouts(sender, instance, **kwargs):
     TimeTableRollouts.objects.filter(class_id=instance).delete()
-    StudentsRollouts.objects.filter(class_id=instance).delete()
+    StudentsRollouts.objects.filter(timetable_rollout__class_id=instance).delete()
 
 def create_rollouts(instance):
     semester_end_date = instance.semester.end_date
@@ -80,37 +76,25 @@ def create_students_rollouts(instance, first_class_date):
 
     for student in students:
         student_rollout = StudentsRollouts(
-
+            timetable_rollout=TimeTableRollouts.objects.get(class_id=instance, class_date=first_class_date),
             student=student,
-            faculty=instance.faculty,
-            room=instance.room,
-            subject=instance.subject,
-            duration=instance.duration,
-            class_id=instance,
-            class_status='scheduled',
+            student_attendance=False,
             created_by=instance.created_by_user,
             modified_by=instance.modified_by_user,
-            start_time=instance.start_time,
-            end_time=instance.end_time,
-            class_date=first_class_date,
         )
         student_rollout.save()
 
 def update_students_rollouts(instance):
-    students_rollouts = StudentsRollouts.objects.filter(class_id=instance)
+    students_rollouts = StudentsRollouts.objects.filter(timetable_rollout__class_id=instance)
 
     for rollout in students_rollouts:
-        rollout.room = instance.room
-        rollout.subject = instance.subject
-        rollout.duration = instance.duration
-        rollout.start_time = instance.start_time
-        rollout.end_time = instance.end_time
+        rollout.timetable_rollout.room = instance.room
+        rollout.timetable_rollout.subject = instance.subject
+        rollout.timetable_rollout.duration = instance.duration
+        rollout.timetable_rollout.start_time = instance.start_time
+        rollout.timetable_rollout.end_time = instance.end_time
         rollout.modified_by = instance.modified_by_user
         rollout.save()
-
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
-from .models import EventScheduler, HolidayScheduler, TimeTableRollouts , Midexamscheduler
 
 @receiver(post_save, sender=EventScheduler)
 @receiver(post_delete, sender=EventScheduler)
@@ -136,13 +120,13 @@ def handle_holiday_scheduler(sender, instance, **kwargs):
 
     # Remove all classes on the holiday date
     TimeTableRollouts.objects.filter(class_date=holiday_date).delete()
-    StudentsRollouts.objects.filter(class_date=holiday_date).delete()
+    StudentsRollouts.objects.filter(timetable_rollout__class_date=holiday_date).delete()
 
 @receiver(post_save, sender=Midexamscheduler)
 @receiver(post_delete, sender=Midexamscheduler)
 def handle_midexamscheduler(sender, instance, **kwargs):
     midexam_date = instance.date
-    for_semester = instance.semester  
+    for_semester = instance.semester
 
     TimeTableRollouts.objects.filter(class_date=midexam_date, class_id__semester=for_semester).delete()
-    StudentsRollouts.objects.filter(class_date=midexam_date, class_id__semester=for_semester).delete()
+    StudentsRollouts.objects.filter(timetable_rollout__class_date=midexam_date, timetable_rollout__class_id__semester=for_semester).delete()

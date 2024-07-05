@@ -1,12 +1,12 @@
 from django.contrib import admin
 from django.urls import path, include
-from FacultyAttendanceSystem import views as faculty_views  
+from FacultyAttendanceSystem import views as faculty_views 
 from students import views as students_views  
 from .decorators import Faculty_login_required  
 
-admin.site.site_header = "KDPP Faculty Attendance Administration"
-admin.site.site_title = "KDPP Faculty Attendance Administration Portal"
-admin.site.index_title = "Welcome to KDPP Faculty Attendance Administration Portal"
+admin.site.site_header = "KDPP  Attendance Administration"
+admin.site.site_title = "KDPP  Attendance Administration Portal"
+admin.site.index_title = "Welcome to KDPP  Attendance Administration Portal"
 
 urlpatterns = [
     path('admin/', admin.site.urls),

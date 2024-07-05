@@ -21,7 +21,9 @@
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
-
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
    
     <link
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
@@ -63,6 +65,46 @@
 .form-inline .form-control-sm {
     width: auto;
 }
+.top-left-modal .qr-code-dialog {
+  position: absolute;
+  top: 5%;
+  left: 3%;
+  max-width: 100%;
+  width: 340px;
+  height: auto; 
+}
+
+.top-left-modal .qr-scan-dialog {
+  /* Adjust styles for QR Scan modal here */
+  position: absolute;
+  top: 8%; /* Example adjustment */
+  left: 1%; /* Example adjustment */
+  max-width: 100%;
+  width: 400px;
+  height: fit-content;
+}
+
+    .top-left-modal .modal-content {
+      height: 100%;
+    }
+
+    #reader {
+      width: 100%;
+      height: 100%;
+      padding-bottom: 25%; 
+      background-color: #f8f9fa; 
+      border: 1px solid #dee2e6; 
+      border-radius: 0.25rem; 
+    }
+     #attendanceInput {
+      width: 100%;
+      height: 100px;           
+    }
+
+    .modal-body {
+      height: calc(100% - 110px); /* Adjust according to modal footer height */
+      overflow-y: auto; /* Add scroll if needed */
+    }    
 
     </style>
   </head>
@@ -201,7 +243,7 @@
         </div>
         <div class="col">
           <div class="row" style="width: 500px;">
-          <div class="col" style="margin-top: 20px;">
+          <div class="col" style="margin-top: 10px;">
           <p><b>Last punch time:</b> {{ punch_time }}</p>
           <p><b>Your attendance:</b>{{ attended_classes }}/{{ total_classes }}</p>
           </div>
@@ -225,16 +267,39 @@
                   <button type="submit" class="btn btn-sm btn-outline-primary">Selete Date </button> <!-- Added btn-sm class for smaller button -->
               </div>
           </div>
-      </form>
-        </div>
+       </form>
       </div>
     </div>
- 
-<!-- <div class="button-container">
-  <a href="{% url 'download_work_shift' %}" class="btn btn-primary">Download Work Shift Data</a>
-</div> -->
+</div>
 
-    <div class="wrapper">
+<!-- QR Code Display Modal -->
+<div class="modal fade top-left-modal" id="qrCodeModal" tabindex="-1" role="dialog" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
+  <div class="modal-dialog qr-code-dialog" role="document"> <!-- Added class qr-code-dialog -->
+    <div class="modal-content">
+      <div class="modal-header" style="cursor: move;" draggable="true">
+        <h5 class="modal-title" id="qrModalLabel">QR Code Generate</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% if qr_code_data %}
+        <div class="mt-4">
+            <img id="qrCodeImage" src="data:image/png;base64,{{ qr_code_data }}" alt="QR Code" class="img-fluid">
+        </div>
+        {% else %}
+        <p>No QR code data available.</p>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button id="downloadButton" class="btn btn-primary btn-block">Save</button>
+        <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrapper">
       <div class="table">
         <div class="headers">
           {% if success %}
@@ -269,29 +334,36 @@
         {% endif %}
 
         <div class="tracks syncscroll" name="myElements">
-        
-
           <div class="track yellow">
             <!--Monday-->
             {% for class_rollout in monday_classes %}
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
-              <div class="details">
-                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-                <p>{{ class_rollout.subject.name }}</p>
-           
-           
-                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
-                        <p style="margin-top: -22px; margin-left: 17px">
-                            <label for="attendance">Attendance</label>
-                        </p>
-                    </form>
+                <div class="details">
+                    <h3 class="bi bi-qr-code-scan"> {{ class_rollout.room.room_name }} -({{ class_rollout.start_time }})</h3>
+                    <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
+                    <p>{{ class_rollout.subject.short_name }}</p>
+                    <p> {{ class_rollout.class_date|date:'Y-m-d'  }}</p>
+                    <p>{{ class_rollout.room.id }}</p>
+                    <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                        <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+                            <input type="checkbox" id="attendance" name="attendance" value="true" onchange="this.form.submit()" {% if class_rollout.class_attedance %} checked {% endif %} />
+                            <p style="margin-top: -22px; margin-left: 17px">
+                                <label for="attendance">Attendance</label>
+                            </p>
+
+                        </form>
+                    </div>
+                    <!-- Form to generate QR code via GET request --> 
+                    <form id="attendanceForm" method="get" action="{% url 'calendar_view' %}" >
+                      {% csrf_token %}
+                      <input type="hidden" name="xqd" value="{{ class_rollout.class_date }}" /> 
+                      <input type="hidden" name="xqr" value="{{ class_rollout.room.id }}" />
+                      <button type="button" id="generateQRButton" class="btn btn-outline-primary ml-2" data-toggle="modal" data-target="#qrCodeModal">Generate QR Code</button>
+                      <button type="submit" class="btn btn-outline-primary ml-2">Submit Attendance</button> 
+                  </form>
                 </div>
-            </div>
             </div>
             {% endfor %}
           </div>
@@ -301,14 +373,15 @@
               {% for class_rollout in tuesday_classes %}
               <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
                 <div class="details">
-                  <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-                  <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-                  <p>{{ class_rollout.subject.name }}</p>
+                  <h3 class="bi bi-qr-code-scan"> {{ class_rollout.room.room_name }} -({{ class_rollout.start_time }})</h3>
+                  <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
+                  <p>{{ class_rollout.subject.short_name }}</p>   
                   <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+
                       <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                           {% csrf_token %}
                           <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                          <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                          <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
                           <p style="margin-top: -22px; margin-left: 17px">
                               <label for="attendance">Attendance</label>
                           </p>
@@ -324,14 +397,14 @@
             {% for class_rollout in wednesday_classes %}
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
-                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-                <p>{{ class_rollout.subject.name }}</p>
+                <h3 class="bi bi-qr-code-scan"> {{ class_rollout.room.room_name }} -({{ class_rollout.start_time }})</h3>
+                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
+                <p>{{ class_rollout.subject.short_name }}</p>  
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                     <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                         {% csrf_token %}
                         <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
                         <p style="margin-top: -22px; margin-left: 17px">
                             <label for="attendance">Attendance</label>
                         </p>
@@ -347,16 +420,14 @@
             {% for class_rollout in thursday_classes %}
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
-                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-                <p>{{ class_rollout.subject.name }}</p>
-           
-           
+                <h3 class="bi bi-qr-code-scan"> {{ class_rollout.room.room_name }} -({{ class_rollout.start_time }})</h3>
+                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
+                <p>{{ class_rollout.subject.short_name }}</p>  
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                     <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                         {% csrf_token %}
                         <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
                         <p style="margin-top: -22px; margin-left: 17px">
                             <label for="attendance">Attendance</label>
                         </p>
@@ -370,43 +441,39 @@
           <!--friday-->
           <div class="track">
             {% for class_rollout in friday_classes %}
-            <div
-              class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}"
-            >
+            <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
             <div class="details">
-              <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-              <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-              <p>{{ class_rollout.subject.name }}</p>
+              <h3 class="bi bi-qr-code-scan"> {{ class_rollout.room.room_name }} -({{ class_rollout.start_time }})</h3>
+              <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
+              <p>{{ class_rollout.subject.short_name }}</p>  
               <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                   <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                       {% csrf_token %}
                       <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                      <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                      <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
                       <p style="margin-top: -22px; margin-left: 17px">
                           <label for="attendance">Attendance</label>
                       </p>
                   </form>
               </div>
           </div>
-            </div>
-            {% endfor %}
           </div>
+          {% endfor %}
+        </div>
 
           <!--Saturday-->
           <div class="track gray">
             {% for class_rollout in saturday_classes %}
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
-                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-                <p>{{ class_rollout.subject.name }}</p>
-           
-           
+                <h3 class="bi bi-qr-code-scan"> {{ class_rollout.room.room_name }} -({{ class_rollout.start_time }})</h3>
+                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
+                <p>{{ class_rollout.subject.short_name }}</p>  
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                     <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                         {% csrf_token %}
                         <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
                         <p style="margin-top: -22px; margin-left: 17px">
                             <label for="attendance">Attendance</label>
                         </p>
@@ -416,21 +483,20 @@
             </div>
             {% endfor %}
           </div>
+
           <!-- Sunday -->
           <div class="track gray">
             {% for class_rollout in sunday_classes %}
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
-                <h3>{{ class_rollout.room.room_name }} ({{ class_rollout.duration.duration_short_name }})</h3>
-                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}</p>
-                <p>{{ class_rollout.subject.name }}</p>
-           
-           
+                <h3 class="bi bi-qr-code-scan"> {{ class_rollout.room.room_name }} -({{ class_rollout.start_time }})</h3>
+                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
+                <p>{{ class_rollout.subject.short_name }}</p>  
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                     <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                         {% csrf_token %}
                         <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %} {% if class_rollout.class_date != todays_date %} disabled {% endif %} />
+                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
                         <p style="margin-top: -22px; margin-left: 17px">
                             <label for="attendance">Attendance</label>
                         </p>
@@ -457,6 +523,19 @@
         Developed by Dhruvil 
       </div>
     </footer>
+    <!-- <script>
+      $(document).ready(function(){
+          $('#qrCodeModal').modal('show');
+      });
+  </script> -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9W5+2QpHp7FZE9Ns7UJ0B4RvDxH47auKJ39MX" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="{%static 'js/Students.js'%}"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="{% static 'js/html5-qrcode.min.js' %}"></script>
     <script>
       function submitForm(class_rollout_id) {
         document.getElementById("attendanceForm_" + class_rollout_id).submit();
@@ -496,7 +575,15 @@
     ></script>
     <script src="{% static 'vendor/apexcharts/apexcharts.min.js' %}"></script>
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9W5+2QpHp7FZE9Ns7UJ0B4RvDxH47auKJ39MX" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="{%static 'js/Students.js'%}"></script>
+    <script src="{%static 'js/index.js'%}"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/html5-qrcode.min.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
-  
   </body>
 </html>

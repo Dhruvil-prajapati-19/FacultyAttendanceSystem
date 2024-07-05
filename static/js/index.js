@@ -1,31 +1,35 @@
-const btnR = document.querySelector('.btn-right');
-const btnL = document.querySelector('.btn-left');
-const tracks = document.querySelector('.tracks');
-const tracksW = tracks.scrollWidth;
+  document.addEventListener('DOMContentLoaded', function() {
+    var modals = document.querySelectorAll('#qrCodeModal, #qrModal');
 
-let scrollInterval; // Variable to hold the interval for continuous scrolling
+    modals.forEach(function(modal) {
+        var header = modal.querySelector('.modal-header');
+        var posX = 0, posY = 0, posX1 = 0, posY1 = 0;
 
-btnR.addEventListener('mousedown', () => {
-  // Start scrolling to the right continuously
-  scrollInterval = setInterval(() => {
-    tracks.scrollBy({
-      left: tracksW / 120, // Adjust the scroll speed as needed
-       // Add smooth behavior
+        header.addEventListener('mousedown', dragMouseDown);
+
+        function dragMouseDown(e) {
+            e.preventDefault();
+            posX1 = e.clientX;
+            posY1 = e.clientY;
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e.preventDefault();
+            posX = posX1 - e.clientX;
+            posY = posY1 - e.clientY;
+            posX1 = e.clientX;
+            posY1 = e.clientY;
+            modal.style.top = (modal.offsetTop - posY) + "px";
+            modal.style.left = (modal.offsetLeft - posX) + "px";
+        }
+
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
     });
-  }, 50); // Adjust the interval as needed for the desired scrolling speed
 });
 
-btnL.addEventListener('mousedown', () => {
-  // Start scrolling to the left continuously
-  scrollInterval = setInterval(() => {
-    tracks.scrollBy({
-      left: -tracksW / 120, // Adjust the scroll speed as needed
-     // Add smooth behavior
-    });
-  }, 50); // Adjust the interval as needed for the desired scrolling speed
-});
 
-// Stop scrolling when the mouse button is released
-document.addEventListener('mouseup', () => {
-  clearInterval(scrollInterval);
-});

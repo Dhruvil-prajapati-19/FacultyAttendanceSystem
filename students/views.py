@@ -45,10 +45,10 @@ class Studentsheet(View):
 
             if faculty:
                 students_rollouts = StudentsRollouts.objects.filter(
-                    faculty=faculty,
-                    room=selected_room,
-                    class_date__gte=start_date,
-                    class_date__lte=end_date,
+                    timetable_rollout__faculty=faculty,
+                    timetable_rollout__room=selected_room,
+                    timetable_rollout__class_date__gte=start_date,
+                    timetable_rollout__class_date__lte=end_date,
                 )
             
             # Generate QR code data with a token
@@ -63,6 +63,7 @@ class Studentsheet(View):
                 buffer = BytesIO()
                 qr_img.save(buffer, format="PNG")
                 qr_code_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
+                
 
         context = {
             'success': True,
@@ -77,13 +78,13 @@ class Studentsheet(View):
             'friday_date': (start_date + timedelta(days=4)).strftime('%a %d %b, %Y'),
             'saturday_date': (start_date + timedelta(days=5)).strftime('%a %d %b, %Y'),
             'sunday_date': end_date.strftime('%a %d %b, %Y'),
-            'monday_classes': students_rollouts.filter(class_date=start_date),
-            'tuesday_classes': students_rollouts.filter(class_date=start_date + timedelta(days=1)),
-            'wednesday_classes': students_rollouts.filter(class_date=start_date + timedelta(days=2)),
-            'thursday_classes': students_rollouts.filter(class_date=start_date + timedelta(days=3)),
-            'friday_classes': students_rollouts.filter(class_date=start_date + timedelta(days=4)),
-            'saturday_classes': students_rollouts.filter(class_date=start_date + timedelta(days=5)),
-            'sunday_classes': students_rollouts.filter(class_date=end_date),
+            'monday_classes': students_rollouts.filter(timetable_rollout__class_date=start_date),
+            'tuesday_classes': students_rollouts.filter(timetable_rollout__class_date=start_date + timedelta(days=1)),
+            'wednesday_classes': students_rollouts.filter(timetable_rollout__class_date=start_date + timedelta(days=2)),
+            'thursday_classes': students_rollouts.filter(timetable_rollout__class_date=start_date + timedelta(days=3)),
+            'friday_classes': students_rollouts.filter(timetable_rollout__class_date=start_date + timedelta(days=4)),
+            'saturday_classes': students_rollouts.filter(timetable_rollout__class_date=start_date + timedelta(days=5)),
+            'sunday_classes': students_rollouts.filter(timetable_rollout__class_date=end_date),
             'selected_room': selected_room,
             'qr_code_data': qr_code_data,
         }

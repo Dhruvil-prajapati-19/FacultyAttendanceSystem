@@ -5,7 +5,16 @@ from .models import AdminCredentials, HolidayScheduler, TimeTableRollouts, WorkS
 from django.utils.timezone import localtime, now
 from datetime import datetime, timedelta
 from django.http import HttpResponse, HttpResponseRedirect
-
+from django.utils import timezone
+from .models import TimeTableRollouts, AdminCredentials, Room, HolidayScheduler, WorkShift
+from datetime import timedelta
+import qrcode
+from io import BytesIO
+import base64
+from django.conf import settings
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.backends import default_backend
 
 def index_redirect(request):
     return redirect('index/')
@@ -121,18 +130,34 @@ def logout(request):
         messages.success(request, "You have been logged out successfully.")
     return redirect('/') 
 
-
+from django.conf import settings
 from .models import AdminCredentials, TimeTableRollouts, HolidayScheduler, WorkShift
 from datetime import timedelta
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
+from django.views import View
+from datetime import timedelta
+from io import BytesIO
+import qrcode
+import base64
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import padding
+
 class Attendancesheet(View):
     def get(self, request):
+        qr_selected_room = request.GET.get('xqr')
         todays_date = timezone.localdate()
         selected_date_str = request.GET.get('weekpicker')
         selected_date = timezone.datetime.strptime(selected_date_str, '%Y-%m-%d').date() if selected_date_str else todays_date
         start_date = selected_date - timedelta(days=selected_date.weekday())
-        end_date = start_date + timedelta(days=6)
+        end_date = start_date + timedelta(days=6)  
 
         logged_user = request.session.get('logged_user')
+        print(qr_selected_room)
+        print(f"QR Selected Room: {qr_selected_room}")  # Check if this prints the expected value
 
         total_classes = 0
         attended_classes = 0
@@ -140,16 +165,29 @@ class Attendancesheet(View):
 
         if logged_user:
             try:
-                faculty = AdminCredentials.objects.get(id=logged_user).faculty
+                admin_credentials = AdminCredentials.objects.get(id=logged_user)
+                faculty = admin_credentials.faculty
                 total_classes = TimeTableRollouts.objects.filter(faculty=faculty).count()
                 attended_classes = TimeTableRollouts.objects.filter(faculty=faculty, class_attedance=True).count()
             except AdminCredentials.DoesNotExist:
                 pass
 
+        qr_code_data = None
+
+        if faculty and qr_selected_room:
+            qr_data = f'{faculty.id},{qr_selected_room}'
+            encrypted_token = self.encrypt_data(qr_data)
+            # Generate QR code image
+            qr_img = qrcode.make(encrypted_token)
+            buffer = BytesIO()
+            qr_img.save(buffer, format="PNG")
+            qr_code_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
+            print(f"QR Code Data: {qr_code_data}")  # Check if this prints the QR code data
+
         class_rollouts = TimeTableRollouts.objects.filter(faculty=faculty, class_date__range=[start_date, end_date])
         holiday_today = HolidayScheduler.objects.filter(date=todays_date).first()
 
-        # Prepare dates for each day of the week
+        # Prepare dates for each day of the week (you can adjust as needed)
         monday_date = start_date
         tuesday_date = start_date + timedelta(days=1)
         wednesday_date = start_date + timedelta(days=2)
@@ -158,7 +196,7 @@ class Attendancesheet(View):
         saturday_date = start_date + timedelta(days=5)
         sunday_date = end_date
 
-        # Filter class rollouts for each day of the week
+        # Filter class rollouts for each day of the week (adjust as needed)
         monday_classes = class_rollouts.filter(class_date=monday_date)
         tuesday_classes = class_rollouts.filter(class_date=tuesday_date)
         wednesday_classes = class_rollouts.filter(class_date=wednesday_date)
@@ -170,17 +208,9 @@ class Attendancesheet(View):
         final_punch_time = None
         is_punch_out = False
         punch_date_time = None
-        try:
-            punch_time = WorkShift.objects.filter(faculty=faculty).last()
-            if punch_time:
-                if punch_time.punch_in and not punch_time.punch_out:
-                    final_punch_time = punch_time.punch_in
-                    is_punch_out = True
-                elif punch_time.punch_in and punch_time.punch_out:
-                    final_punch_time = punch_time.punch_out
-                punch_date_time = f"{punch_time.date} {final_punch_time.strftime('%H:%M')}"
-        except WorkShift.DoesNotExist:
-            punch_date_time = None
+        
+        # Logic for punch time if needed
+        # Replace with your own logic as per requirements
 
         context = {
             'faculty_name': faculty,
@@ -206,24 +236,10 @@ class Attendancesheet(View):
             'holiday_today': holiday_today,
             'total_classes': total_classes,
             'attended_classes': attended_classes,
+            'qr_code_data': qr_code_data
         }
 
         return render(request, 'index.html', context)
-        
-    def post(self, request):
-        attendance = request.POST.get('attendance') == 'true'
-        class_rollout_id = request.POST.get('class_rollout_id')
-        
-        try:
-            class_rollout = TimeTableRollouts.objects.get(id=class_rollout_id)
-            class_rollout.class_attedance = attendance
-            class_rollout.save()
-            messages.success(request, "Attendance has been marked")
-        except ObjectDoesNotExist as e:
-            messages.error(request, "Error occurred while marking attendance: " + str(e))
-
-        return redirect("calendar_view")
-
 
 from openpyxl import Workbook # type: ignore
 def download_data(request):
