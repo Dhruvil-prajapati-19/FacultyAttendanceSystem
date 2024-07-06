@@ -14,7 +14,6 @@ urlpatterns = [
     path('index/', Faculty_login_required(faculty_views.Attendancesheet.as_view()), name='index'),  
     path('Attendancesheet/', Faculty_login_required(faculty_views.Attendancesheet.as_view()), name='AttendanceSheet'),
     path('Students/', Faculty_login_required(students_views.Studentsheet.as_view()), name='Students'),
-    path('Student/', Faculty_login_required(students_views.MarkAttendanceButtonView.as_view()), name='MarkAttendanceButton'),
     path('datasheet/', Faculty_login_required(students_views.Datasheet.as_view()), name='datasheet'),
     path('download_attendance/<str:enrollment_no>/', Faculty_login_required(students_views.download_attendance_data), name='download_attendance_data'),
     path('download_all_attendance/', Faculty_login_required(students_views.download_all_attendance_data), name='download_all_attendance_data'),
