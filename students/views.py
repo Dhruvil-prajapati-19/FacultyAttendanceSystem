@@ -191,10 +191,12 @@ from django.conf import settings
 
 class WelcomeView(View):
     def get(self, request):
-        if request.user.is_authenticated:
-            enrollment_no = request.user.username  # Assuming enrollment_no is the username
+        # Check if the student_id is in the session
+        student_id = request.session.get('student_id')
+        
+        if student_id:
             try:
-                student = Students.objects.get(enrollment_no=enrollment_no)
+                student = Students.objects.get(id=student_id)
                 context = {
                     'student_name': student.student_name,
                     'enrollment_no': student.enrollment_no,

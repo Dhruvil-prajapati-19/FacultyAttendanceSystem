@@ -260,7 +260,7 @@
       </div>
         </div>
         <div class="col">
-        <form class="form-inline" method="GET" action="{% url 'calendar_view' %}" style="margin: 10px auto;">
+        <form class="form-inline" method="GET" action="{% url 'AttendanceSheet' %}" style="margin: 10px auto;">
           <div class="input-group">
               <input type="date" id="weekpicker" class="form-control form-control-sm" name="weekpicker"> <!-- Added form-control-sm class for smaller input -->
               <div class="input-group-append">
@@ -347,8 +347,9 @@
                         <p>{{ class_rollout.room.id }}</p>
                    
                     <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                        <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                        <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
                             {% csrf_token %}
+                            <input type="hidden" name = "weekpicker" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
                             <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
                             <input type="checkbox" id="attendance_{{ class_rollout.id }}" name="attendance" value="true" onchange="this.form.submit()" {% if class_rollout.class_attedance %} checked {% endif %} />
                             <p style="margin-top: -22px; margin-left: 17px">
@@ -357,7 +358,7 @@
                         </form>
                     </div>
                     <!-- Form to generate QR code via GET request -->
-                    <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'calendar_view' %}">
+                    <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'AttendanceSheet' %}">
                         {% csrf_token %}
                         <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" /> 
                         <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
@@ -377,7 +378,7 @@
                   <p>{{ class_rollout.subject.short_name }}</p>   
                   <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
 
-                      <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                      <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
                           {% csrf_token %}
                           <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
                           <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
@@ -400,7 +401,7 @@
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
                 <p>{{ class_rollout.subject.short_name }}</p>  
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
                         {% csrf_token %}
                         <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
                         <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
@@ -423,7 +424,7 @@
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
                 <p>{{ class_rollout.subject.short_name }}</p>  
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
                         {% csrf_token %}
                         <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
                         <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
@@ -446,7 +447,7 @@
               <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
               <p>{{ class_rollout.subject.short_name }}</p>  
               <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                  <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                  <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
                       {% csrf_token %}
                       <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
                       <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
@@ -469,7 +470,7 @@
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
                 <p>{{ class_rollout.subject.short_name }}</p>  
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
                         {% csrf_token %}
                         <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
                         <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
@@ -492,7 +493,7 @@
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
                 <p>{{ class_rollout.subject.short_name }}</p>  
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
+                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
                         {% csrf_token %}
                         <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
                         <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />

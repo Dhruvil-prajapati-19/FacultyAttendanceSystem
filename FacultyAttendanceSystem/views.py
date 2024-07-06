@@ -5,7 +5,7 @@ from django.utils.timezone import localtime, now
 from datetime import datetime, timedelta
 from django.http import HttpResponse, HttpResponseRedirect 
 from django.utils import timezone
-from .models import TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift
+from .models import TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift , Students, ActiveSession
 from datetime import timedelta
 import qrcode # type: ignore
 from io import BytesIO
@@ -14,6 +14,12 @@ from django.conf import settings
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.backends import default_backend
+from django.urls import reverse
+from django.utils import timezone
+from django.contrib.auth import login, logout as auth_logout
+from django.views import View
+from django.contrib.auth.models import User
+from geopy.distance import geodesic # type: ignore
 
 def index_redirect(request):
     return redirect( request,'index/')
@@ -21,18 +27,14 @@ def index_redirect(request):
 def error_404_view(request):
     return render(request, 'pages-error-404.html')
 
-def Students(request):
-    return render(request, 'Students.html')
 
-from django.utils import timezone
-from django.contrib.auth import login, logout as auth_logout
+
 from django.views import View
-from .models import Students, AdminCredentials, ActiveSession
-from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.utils import timezone
 from geopy.distance import geodesic # type: ignore
-from .models import AdminCredentials, Students, ActiveSession, User
-
+from .models import Students, AdminCredentials, ActiveSession
 # Constants for geographic authentication
 ALLOWED_LOCATION = (23.850872, 72.117408)
 MAX_DISTANCE_KM = 50  # Set your desired maximum distance in kilometers
@@ -93,15 +95,14 @@ class LoginView(View):
                             if active_session.last_logout:
                                 cooldown_end = active_session.last_logout + COOLDOWN_PERIOD
                                 if timezone.now() < cooldown_end:
-                                    messages.error(request, f"Access Denied: Your session is temporarily blocked for 24h from logging into another account and is associated with user {active_session.enrollment_no} if it not you then contact your admin")
+                                    messages.error(request, f"Access Denied: Your session is temporarily blocked for 24h from logging into another account and is associated with user {active_session.enrollment_no}. If this is not you, please contact your admin")
                                     return render(request, 'login.html')
                             else:
-                                messages.error(request, f"Access Denied: Your session is already associated with user {active_session.enrollment_no}. You can only login as {active_session.enrollment_no} if it not you then contact your admin")
+                                messages.error(request, f"Access Denied: Your session is already associated with user {active_session.enrollment_no}. You can only login as {active_session.enrollment_no}. If this is not you, please contact your admin")
                                 return render(request, 'login.html')
 
-                    # Authenticate user
-                    django_user, created = User.objects.get_or_create(username=enrollment_no)
-                    login(request, django_user)
+                    # Handle session without creating a Django user
+                    request.session['student_id'] = student.id
 
                     # Update active session
                     if active_session:
@@ -122,6 +123,7 @@ class LoginView(View):
         # If neither student nor faculty login data is provided
         messages.error(request, "Please provide your credentials")
         return render(request, 'login.html')
+
 
 def logout(request):
     if 'logged_user' in request.session:
@@ -157,13 +159,13 @@ class Attendancesheet(View):
         qr_code_data = None
 
         if faculty and qr_selected_room:
-            qr_data = f'{faculty.id},{qr_selected_room}'
-            # Generate QR code image
-            qr_img = qrcode.make(qr_data)
+            qr_data = f'{faculty.id},{qr_selected_room},{qr_selected_date}'
+            encrypted_token = self.encrypt_data(qr_data)
+            qr_img = qrcode.make(encrypted_token)
             buffer = BytesIO()
             qr_img.save(buffer, format="PNG")
             qr_code_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
-            print(f"QR Code Data: {qr_code_data}")  # Check if this prints the QR code data
+        
 
         class_rollouts = TimeTableRollouts.objects.filter(faculty=faculty, class_date__range=[start_date, end_date])
         holiday_today = HolidayScheduler.objects.filter(date=todays_date).first()
@@ -248,6 +250,7 @@ class Attendancesheet(View):
     def post(self, request):
         attendance = request.POST.get('attendance') == 'true'
         class_rollout_id = request.POST.get('class_rollout_id')
+        selected_date_str = request.POST.get('weekpicker')
         
         try:
             class_rollout = TimeTableRollouts.objects.get(id=class_rollout_id)
@@ -257,7 +260,7 @@ class Attendancesheet(View):
         except ObjectDoesNotExist as e:
             messages.error(request, "Error occurred while marking attendance: " + str(e))
 
-        return redirect("calendar_view")    
+        return HttpResponseRedirect(reverse('index') + f'?weekpick={selected_date_str}')
 
 from openpyxl import Workbook # type: ignore
 def download_data(request):
@@ -333,7 +336,7 @@ class WorkShiftView(View):
                     existing_entry = WorkShift.objects.get(faculty=faculty, date=current_time.date())
                     if existing_entry.punch_in and existing_entry.punch_out is not None:
                         messages.info(request, "Punch already exist for today!")
-                        return redirect("calendar_view")
+                        return redirect("AttendanceSheet")
                     
                     if existing_entry.punch_in is not None and existing_entry.punch_out is None:
                         existing_entry.punch_out = current_time.time()
@@ -346,5 +349,5 @@ class WorkShiftView(View):
                 messages.error(request, "Faculty not found.")
         else:
             messages.error(request, "Faculty not logged in.")
-        return redirect("calendar_view")
+        return redirect("AttendanceSheet")
 

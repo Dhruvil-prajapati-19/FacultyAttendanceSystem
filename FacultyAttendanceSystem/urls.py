@@ -12,7 +12,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', faculty_views.LoginView.as_view(), name='login'), 
     path('index/', Faculty_login_required(faculty_views.Attendancesheet.as_view()), name='index'),  
-    path('Attendancesheet/', Faculty_login_required(faculty_views.Attendancesheet.as_view()), name='calendar_view'),
+    path('Attendancesheet/', Faculty_login_required(faculty_views.Attendancesheet.as_view()), name='AttendanceSheet'),
     path('Students/', Faculty_login_required(students_views.Studentsheet.as_view()), name='Students'),
     path('Student/', Faculty_login_required(students_views.MarkAttendanceButtonView.as_view()), name='MarkAttendanceButton'),
     path('datasheet/', Faculty_login_required(students_views.Datasheet.as_view()), name='datasheet'),
