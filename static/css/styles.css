@@ -184,11 +184,11 @@
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
     border: 1px solid #EBECEE;
     border-left: 3px solid var(--theme-bg);
-    height: fit-content;
+    height: 100%;
   }
   
   h3 {
-    font-size: 12px;
+    font-size: 11px;
     background: var(--theme-bg);
     padding: 6px 8px;
     font-weight: 600;
@@ -196,6 +196,7 @@
     border-radius: 2px;
     color: var(--theme-color);
     margin-top: 0px;
+    width: 100%;
   }
   
   .yellow {

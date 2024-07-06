@@ -1,14 +1,14 @@
 from django.contrib import admin
 from . import models
-from .models import Timetable, HolidayScheduler, Midexamscheduler
+from .models import Subject, Timetable, HolidayScheduler, Midexamscheduler,Students, Room
+import data_wizard # type: ignore
 
-import data_wizard
-from FacultyAttendanceSystem.models import Students
-
+data_wizard.register(Subject)
 data_wizard.register(Students)
 data_wizard.register(Timetable)
 data_wizard.register(HolidayScheduler)
-
+data_wizard.register(Midexamscheduler)
+data_wizard.register(Room)
 @admin.register(models.AdminCredentials)
 class AdminCredentialsAdmin(admin.ModelAdmin):
     list_display = ['faculty', 'username']
@@ -21,7 +21,7 @@ class ClassDurationAdmin(admin.ModelAdmin):
 @admin.register(models.Faculty)
 class FacultyAdmin(admin.ModelAdmin):
     search_fields = ('name', 'short_name')
-    list_display = ('id', 'name', 'short_name')
+    list_display = ( 'name', 'short_name')
 
 @admin.register(models.Subject)
 class SubjectAdmin(admin.ModelAdmin):
@@ -64,17 +64,27 @@ class WorkshiftAdmin(admin.ModelAdmin):
 
 @admin.register(models.Timetable)
 class TimetableAdmin(admin.ModelAdmin):
-    list_display = ('class_type', 'Student_Class', 'formatted_semester', 'faculty', 'subject', 'room', 'formatted_first_class_date', 'duration', 'start_time', 'end_time', 'formatted_create_date', 'formatted_modified_date')
+    list_display = ('faculty', 'class_type', 'formatted_Student_Class', 'formatted_semester', 'subject', 'room', 'formatted_first_class_date', 'duration', 'start_time', 'end_time' )
     list_filter = ('class_type', 'semester', 'faculty', 'subject', 'room', 'create_date', 'modified_date')
     search_fields = ('semester__name', 'faculty__name', 'subject__name', 'room__room_name', 'faculty__short_name')
 
     def formatted_semester(self, obj):
         if obj.semester:
-            parts = obj.semester.name.split('-')
-            return f'{parts[0]}-{parts[1]}' if len(parts) >= 2 else parts[0]
+            return f"{obj.semester.term_date} - {obj.semester.name}"
         else:
             return '-'
     formatted_semester.short_description = 'Semester'
+
+    def formatted_Student_Class(self, obj):
+        if obj.Student_Class:
+            return obj.Student_Class.Students_class_name
+        else:
+            return '-'
+    formatted_Student_Class.short_description = 'Student Class'
+
+    def formatted_subject(self, obj):
+        return obj.subject.short_name if obj.subject else '-'
+    formatted_subject.short_description = 'Subject'
 
     def formatted_create_date(self, obj):
         return obj.create_date.strftime("%d/%m/%Y")
@@ -189,7 +199,7 @@ class StudentsRolloutsAdmin(admin.ModelAdmin):
         return obj.timetable_rollout.get_class_status_display() if obj.timetable_rollout.class_status else ''
     get_class_status.short_description = 'Class status'
 
-    
+    # pass
 
 @admin.register(models.StudentClass)
 class StudentClassAdmin(admin.ModelAdmin):

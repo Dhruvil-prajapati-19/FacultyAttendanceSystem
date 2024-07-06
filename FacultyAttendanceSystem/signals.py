@@ -95,7 +95,11 @@ def update_students_rollouts(instance):
         rollout.timetable_rollout.end_time = instance.end_time
         rollout.modified_by = instance.modified_by_user
         rollout.save()
-
+@receiver(post_delete, sender=Timetable)
+def delete_rollouts(sender, instance, **kwargs):
+    TimeTableRollouts.objects.filter(class_id=instance).delete()
+    StudentsRollouts.objects.filter(timetable_rollout__class_id=instance).delete()
+    
 @receiver(post_save, sender=EventScheduler)
 @receiver(post_delete, sender=EventScheduler)
 def handle_event_scheduler(sender, instance, **kwargs):
