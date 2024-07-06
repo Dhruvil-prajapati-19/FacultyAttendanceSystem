@@ -274,7 +274,7 @@
 
 <!-- QR Code Display Modal -->
 <div class="modal fade top-left-modal" id="qrCodeModal" tabindex="-1" role="dialog" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
-  <div class="modal-dialog qr-code-dialog" role="document"> <!-- Added class qr-code-dialog -->
+  <div class="modal-dialog qr-code-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header" style="cursor: move;" draggable="true">
         <h5 class="modal-title" id="qrModalLabel">QR Code Generate</h5>
@@ -292,7 +292,7 @@
         {% endif %}
       </div>
       <div class="modal-footer">
-        <button id="downloadButton" class="btn btn-primary btn-block">Save</button>
+        <!-- <button id="downloadButton" class="btn btn-primary btn-block" onclick="downloadQRCode()">Save</button> -->
         <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
       </div>
     </div>
@@ -339,34 +339,33 @@
             {% for class_rollout in monday_classes %}
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
                 <div class="details">
-                    <h3 class="bi bi-qr-code-scan"> {{ class_rollout.room.room_name }} -({{ class_rollout.start_time }})</h3>
-                    <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
-                    <p>{{ class_rollout.subject.short_name }}</p>
-                    <p> {{ class_rollout.class_date|date:'Y-m-d'  }}</p>
-                    <p>{{ class_rollout.room.id }}</p>
+                    <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();" style="cursor: pointer;">
+                        <h3 class="bi bi-qr-code-scan">{{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
+                        <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} ({{ class_rollout.duration.duration_short_name }})</p>
+                        <p>{{ class_rollout.subject.short_name }}</p>
+                        <p>{{ class_rollout.class_date|date:'Y-m-d' }}</p>
+                        <p>{{ class_rollout.room.id }}</p>
+                   
                     <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                         <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'calendar_view' %}">
                             {% csrf_token %}
                             <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                            <input type="checkbox" id="attendance" name="attendance" value="true" onchange="this.form.submit()" {% if class_rollout.class_attedance %} checked {% endif %} />
+                            <input type="checkbox" id="attendance_{{ class_rollout.id }}" name="attendance" value="true" onchange="this.form.submit()" {% if class_rollout.class_attedance %} checked {% endif %} />
                             <p style="margin-top: -22px; margin-left: 17px">
-                                <label for="attendance">Attendance</label>
+                                <label for="attendance_{{ class_rollout.id }}">Attendance</label>
                             </p>
-
                         </form>
                     </div>
-                    <!-- Form to generate QR code via GET request --> 
-                    <form id="attendanceForm" method="get" action="{% url 'calendar_view' %}" >
-                      {% csrf_token %}
-                      <input type="hidden" name="xqd" value="{{ class_rollout.class_date }}" /> 
-                      <input type="hidden" name="xqr" value="{{ class_rollout.room.id }}" />
-                      <button type="button" id="generateQRButton" class="btn btn-outline-primary ml-2" data-toggle="modal" data-target="#qrCodeModal">Generate QR Code</button>
-                      <button type="submit" class="btn btn-outline-primary ml-2">Submit Attendance</button> 
-                  </form>
+                    <!-- Form to generate QR code via GET request -->
+                    <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'calendar_view' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="xqd" value="{{ class_rollout.class_date }}" /> 
+                        <input type="hidden" name="xqr" value="{{ class_rollout.room.id }}" />
+                    </form>
                 </div>
             </div>
             {% endfor %}
-          </div>
+            </div>
 
             <!-- TUESDAY -->
             <div class="track yellow">
@@ -523,11 +522,14 @@
         Developed by Dhruvil 
       </div>
     </footer>
-    <!-- <script>
-      $(document).ready(function(){
-          $('#qrCodeModal').modal('show');
-      });
-  </script> -->
+<!-- Trigger Modal if QR Code Data is Present -->
+{% if qr_code_data %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    $('#qrCodeModal').modal('show');
+  });
+</script>
+{% endif %}
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9W5+2QpHp7FZE9Ns7UJ0B4RvDxH47auKJ39MX" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
@@ -541,6 +543,12 @@
         document.getElementById("attendanceForm_" + class_rollout_id).submit();
       }
     </script>
+<script>
+  function submitForm(class_rollout_id) {
+      document.getElementById("qrForm_" + class_rollout_id).submit();
+  }
+  </script>
+  
     <script>
       // Disable buttons after click
       document.getElementById("punchInForm").addEventListener("submit", function () {

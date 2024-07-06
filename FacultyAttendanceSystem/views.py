@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import timezone
 from .models import TimeTableRollouts, AdminCredentials, Room, HolidayScheduler, WorkShift
 from datetime import timedelta
-import qrcode
+import qrcode # type: ignore
 from io import BytesIO
 import base64
 from django.conf import settings
@@ -140,11 +140,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views import View
 from datetime import timedelta
 from io import BytesIO
-import qrcode
 import base64
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import padding
 
 class Attendancesheet(View):
     def get(self, request):
@@ -156,7 +152,6 @@ class Attendancesheet(View):
         end_date = start_date + timedelta(days=6)  
 
         logged_user = request.session.get('logged_user')
-        print(qr_selected_room)
         print(f"QR Selected Room: {qr_selected_room}")  # Check if this prints the expected value
 
         total_classes = 0
@@ -176,9 +171,8 @@ class Attendancesheet(View):
 
         if faculty and qr_selected_room:
             qr_data = f'{faculty.id},{qr_selected_room}'
-            encrypted_token = self.encrypt_data(qr_data)
             # Generate QR code image
-            qr_img = qrcode.make(encrypted_token)
+            qr_img = qrcode.make(qr_data)
             buffer = BytesIO()
             qr_img.save(buffer, format="PNG")
             qr_code_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
@@ -329,6 +323,5 @@ class WorkShiftView(View):
         else:
             messages.error(request, "Faculty not logged in.")
         return redirect("calendar_view")
-
 
 
