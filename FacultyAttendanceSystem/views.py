@@ -1,12 +1,11 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from .models import AdminCredentials, HolidayScheduler, TimeTableRollouts, WorkShift
 from django.utils.timezone import localtime, now
 from datetime import datetime, timedelta
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect 
 from django.utils import timezone
-from .models import TimeTableRollouts, AdminCredentials, Room, HolidayScheduler, WorkShift
+from .models import TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift
 from datetime import timedelta
 import qrcode # type: ignore
 from io import BytesIO
@@ -17,7 +16,7 @@ from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.backends import default_backend
 
 def index_redirect(request):
-    return redirect('index/')
+    return redirect( request,'index/')
 
 def error_404_view(request):
     return render(request, 'pages-error-404.html')
@@ -130,29 +129,16 @@ def logout(request):
         messages.success(request, "You have been logged out successfully.")
     return redirect('/') 
 
-from django.conf import settings
-from .models import AdminCredentials, TimeTableRollouts, HolidayScheduler, WorkShift
-from datetime import timedelta
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.utils import timezone
-from django.core.exceptions import ObjectDoesNotExist
-from django.views import View
-from datetime import timedelta
-from io import BytesIO
-import base64
-
 class Attendancesheet(View):
     def get(self, request):
-        qr_selected_room = request.GET.get('xqr')
         todays_date = timezone.localdate()
         selected_date_str = request.GET.get('weekpicker')
         selected_date = timezone.datetime.strptime(selected_date_str, '%Y-%m-%d').date() if selected_date_str else todays_date
         start_date = selected_date - timedelta(days=selected_date.weekday())
-        end_date = start_date + timedelta(days=6)  
-
+        end_date = start_date + timedelta(days=6)
+        qr_selected_date = request.GET.get('date')  
+        qr_selected_room = request.GET.get('room')
         logged_user = request.session.get('logged_user')
-        print(f"QR Selected Room: {qr_selected_room}")  # Check if this prints the expected value
 
         total_classes = 0
         attended_classes = 0
@@ -166,7 +152,8 @@ class Attendancesheet(View):
                 attended_classes = TimeTableRollouts.objects.filter(faculty=faculty, class_attedance=True).count()
             except AdminCredentials.DoesNotExist:
                 pass
-
+        
+        
         qr_code_data = None
 
         if faculty and qr_selected_room:
@@ -190,21 +177,23 @@ class Attendancesheet(View):
         saturday_date = start_date + timedelta(days=5)
         sunday_date = end_date
 
-        # Filter class rollouts for each day of the week (adjust as needed)
-        monday_classes = class_rollouts.filter(class_date=monday_date)
-        tuesday_classes = class_rollouts.filter(class_date=tuesday_date)
-        wednesday_classes = class_rollouts.filter(class_date=wednesday_date)
-        thursday_classes = class_rollouts.filter(class_date=thursday_date)
-        friday_classes = class_rollouts.filter(class_date=friday_date)
-        saturday_classes = class_rollouts.filter(class_date=saturday_date)
-        sunday_classes = class_rollouts.filter(class_date=sunday_date)
 
         final_punch_time = None
         is_punch_out = False
         punch_date_time = None
+        try:
+            punch_time = WorkShift.objects.filter(faculty=faculty).last()
+            if punch_time:
+                if punch_time.punch_in and not punch_time.punch_out:
+                    final_punch_time = punch_time.punch_in
+                    is_punch_out = True
+                elif punch_time.punch_in and punch_time.punch_out:
+                    final_punch_time = punch_time.punch_out
+                punch_date_time = f"{punch_time.date} {final_punch_time.strftime('%H:%M')}"
+        except WorkShift.DoesNotExist:
+            punch_date_time = None
         
-        # Logic for punch time if needed
-        # Replace with your own logic as per requirements
+
 
         context = {
             'faculty_name': faculty,
@@ -220,13 +209,13 @@ class Attendancesheet(View):
             'friday_date': friday_date.strftime('%a %d %b, %Y'),
             'saturday_date': saturday_date.strftime('%a %d %b, %Y'),
             'sunday_date': sunday_date.strftime('%a %d %b, %Y'),
-            'monday_classes': monday_classes,
-            'tuesday_classes': tuesday_classes,
-            'wednesday_classes': wednesday_classes,
-            'thursday_classes': thursday_classes,
-            'friday_classes': friday_classes,
-            'saturday_classes': saturday_classes,
-            'sunday_classes': sunday_classes,
+            'monday_classes': class_rollouts.filter(class_date=monday_date),
+            'tuesday_classes': class_rollouts.filter(class_date=tuesday_date),
+            'wednesday_classes': class_rollouts.filter(class_date=wednesday_date),
+            'thursday_classes': class_rollouts.filter(class_date=thursday_date),
+            'friday_classes': class_rollouts.filter(class_date=friday_date),
+            'saturday_classes': class_rollouts.filter(class_date=saturday_date),
+            'sunday_classes': class_rollouts.filter(class_date=sunday_date),
             'holiday_today': holiday_today,
             'total_classes': total_classes,
             'attended_classes': attended_classes,
@@ -234,6 +223,41 @@ class Attendancesheet(View):
         }
 
         return render(request, 'index.html', context)
+    def encrypt_data(self, data):
+        # Ensure key is bytes and 32 bytes long for AES-256
+        key = settings.QR_SECRET_KEY
+        if len(key) != 32:
+            raise ValueError("Key must be 32 bytes (256 bits) for AES-256 encryption")
+
+        # Generate a random initialization vector (IV)
+        iv = bytes([0] * 16)  # Use all zeros for testing, replace with a proper random_bytes call
+
+        # Encrypt data with AES-256 in CBC mode
+        cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+        padder = padding.PKCS7(algorithms.AES.block_size).padder()
+        padded_data = padder.update(data.encode()) + padder.finalize()
+        encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
+
+        # Combine IV and encrypted data and encode in base64
+        iv_base64 = base64.b64encode(iv).decode()
+        encrypted_data_base64 = base64.b64encode(encrypted_data).decode()
+        encrypted_token = f"{iv_base64}:{encrypted_data_base64}"
+
+        return encrypted_token
+    def post(self, request):
+        attendance = request.POST.get('attendance') == 'true'
+        class_rollout_id = request.POST.get('class_rollout_id')
+        
+        try:
+            class_rollout = TimeTableRollouts.objects.get(id=class_rollout_id)
+            class_rollout.class_attedance = attendance
+            class_rollout.save()
+            messages.success(request, "Attendance has been marked")
+        except ObjectDoesNotExist as e:
+            messages.error(request, "Error occurred while marking attendance: " + str(e))
+
+        return redirect("calendar_view")    
 
 from openpyxl import Workbook # type: ignore
 def download_data(request):
@@ -323,5 +347,4 @@ class WorkShiftView(View):
         else:
             messages.error(request, "Faculty not logged in.")
         return redirect("calendar_view")
-
 

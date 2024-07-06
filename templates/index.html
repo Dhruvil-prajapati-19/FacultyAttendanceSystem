@@ -359,8 +359,8 @@
                     <!-- Form to generate QR code via GET request -->
                     <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'calendar_view' %}">
                         {% csrf_token %}
-                        <input type="hidden" name="xqd" value="{{ class_rollout.class_date }}" /> 
-                        <input type="hidden" name="xqr" value="{{ class_rollout.room.id }}" />
+                        <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" /> 
+                        <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
                     </form>
                 </div>
             </div>
