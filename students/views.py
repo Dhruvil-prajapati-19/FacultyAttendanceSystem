@@ -64,14 +64,13 @@ class WelcomeView(View):
 
             # Mark attendance
             student_rollout.student_attendance = True
-            # student_rollout.modified_by = request.user
             student_rollout.save()
 
             messages.success(request, "Attendance successfully marked")
         except Students.DoesNotExist:
             messages.error(request, "Student not found with the given enrollment number")
         except StudentsRollouts.DoesNotExist:
-            messages.error(request, "StudentsRollouts entry not found for the given class and student")
+            messages.error(request, "entry not found")
         except TimeTableRollouts.DoesNotExist:
             messages.error(request, "Class not found with the given ID")
         except Exception as e:
