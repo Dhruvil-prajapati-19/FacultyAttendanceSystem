@@ -340,10 +340,12 @@
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
                 <div class="details">
                     <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();" style="cursor: pointer;">
-                        <h3 class="bi bi-qr-code-scan">{{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
+                  <h3 class="d-flex align-items-center">
+            {{ class_rollout.room.room_name }} ({{ class_rollout.start_time }})  <i style="font-size: 25px;" class="bi bi-qr-code-scan custom-icon-size mr-2"></i>
+        </h3> </div>
                         <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                          <p> ({{ class_rollout.duration.duration_short_name }})</p>
-                        <p>{{ class_rollout.subject}}-({{ class_rollout.subject.short_name}})</p>
+                         <p>{{ class_rollout.subject.short_name }} </p>
   
                    
                     <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
@@ -374,10 +376,12 @@
               <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
                 <div class="details">
                   <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();" style="cursor: pointer;">
-                      <h3 class="bi bi-qr-code-scan">{{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
+                <h3 class="d-flex align-items-center">
+          {{ class_rollout.room.room_name }} ({{ class_rollout.start_time }})  <i style="font-size: 25px;" class="bi bi-qr-code-scan custom-icon-size mr-2"></i>
+      </h3> </div>
                       <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                        <p> ({{ class_rollout.duration.duration_short_name }})</p>
-                      <p>{{ class_rollout.subject}}-({{ class_rollout.subject.short_name}})</p>
+                       <p>{{ class_rollout.subject.short_name }} </p>
 
                  
                   <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
@@ -398,8 +402,8 @@
                       <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
                   </form>
               </div>
-            </div>
-              {% endfor %}
+          </div>
+          {% endfor %}
             </div>
 
           <!--Wednesday-->
@@ -408,10 +412,12 @@
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
                 <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();" style="cursor: pointer;">
-                    <h3 class="bi bi-qr-code-scan">{{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
+              <h3 class="d-flex align-items-center">
+        {{ class_rollout.room.room_name }} <br>({{ class_rollout.start_time }})  <i style="font-size: 25px; padding-left: 26px;" class="bi bi-qr-code-scan custom-icon-size mr-2"></i>
+    </h3> </div>
                     <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                      <p> ({{ class_rollout.duration.duration_short_name }})</p>
-                    <p>{{ class_rollout.subject}}-({{ class_rollout.subject.short_name}})</p>
+                     <p>{{ class_rollout.subject.short_name }} </p>
 
                
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
@@ -432,8 +438,8 @@
                     <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
                 </form>
             </div>
-          </div>
-            {% endfor %}
+        </div>
+        {% endfor %}
           </div>
 
           <!--thursday-->
@@ -442,10 +448,12 @@
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
                 <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();" style="cursor: pointer;">
-                    <h3 class="bi bi-qr-code-scan">{{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
+              <h3 class="d-flex align-items-center">
+        {{ class_rollout.room.room_name }} <br>({{ class_rollout.start_time }})  <i style="font-size: 25px;" class="bi bi-qr-code-scan custom-icon-size pl-4"></i>
+    </h3> </div>
                     <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                      <p> ({{ class_rollout.duration.duration_short_name }})</p>
-                    <p>{{ class_rollout.subject}}-({{ class_rollout.subject.short_name}})</p>
+                     <p>{{ class_rollout.subject.short_name }} </p>
 
                
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
@@ -466,8 +474,8 @@
                     <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
                 </form>
             </div>
-          </div>
-            {% endfor %}
+        </div>
+        {% endfor %}
           </div>
 
           <!--friday-->
@@ -476,10 +484,12 @@
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
                 <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();" style="cursor: pointer;">
-                    <h3 class="bi bi-qr-code-scan">{{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
+              <h3 class="d-flex align-items-center">
+        {{ class_rollout.room.room_name }} <br>({{ class_rollout.start_time }})  <i style="font-size: 25px;" class="bi bi-qr-code-scan custom-icon-size pl-4"></i>
+    </h3> </div>
                     <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                      <p> ({{ class_rollout.duration.duration_short_name }})</p>
-                    <p>{{ class_rollout.subject}}-({{ class_rollout.subject.short_name}})</p>
+                     <p>{{ class_rollout.subject.short_name }} </p>
 
                
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
@@ -500,8 +510,8 @@
                     <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
                 </form>
             </div>
-          </div>
-          {% endfor %}
+        </div>
+        {% endfor %}
         </div>
 
           <!--Saturday-->
@@ -510,10 +520,10 @@
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
                 <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();" style="cursor: pointer;">
-                    <h3 class="bi bi-qr-code-scan">{{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
+                    <h3 class="bi bi-qr-code-scan">  {{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
                     <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                      <p> ({{ class_rollout.duration.duration_short_name }})</p>
-                    <p>{{ class_rollout.subject}}-({{ class_rollout.subject.short_name}})</p>
+               <p>{{ class_rollout.subject.short_name }} </p>
 
                
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
@@ -544,10 +554,10 @@
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
                 <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();" style="cursor: pointer;">
-                    <h3 class="bi bi-qr-code-scan">{{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
+                    <h3 class="bi bi-qr-code-scan">  {{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
                     <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                      <p> ({{ class_rollout.duration.duration_short_name }})</p>
-                    <p>{{ class_rollout.subject}}-({{ class_rollout.subject.short_name}})</p>
+               <p>{{ class_rollout.subject.short_name }} </p>
 
                
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">

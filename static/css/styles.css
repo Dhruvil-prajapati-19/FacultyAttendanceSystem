@@ -188,7 +188,7 @@
   }
   
   h3 {
-    font-size: 11px;
+    font-size: 13px;
     background: var(--theme-bg);
     padding: 6px 8px;
     font-weight: 600;
@@ -197,11 +197,12 @@
     color: var(--theme-color);
     margin-top: 0px;
     width: 100%;
+    font-weight: bold;
   }
   
   .yellow {
-    --theme-color: hsl(40, 50%, 30%);
-    --theme-bg: #ffd800;
+    --theme-color: #FFFFFF;
+    --theme-bg: #8b8000;
   }
   
   .turq {
