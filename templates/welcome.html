@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     <style>
+    body {
+    font-family: "Open Sans", sans-serif;
+    background: #f6f9ff;
+    font-weight: bold;
+}
         #reader {
             width: 100%;
             height: 100%;
@@ -22,12 +27,12 @@
 <body>
     <div class="container mt-4">
         <div class="d-flex justify-content-center">
-            <span class="badge badge-info " style="font-size: 1rem;">
+            <span class="badge badge-info " style="font-size: 1rem; margin-bottom: 10px;">
                 <i class="bi bi-info-circle"></i> Scan QR Code to Mark Attendance, then Logout
             </span>
         </div>
-        <h1>Welcome, {{ student_name }}</h1>
-        <p>Enrollment Number: {{ enrollment_no }}</p>
+        <h1 class="fw-bolder">Welcome, {{ student_name }}</h1>
+        <p class="fw-bolder">Enrollment Number: {{ enrollment_no }}</p>
         <button type="button" id="scanQRButton" class="btn btn-outline-primary ml-2">Scan QR Code</button>
         <a href="{% url 'studentlogout' %}"><button type="button" class="btn btn-outline-primary ml-2">Logout</button></a>
         <a href="https://dhruvil-prajapati-16.github.io/Genqrcode/"><button type="button" class="btn btn-secondary ml-2">Generate Qr code</button></a>
