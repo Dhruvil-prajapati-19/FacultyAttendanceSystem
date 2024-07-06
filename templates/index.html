@@ -373,22 +373,32 @@
               {% for class_rollout in tuesday_classes %}
               <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
                 <div class="details">
-                  <h3 class="bi bi-qr-code-scan"> {{ class_rollout.room.room_name }} -({{ class_rollout.start_time }})</h3>
-                  <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
-                  <p>{{ class_rollout.subject.short_name }}</p>   
-                  <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-
-                      <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
-                          {% csrf_token %}
-                          <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                          <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
-                          <p style="margin-top: -22px; margin-left: 17px">
-                              <label for="attendance">Attendance</label>
-                          </p>
-                      </form>
-                  </div>
-              </div>
-              </div>
+                    <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();" style="cursor: pointer;">
+                        <h3 class="bi bi-qr-code-scan">{{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
+                        <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} ({{ class_rollout.duration.duration_short_name }})</p>
+                        <p>{{ class_rollout.subject.short_name }}</p>
+                        <p>{{ class_rollout.class_date|date:'Y-m-d' }}</p>
+                        <p>{{ class_rollout.room.id }}</p>
+                   
+                    <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                        <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name = "weekpicker" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
+                            <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+                            <input type="checkbox" id="attendance_{{ class_rollout.id }}" name="attendance" value="true" onchange="this.form.submit()" {% if class_rollout.class_attedance %} checked {% endif %} />
+                            <p style="margin-top: -22px; margin-left: 17px">
+                                <label for="attendance_{{ class_rollout.id }}">Attendance</label>
+                            </p>
+                        </form>
+                    </div>
+                    <!-- Form to generate QR code via GET request -->
+                    <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'AttendanceSheet' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" /> 
+                        <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
+                    </form>
+                </div>
+            </div>
               {% endfor %}
             </div>
 
@@ -397,21 +407,32 @@
             {% for class_rollout in wednesday_classes %}
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
-                <h3 class="bi bi-qr-code-scan"> {{ class_rollout.room.room_name }} -({{ class_rollout.start_time }})</h3>
-                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
-                <p>{{ class_rollout.subject.short_name }}</p>  
-                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
-                        <p style="margin-top: -22px; margin-left: 17px">
-                            <label for="attendance">Attendance</label>
-                        </p>
-                    </form>
-                </div>
-            </div>
-            </div>
+                  <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();" style="cursor: pointer;">
+                      <h3 class="bi bi-qr-code-scan">{{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
+                      <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} ({{ class_rollout.duration.duration_short_name }})</p>
+                      <p>{{ class_rollout.subject.short_name }}</p>
+                      <p>{{ class_rollout.class_date|date:'Y-m-d' }}</p>
+                      <p>{{ class_rollout.room.id }}</p>
+                 
+                  <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                      <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name = "weekpicker" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
+                          <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+                          <input type="checkbox" id="attendance_{{ class_rollout.id }}" name="attendance" value="true" onchange="this.form.submit()" {% if class_rollout.class_attedance %} checked {% endif %} />
+                          <p style="margin-top: -22px; margin-left: 17px">
+                              <label for="attendance_{{ class_rollout.id }}">Attendance</label>
+                          </p>
+                      </form>
+                  </div>
+                  <!-- Form to generate QR code via GET request -->
+                  <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'AttendanceSheet' %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" /> 
+                      <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
+                  </form>
+              </div>
+          </div>
             {% endfor %}
           </div>
 
@@ -420,21 +441,32 @@
             {% for class_rollout in thursday_classes %}
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
-                <h3 class="bi bi-qr-code-scan"> {{ class_rollout.room.room_name }} -({{ class_rollout.start_time }})</h3>
-                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
-                <p>{{ class_rollout.subject.short_name }}</p>  
-                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
-                        <p style="margin-top: -22px; margin-left: 17px">
-                            <label for="attendance">Attendance</label>
-                        </p>
-                    </form>
-                </div>
-            </div>
-            </div>
+                  <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();" style="cursor: pointer;">
+                      <h3 class="bi bi-qr-code-scan">{{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
+                      <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} ({{ class_rollout.duration.duration_short_name }})</p>
+                      <p>{{ class_rollout.subject.short_name }}</p>
+                      <p>{{ class_rollout.class_date|date:'Y-m-d' }}</p>
+                      <p>{{ class_rollout.room.id }}</p>
+                 
+                  <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                      <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name = "weekpicker" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
+                          <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+                          <input type="checkbox" id="attendance_{{ class_rollout.id }}" name="attendance" value="true" onchange="this.form.submit()" {% if class_rollout.class_attedance %} checked {% endif %} />
+                          <p style="margin-top: -22px; margin-left: 17px">
+                              <label for="attendance_{{ class_rollout.id }}">Attendance</label>
+                          </p>
+                      </form>
+                  </div>
+                  <!-- Form to generate QR code via GET request -->
+                  <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'AttendanceSheet' %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" /> 
+                      <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
+                  </form>
+              </div>
+          </div>
             {% endfor %}
           </div>
 
@@ -442,21 +474,32 @@
           <div class="track">
             {% for class_rollout in friday_classes %}
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
-            <div class="details">
-              <h3 class="bi bi-qr-code-scan"> {{ class_rollout.room.room_name }} -({{ class_rollout.start_time }})</h3>
-              <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
-              <p>{{ class_rollout.subject.short_name }}</p>  
-              <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                  <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
+              <div class="details">
+                  <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();" style="cursor: pointer;">
+                      <h3 class="bi bi-qr-code-scan">{{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
+                      <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} ({{ class_rollout.duration.duration_short_name }})</p>
+                      <p>{{ class_rollout.subject.short_name }}</p>
+                      <p>{{ class_rollout.class_date|date:'Y-m-d' }}</p>
+                      <p>{{ class_rollout.room.id }}</p>
+                 
+                  <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                      <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name = "weekpicker" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
+                          <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+                          <input type="checkbox" id="attendance_{{ class_rollout.id }}" name="attendance" value="true" onchange="this.form.submit()" {% if class_rollout.class_attedance %} checked {% endif %} />
+                          <p style="margin-top: -22px; margin-left: 17px">
+                              <label for="attendance_{{ class_rollout.id }}">Attendance</label>
+                          </p>
+                      </form>
+                  </div>
+                  <!-- Form to generate QR code via GET request -->
+                  <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'AttendanceSheet' %}">
                       {% csrf_token %}
-                      <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                      <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
-                      <p style="margin-top: -22px; margin-left: 17px">
-                          <label for="attendance">Attendance</label>
-                      </p>
+                      <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" /> 
+                      <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
                   </form>
               </div>
-          </div>
           </div>
           {% endfor %}
         </div>
@@ -466,21 +509,32 @@
             {% for class_rollout in saturday_classes %}
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
-                <h3 class="bi bi-qr-code-scan"> {{ class_rollout.room.room_name }} -({{ class_rollout.start_time }})</h3>
-                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
-                <p>{{ class_rollout.subject.short_name }}</p>  
-                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
-                        <p style="margin-top: -22px; margin-left: 17px">
-                            <label for="attendance">Attendance</label>
-                        </p>
-                    </form>
-                </div>
-            </div>
-            </div>
+                  <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();" style="cursor: pointer;">
+                      <h3 class="bi bi-qr-code-scan">{{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
+                      <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} ({{ class_rollout.duration.duration_short_name }})</p>
+                      <p>{{ class_rollout.subject.short_name }}</p>
+                      <p>{{ class_rollout.class_date|date:'Y-m-d' }}</p>
+                      <p>{{ class_rollout.room.id }}</p>
+                 
+                  <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                      <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name = "weekpicker" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
+                          <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+                          <input type="checkbox" id="attendance_{{ class_rollout.id }}" name="attendance" value="true" onchange="this.form.submit()" {% if class_rollout.class_attedance %} checked {% endif %} />
+                          <p style="margin-top: -22px; margin-left: 17px">
+                              <label for="attendance_{{ class_rollout.id }}">Attendance</label>
+                          </p>
+                      </form>
+                  </div>
+                  <!-- Form to generate QR code via GET request -->
+                  <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'AttendanceSheet' %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" /> 
+                      <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
+                  </form>
+              </div>
+          </div>
             {% endfor %}
           </div>
 
@@ -489,21 +543,32 @@
             {% for class_rollout in sunday_classes %}
             <div class="entry {% if class_rollout.class_attedance %}green{% else %}yellow{% endif %}">
               <div class="details">
-                <h3 class="bi bi-qr-code-scan"> {{ class_rollout.room.room_name }} -({{ class_rollout.start_time }})</h3>
-                <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }}({{ class_rollout.duration.duration_short_name }})</p>
-                <p>{{ class_rollout.subject.short_name }}</p>  
-                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
-                    <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
-                        {% csrf_token %}
-                        <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
-                        <input type="checkbox" id="attendance" name="attendance" value="true" onchange="submitForm('{{ class_rollout.id }}')" {% if class_rollout.class_attedance %} checked {% endif %}  />
-                        <p style="margin-top: -22px; margin-left: 17px">
-                            <label for="attendance">Attendance</label>
-                        </p>
-                    </form>
-                </div>
-            </div>
-            </div>
+                  <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();" style="cursor: pointer;">
+                      <h3 class="bi bi-qr-code-scan">{{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})</h3> </div>
+                      <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} ({{ class_rollout.duration.duration_short_name }})</p>
+                      <p>{{ class_rollout.subject.short_name }}</p>
+                      <p>{{ class_rollout.class_date|date:'Y-m-d' }}</p>
+                      <p>{{ class_rollout.room.id }}</p>
+                 
+                  <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                      <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
+                          {% csrf_token %}
+                          <input type="hidden" name = "weekpicker" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
+                          <input type="hidden" name="class_rollout_id" value="{{ class_rollout.id }}" />
+                          <input type="checkbox" id="attendance_{{ class_rollout.id }}" name="attendance" value="true" onchange="this.form.submit()" {% if class_rollout.class_attedance %} checked {% endif %} />
+                          <p style="margin-top: -22px; margin-left: 17px">
+                              <label for="attendance_{{ class_rollout.id }}">Attendance</label>
+                          </p>
+                      </form>
+                  </div>
+                  <!-- Form to generate QR code via GET request -->
+                  <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'AttendanceSheet' %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" /> 
+                      <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
+                  </form>
+              </div>
+          </div>
             {% endfor %}
           </div>
         </div>

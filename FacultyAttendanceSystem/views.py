@@ -195,8 +195,6 @@ class Attendancesheet(View):
         except WorkShift.DoesNotExist:
             punch_date_time = None
         
-
-
         context = {
             'faculty_name': faculty,
             'punch_time': punch_date_time,
@@ -287,7 +285,7 @@ def download_data(request):
 
     # Create a response
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=timetable_rollouts.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=Faculty_Attendance.xlsx'
     
     # Save the workbook to the response
     wb.save(response)
@@ -317,7 +315,7 @@ def Download_WorkShift(request):
 
     # Create a response
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=work_shift_entries.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=faculty_workshift.xlsx'
 
     # Save the workbook to the response
     wb.save(response)
