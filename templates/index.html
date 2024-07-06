@@ -200,7 +200,7 @@
             <div style="
                 width: 15px;
                 height: 15px;
-                background-color: #ffd800;
+                background-color: #8b8000;
                 margin-right: 5px;
               "></div>
             <span>Pending</span>
@@ -348,8 +348,7 @@
                 <!-- Form to generate QR code via GET request -->
                 <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'AttendanceSheet' %}">
                   {% csrf_token %}
-                  <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
-                  <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
+                  <input type="hidden" name="classid" value="{{ class_rollout.id }}" />
                 </form>
               </div>
             </div>
@@ -388,8 +387,7 @@
                 <!-- Form to generate QR code via GET request -->
                 <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'AttendanceSheet' %}">
                   {% csrf_token %}
-                  <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
-                  <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
+                  <input type="hidden" name="classid" value="{{ class_rollout.id }}" />
                 </form>
               </div>
             </div>
@@ -428,8 +426,7 @@
                 <!-- Form to generate QR code via GET request -->
                 <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'AttendanceSheet' %}">
                   {% csrf_token %}
-                  <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
-                  <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
+                  <input type="hidden" name="classid" value="{{ class_rollout.id }}" />
                 </form>
               </div>
             </div>
@@ -468,8 +465,7 @@
                 <!-- Form to generate QR code via GET request -->
                 <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'AttendanceSheet' %}">
                   {% csrf_token %}
-                  <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
-                  <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
+                  <input type="hidden" name="classid" value="{{ class_rollout.id }}" />
                 </form>
               </div>
             </div>
@@ -508,8 +504,7 @@
                 <!-- Form to generate QR code via GET request -->
                 <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'AttendanceSheet' %}">
                   {% csrf_token %}
-                  <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
-                  <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
+                  <input type="hidden" name="classid" value="{{ class_rollout.id }}" />
                 </form>
               </div>
             </div>
@@ -546,8 +541,7 @@
                 <!-- Form to generate QR code via GET request -->
                 <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'AttendanceSheet' %}">
                   {% csrf_token %}
-                  <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
-                  <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
+                  <input type="hidden" name="classid" value="{{ class_rollout.id }}" />
                 </form>
               </div>
             </div>
@@ -584,8 +578,7 @@
                 <!-- Form to generate QR code via GET request -->
                 <form id="qrForm_{{ class_rollout.id }}" method="get" action="{% url 'AttendanceSheet' %}">
                   {% csrf_token %}
-                  <input type="hidden" name="date" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
-                  <input type="hidden" name="room" value="{{ class_rollout.room.id }}" />
+                  <input type="hidden" name="classid" value="{{ class_rollout.id }}" />
                 </form>
               </div>
             </div>

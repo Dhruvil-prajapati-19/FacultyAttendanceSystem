@@ -9,7 +9,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
 from django.conf import settings
-from FacultyAttendanceSystem.models import ActiveSession, AdminCredentials, Faculty, Room, StudentsRollouts,Students
+from FacultyAttendanceSystem.models import ActiveSession, AdminCredentials, Faculty, Room, StudentsRollouts,Students, TimeTableRollouts
 from django.db.models import Count
 from datetime import datetime
 
@@ -45,70 +45,64 @@ class WelcomeView(View):
             # Decrypt the QR code data
             decrypted_data = self.decrypt_data(qr_code_data)
 
-            # Split decrypted data into components
-            decrypted_data_parts = decrypted_data.split(',')
-            if len(decrypted_data_parts) != 3:
-                raise ValueError("Malformed QR code data")
-
-            faculty_id = int(decrypted_data_parts[0])
-            room_id = int(decrypted_data_parts[1])
-            selected_date_str = decrypted_data_parts[2]
+            # Extract classid from decrypted data
+            classid = int(decrypted_data)  # Assuming the decrypted data is just the classid
 
         except ValueError:
-            messages.error(request, "Malformed QR code data")
+            messages.error(request, "Wrong QR code data")
             return redirect("welcome")
         except Exception as e:
             messages.error(request, f"Error decoding QR code: {str(e)}")
             return redirect("welcome")
 
-        # Retrieve the Faculty and Room objects based on IDs
         try:
-            faculty = get_object_or_404(Faculty, id=faculty_id)
-        except Faculty.DoesNotExist:
-            messages.error(request, "Faculty not found from QR code")
-            return redirect("welcome")
+            # Find the student by enrollment number
+            student = Students.objects.get(enrollment_no=attendance_input)
 
-        selected_room = get_object_or_404(Room, id=room_id)
+            # Find the StudentsRollouts entry
+            student_rollout = StudentsRollouts.objects.get(timetable_rollout__id=classid, student=student)
 
-        # Query for students to mark attendance
-        students_to_mark = StudentsRollouts.objects.filter(
-            class_date=selected_date_str,
-            room=selected_room,
-            faculty=faculty,
-            student__enrollment_no=attendance_input
-        )
-
-        # Check for duplicate enrollment numbers on the same date, in the same room, and for the same faculty
-        enrollment_counts = students_to_mark.values('student__enrollment_no').annotate(count=Count('id'))
-        has_duplicates = any(enrollment['count'] > 1 for enrollment in enrollment_counts)
-
-        # Get the current time
-        current_time = datetime.now().time()
-
-        if has_duplicates:
-            # Iterate over students to mark attendance with time restriction
-            for student_rollout in students_to_mark:
-                student_enrollment = student_rollout.student.enrollment_no
-
-                # Get the start and end time of the class
-                class_start_time = student_rollout.start_time
-                class_end_time = student_rollout.end_time
-
-                # Check if current time is between start and end time of the class
-                if class_start_time <= current_time <= class_end_time:
-                    student_rollout.student_attendance = True
-                    student_rollout.save()
-                    messages.success(request, "Attendance successfully marked")
-                else:
-                    messages.error(request, f"Cannot mark attendance for student {student_rollout.student} outside lecture time.")
-        else:
-            # Mark attendance without time restriction
-            for student_rollout in students_to_mark:
-                student_rollout.student_attendance = True
-                student_rollout.save()
+            # Mark attendance
+            student_rollout.student_attendance = True
+            # student_rollout.modified_by = request.user
+            student_rollout.save()
 
             messages.success(request, "Attendance successfully marked")
+        except Students.DoesNotExist:
+            messages.error(request, "Student not found with the given enrollment number")
+        except StudentsRollouts.DoesNotExist:
+            messages.error(request, "StudentsRollouts entry not found for the given class and student")
+        except TimeTableRollouts.DoesNotExist:
+            messages.error(request, "Class not found with the given ID")
+        except Exception as e:
+            messages.error(request, f"Error marking attendance: {str(e)}")
+
         return redirect("welcome")
+
+    def decrypt_data(self, encrypted_token):
+        try:
+            # Split encrypted token into IV and encrypted data
+            iv_base64, encrypted_data_base64 = encrypted_token.split(':')
+            iv = base64.b64decode(iv_base64)
+            encrypted_data = base64.b64decode(encrypted_data_base64)
+
+            # Convert key to bytes and ensure it's 32 bytes long for AES-256
+            key = settings.QR_SECRET_KEY
+            if len(key) != 32:
+                raise ValueError("Key must be 32 bytes (256 bits) for AES-256 encryption")
+
+            # Decrypt data with AES-256 in CBC mode
+            cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+            decryptor = cipher.decryptor()
+            decrypted_data = decryptor.update(encrypted_data) + decryptor.finalize()
+
+            # Unpad decrypted data
+            unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
+            unpadded_data = unpadder.update(decrypted_data) + unpadder.finalize()
+
+            return unpadded_data.decode()
+        except Exception as e:
+            raise ValueError(f"Error decrypting data: {str(e)}")
 
     def decrypt_data(self, encrypted_token):
         try:

@@ -138,8 +138,7 @@ class Attendancesheet(View):
         selected_date = timezone.datetime.strptime(selected_date_str, '%Y-%m-%d').date() if selected_date_str else todays_date
         start_date = selected_date - timedelta(days=selected_date.weekday())
         end_date = start_date + timedelta(days=6)
-        qr_selected_date = request.GET.get('date')  
-        qr_selected_room = request.GET.get('room')
+        faculty_class_id = request.GET.get('classid')
         logged_user = request.session.get('logged_user')
 
         total_classes = 0
@@ -158,8 +157,8 @@ class Attendancesheet(View):
         
         qr_code_data = None
 
-        if faculty and qr_selected_room:
-            qr_data = f'{faculty.id},{qr_selected_room},{qr_selected_date}'
+        if faculty_class_id:
+            qr_data = f'{faculty_class_id}'
             encrypted_token = self.encrypt_data(qr_data)
             qr_img = qrcode.make(encrypted_token)
             buffer = BytesIO()

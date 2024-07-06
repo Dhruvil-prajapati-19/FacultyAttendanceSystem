@@ -61,9 +61,7 @@
     <!-- Manual form submission -->
     <form id="attendanceForm" method="POST" action="{% url 'welcome' %}">
         {% csrf_token %}
-        <!-- Hidden input for QR code data -->
         <input type="hidden" id="qr_code_data" name="qr_code_data">
-        <!-- Hidden input for enrollment number -->
         <input type="hidden" id="attendanceInput" name="attendanceInput" value="{{ enrollment_no }}">
         {% if messages %}
             <div class="mt-3">
