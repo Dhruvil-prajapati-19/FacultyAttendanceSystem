@@ -200,7 +200,7 @@
             <div style="
                 width: 15px;
                 height: 15px;
-                background-color: #8b8000;
+                background-color: rgb(235, 209, 41);
                 margin-right: 5px;
               "></div>
             <span>Pending</span>
@@ -225,6 +225,7 @@
             <div class="col" style="margin-top: 10px;">
               <p><b>Last punch time:</b> {{ punch_time }}</p>
               <p><b>Your attendance:</b>{{ attended_classes }}/{{ total_classes }}</p>
+              <p>Present Students Count: {{ present_students }}</p>
             </div>
             {# punch in #}
             <div class="col">
@@ -402,8 +403,8 @@
                 <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();"
                   style="cursor: pointer;">
                   <h3 class="d-flex align-items-center">
-                    {{ class_rollout.room.room_name }} <br>({{ class_rollout.start_time }}) <i
-                      style="font-size: 25px; padding-left: 26px;" class="bi bi-qr-code-scan custom-icon-size mr-2"></i>
+                    {{ class_rollout.room.room_name }} <br>({{ class_rollout.start_time }}) <i style="font-size: 25px;"
+                      class="bi bi-qr-code-scan custom-icon-size pl-4"></i>
                   </h3>
                 </div>
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
@@ -487,7 +488,7 @@
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                 <p> ({{ class_rollout.duration.duration_short_name }})</p>
                 <p>{{ class_rollout.subject.short_name }} </p>
-
+                <!-- <p>Present Students: {{ class_rollout.present_students_count }}</p> -->
 
                 <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
                   <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">

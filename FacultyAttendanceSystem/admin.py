@@ -157,8 +157,6 @@ class StudentsAdmin(admin.ModelAdmin):
 class StudentsRolloutsAdmin(admin.ModelAdmin):
     list_display = ('get_student_name', 'get_faculty_name', 'get_subject_name', 'get_room_name',
                     'get_start_time', 'get_end_time', 'formatted_class_date', 'get_class_status', 'student_attendance')
-
-    
     list_filter = ('student__enrollment_no',  'timetable_rollout__subject', 'timetable_rollout__room')
     list_editable = ('student_attendance',)
     search_fields = ('student__enrollment_no', 'student__student_name', 'timetable_rollout__subject__name','timetable_rollout__faculty')

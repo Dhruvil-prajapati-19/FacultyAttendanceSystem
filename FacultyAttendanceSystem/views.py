@@ -5,7 +5,7 @@ from django.utils.timezone import localtime, now
 from datetime import datetime, timedelta
 from django.http import HttpResponse, HttpResponseRedirect 
 from django.utils import timezone
-from .models import TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift , Students, ActiveSession
+from .models import StudentsRollouts, TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift , Students, ActiveSession
 from datetime import timedelta
 import qrcode # type: ignore
 from io import BytesIO
@@ -140,7 +140,7 @@ class Attendancesheet(View):
         end_date = start_date + timedelta(days=6)
         faculty_class_id = request.GET.get('classid')
         logged_user = request.session.get('logged_user')
-
+        
         total_classes = 0
         attended_classes = 0
         faculty = None
@@ -150,11 +150,10 @@ class Attendancesheet(View):
                 admin_credentials = AdminCredentials.objects.get(id=logged_user)
                 faculty = admin_credentials.faculty
                 total_classes = TimeTableRollouts.objects.filter(faculty=faculty).count()
-                attended_classes = TimeTableRollouts.objects.filter(faculty=faculty, class_attedance=True).count()
+                
             except AdminCredentials.DoesNotExist:
                 pass
-        
-        
+
         qr_code_data = None
 
         if faculty_class_id:
@@ -164,12 +163,11 @@ class Attendancesheet(View):
             buffer = BytesIO()
             qr_img.save(buffer, format="PNG")
             qr_code_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
-        
 
         class_rollouts = TimeTableRollouts.objects.filter(faculty=faculty, class_date__range=[start_date, end_date])
         holiday_today = HolidayScheduler.objects.filter(date=todays_date).first()
 
-        # Prepare dates for each day of the week (you can adjust as needed)
+        # Prepare dates for each day of the week
         monday_date = start_date
         tuesday_date = start_date + timedelta(days=1)
         wednesday_date = start_date + timedelta(days=2)
@@ -178,6 +176,13 @@ class Attendancesheet(View):
         saturday_date = start_date + timedelta(days=5)
         sunday_date = end_date
 
+        # for class_rollout in class_rollouts:
+        #     present_students_count = StudentsRollouts.objects.filter(
+        #         timetable_rollout=class_rollout,
+        #         student_attendance=True
+        #     ).count()
+        #     class_rollout.present_students_count = present_students_count
+        #     print(f"Class Rollout: {class_rollout}, Present Students Count: {present_students_count}")
 
         final_punch_time = None
         is_punch_out = False
@@ -193,7 +198,7 @@ class Attendancesheet(View):
                 punch_date_time = f"{punch_time.date} {final_punch_time.strftime('%H:%M')}"
         except WorkShift.DoesNotExist:
             punch_date_time = None
-        
+
         context = {
             'faculty_name': faculty,
             'punch_time': punch_date_time,
@@ -208,7 +213,7 @@ class Attendancesheet(View):
             'friday_date': friday_date.strftime('%a %d %b, %Y'),
             'saturday_date': saturday_date.strftime('%a %d %b, %Y'),
             'sunday_date': sunday_date.strftime('%a %d %b, %Y'),
-            'monday_classes': class_rollouts.filter(class_date=monday_date),
+            'monday_classes': class_rollouts.filter(class_date=monday_date), # 
             'tuesday_classes': class_rollouts.filter(class_date=tuesday_date),
             'wednesday_classes': class_rollouts.filter(class_date=wednesday_date),
             'thursday_classes': class_rollouts.filter(class_date=thursday_date),
@@ -222,6 +227,7 @@ class Attendancesheet(View):
         }
 
         return render(request, 'index.html', context)
+    
     def encrypt_data(self, data):
         # Ensure key is bytes and 32 bytes long for AES-256
         key = settings.QR_SECRET_KEY
