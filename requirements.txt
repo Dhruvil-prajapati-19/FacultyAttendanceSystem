@@ -7,6 +7,7 @@ cryptography==42.0.8
 data-wizard==2.0.0
 Django==5.0.4
 django-cleanup==8.1.0
+django-datatables-view==1.20.0
 django-unfold==0.29.1
 djangorestframework==3.15.2
 et-xmlfile==1.1.0

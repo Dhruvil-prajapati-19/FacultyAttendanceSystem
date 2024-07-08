@@ -5,9 +5,6 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from datetime import datetime
 import base64
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import padding
 from django.conf import settings
 from FacultyAttendanceSystem.models import ActiveSession, AdminCredentials, Faculty, Room, StudentsRollouts,Students, TimeTableRollouts
 from django.db.models import Count
@@ -19,7 +16,6 @@ class Studentsheet(View):
 
 class WelcomeView(View):
     def get(self, request):
-        # Check if the student_id is in the session
         student_id = request.session.get('student_id')
         
         if student_id:
@@ -37,96 +33,40 @@ class WelcomeView(View):
             return redirect('login')
 
     def post(self, request):
-        # Get the QR code data and attendance input from the form
         attendance_input = request.POST.get('attendanceInput')
-        qr_code_data = request.POST.get('qr_code_data')
+        pin_code = request.POST.get('pin_code')
 
         try:
-            # Decrypt the QR code data
-            decrypted_data = self.decrypt_data(qr_code_data)
+            stored_pin = request.session.get('pin_code')
+            stored_pin_time = request.session.get('pin_code_time')
+            faculty_class_id = request.session.get('faculty_class_id')
 
-            # Extract classid from decrypted data
-            classid = int(decrypted_data)  # Assuming the decrypted data is just the classid
-
-        except ValueError:
-            messages.error(request, "Wrong QR code data")
-            return redirect("welcome")
-        except Exception as e:
-            messages.error(request, f"Error decoding QR code: {str(e)}")
-            return redirect("welcome")
-
-        try:
-            # Find the student by enrollment number
+            if stored_pin is None or stored_pin_time is None or faculty_class_id is None:
+                raise ValueError("PIN code not found or expired")
+            
+            current_time = timezone.now().timestamp()
+            if current_time - stored_pin_time > 300:
+                raise ValueError("PIN code expired")
+            
+            if int(pin_code) != stored_pin:
+                raise ValueError("Invalid PIN code")
+            
             student = Students.objects.get(enrollment_no=attendance_input)
-
-            # Find the StudentsRollouts entry
-            student_rollout = StudentsRollouts.objects.get(timetable_rollout__id=classid, student=student)
-
-            # Mark attendance
+            student_rollout = StudentsRollouts.objects.get(timetable_rollout__id=faculty_class_id, student=student)
             student_rollout.student_attendance = True
             student_rollout.save()
 
             messages.success(request, "Attendance successfully marked")
+        except ValueError as ve:
+            messages.error(request, str(ve))
         except Students.DoesNotExist:
             messages.error(request, "Student not found with the given enrollment number")
         except StudentsRollouts.DoesNotExist:
-            messages.error(request, "entry not found")
-        except TimeTableRollouts.DoesNotExist:
-            messages.error(request, "Class not found with the given ID")
+            messages.error(request, "Entry not found")
         except Exception as e:
             messages.error(request, f"Error marking attendance: {str(e)}")
 
         return redirect("welcome")
-
-    def decrypt_data(self, encrypted_token):
-        try:
-            # Split encrypted token into IV and encrypted data
-            iv_base64, encrypted_data_base64 = encrypted_token.split(':')
-            iv = base64.b64decode(iv_base64)
-            encrypted_data = base64.b64decode(encrypted_data_base64)
-
-            # Convert key to bytes and ensure it's 32 bytes long for AES-256
-            key = settings.QR_SECRET_KEY
-            if len(key) != 32:
-                raise ValueError("Key must be 32 bytes (256 bits) for AES-256 encryption")
-
-            # Decrypt data with AES-256 in CBC mode
-            cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
-            decryptor = cipher.decryptor()
-            decrypted_data = decryptor.update(encrypted_data) + decryptor.finalize()
-
-            # Unpad decrypted data
-            unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
-            unpadded_data = unpadder.update(decrypted_data) + unpadder.finalize()
-
-            return unpadded_data.decode()
-        except Exception as e:
-            raise ValueError(f"Error decrypting data: {str(e)}")
-
-    def decrypt_data(self, encrypted_token):
-        try:
-            # Split encrypted token into IV and encrypted data
-            iv_base64, encrypted_data_base64 = encrypted_token.split(':')
-            iv = base64.b64decode(iv_base64)
-            encrypted_data = base64.b64decode(encrypted_data_base64)
-
-            # Convert key to bytes and ensure it's 32 bytes long for AES-256
-            key = settings.QR_SECRET_KEY
-            if len(key) != 32:
-                raise ValueError("Key must be 32 bytes (256 bits) for AES-256 encryption")
-
-            # Decrypt data with AES-256 in CBC mode
-            cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
-            decryptor = cipher.decryptor()
-            decrypted_data = decryptor.update(encrypted_data) + decryptor.finalize()
-
-            # Unpad decrypted data
-            unpadder = padding.PKCS7(algorithms.AES.block_size).unpadder()
-            unpadded_data = unpadder.update(decrypted_data) + unpadder.finalize()
-
-            return unpadded_data.decode()
-        except Exception as e:
-            raise ValueError(f"Error decrypting data: {str(e)}")
 
 
 from django.contrib.auth import logout as auth_logout

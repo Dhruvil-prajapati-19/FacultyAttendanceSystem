@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'FacultyAttendanceSystem.apps.FacultyAttendanceSystemConfig',
     'data_wizard',
+    'data_wizard.sources',
     'students',  # Ensure this is in the correct order based on dependencies
 ]
 

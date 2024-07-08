@@ -26,4 +26,6 @@ urlpatterns = [
     path('pages-error-404/', Faculty_login_required(faculty_views.error_404_view), name='pages-error-404'),
     path('punch/', Faculty_login_required(faculty_views.WorkShiftView.punch), name='punch'),
     path('download_work_shift/', Faculty_login_required(faculty_views.Download_WorkShift), name='download_work_shift'),  # Corrected for function-based view
+    path('<int:class_rollout>/student-in-class/', Faculty_login_required(faculty_views.StudentInClassView.as_view()), name='student-in-class'),
+    
 ]

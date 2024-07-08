@@ -19,8 +19,6 @@
   <!-- Vendor CSS Files -->
   <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
   <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
-
-
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
   <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css?family=Courgette" rel="stylesheet" />
@@ -177,7 +175,7 @@
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-          <li class="breadcrumb-item active"> Attendance Sheet</li>
+          <li class="breadcrumb-item active">Faculty Attendance Sheet</li>
         </ol>
       </nav>
     </div>
@@ -200,7 +198,7 @@
             <div style="
                 width: 15px;
                 height: 15px;
-                background-color: rgb(235, 209, 41);
+                background-color: #fcba03;
                 margin-right: 5px;
               "></div>
             <span>Pending</span>
@@ -225,7 +223,6 @@
             <div class="col" style="margin-top: 10px;">
               <p><b>Last punch time:</b> {{ punch_time }}</p>
               <p><b>Your attendance:</b>{{ attended_classes }}/{{ total_classes }}</p>
-              <p>Present Students Count: {{ present_students }}</p>
             </div>
             {# punch in #}
             <div class="col">
@@ -254,33 +251,32 @@
       </div>
     </div>
 
-    <!-- QR Code Display Modal -->
-    <div class="modal fade top-left-modal" id="qrCodeModal" tabindex="-1" role="dialog"
-      aria-labelledby="qrCodeModalLabel" aria-hidden="true">
-      <div class="modal-dialog qr-code-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header" style="cursor: move;" draggable="true">
-            <h5 class="modal-title" id="qrModalLabel">QR Code Generate</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
+  <!-- PIN Display Modal -->
+  <div class="modal fade top-left-modal" id="pinCodeModal" tabindex="-1" role="dialog"
+    aria-labelledby="pinCodeModalLabel" aria-hidden="true">
+    <div class="modal-dialog pin-code-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header" style="cursor: move;" draggable="true">
+          <h5 class="modal-title" id="pinModalLabel">PIN Code Generate</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          {% if pin_code %}
+          <div class="mt-4">
+            <p id="pinCode">{{ pin_code }}</p>
           </div>
-          <div class="modal-body">
-            {% if qr_code_data %}
-            <div class="mt-4">
-              <img id="qrCodeImage" src="data:image/png;base64,{{ qr_code_data }}" alt="QR Code" class="img-fluid">
-            </div>
-            {% else %}
-            <p>No QR code data available.</p>
-            {% endif %}
-          </div>
-          <div class="modal-footer">
-            <!-- <button id="downloadButton" class="btn btn-primary btn-block" onclick="downloadQRCode()">Save</button> -->
-            <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
-          </div>
+          {% else %}
+          <p>No PIN code data available.</p>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
+  </div>
 
     <div class="wrapper">
       <div class="table">
@@ -332,9 +328,12 @@
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                 <p> ({{ class_rollout.duration.duration_short_name }})</p>
                 <p>{{ class_rollout.subject.short_name }} </p>
+                <div style="font-size: 12px; padding: 10px 0px 3px 5px; font-weight: bolder;">
+                  <a href="{% url 'student-in-class' class_rollout.id %}">Get Student List</a>
+                </div>
 
 
-                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 5px">
                   <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
                     {% csrf_token %}
                     <input type="hidden" name="weekpicker" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
@@ -371,9 +370,10 @@
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                 <p> ({{ class_rollout.duration.duration_short_name }})</p>
                 <p>{{ class_rollout.subject.short_name }} </p>
-
-
-                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+              <div style="font-size: 12px; padding: 10px 0px 3px 5px; font-weight: bolder;">
+                  <a href="{% url 'student-in-class' class_rollout.id %}">Get Student List</a>
+                </div>
+                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 5px">
                   <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
                     {% csrf_token %}
                     <input type="hidden" name="weekpicker" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
@@ -410,9 +410,11 @@
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                 <p> ({{ class_rollout.duration.duration_short_name }})</p>
                 <p>{{ class_rollout.subject.short_name }} </p>
+              <div style="font-size: 12px; padding: 10px 0px 3px 5px; font-weight: bolder;">
+                  <a href="{% url 'student-in-class' class_rollout.id %}">Get Student List</a>
+                </div>
 
-
-                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 5px">
                   <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
                     {% csrf_token %}
                     <input type="hidden" name="weekpicker" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
@@ -449,9 +451,11 @@
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                 <p> ({{ class_rollout.duration.duration_short_name }})</p>
                 <p>{{ class_rollout.subject.short_name }} </p>
+              <div style="font-size: 12px; padding: 10px 0px 3px 5px; font-weight: bolder;">
+                  <a href="{% url 'student-in-class' class_rollout.id %}">Get Student List</a>
+                </div>
 
-
-                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 5px">
                   <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
                     {% csrf_token %}
                     <input type="hidden" name="weekpicker" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
@@ -488,9 +492,12 @@
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                 <p> ({{ class_rollout.duration.duration_short_name }})</p>
                 <p>{{ class_rollout.subject.short_name }} </p>
-                <!-- <p>Present Students: {{ class_rollout.present_students_count }}</p> -->
+              <div style="font-size: 12px; padding: 10px 0px 3px 5px; font-weight: bolder;">
+                  <a href="{% url 'student-in-class' class_rollout.id %}">Get Student List</a>
+                </div>
 
-                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+
+                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 5px">
                   <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
                     {% csrf_token %}
                     <input type="hidden" name="weekpicker" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
@@ -525,9 +532,12 @@
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                 <p> ({{ class_rollout.duration.duration_short_name }})</p>
                 <p>{{ class_rollout.subject.short_name }} </p>
+              <div style="font-size: 12px; padding: 10px 0px 3px 5px; font-weight: bolder;">
+                  <a href="{% url 'student-in-class' class_rollout.id %}">Get Student List</a>
+                </div>
 
 
-                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 5px">
                   <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
                     {% csrf_token %}
                     <input type="hidden" name="weekpicker" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
@@ -562,9 +572,12 @@
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
                 <p> ({{ class_rollout.duration.duration_short_name }})</p>
                 <p>{{ class_rollout.subject.short_name }} </p>
+              <div style="font-size: 12px; padding: 10px 0px 3px 5px; font-weight: bolder;">
+                  <a href="{% url 'student-in-class' class_rollout.id %}">Get Student List</a>
+                </div>
 
 
-                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 25px">
+                <div class="attendance" style="display: flex; padding-top: 1px; margin-left: 5px">
                   <form id="attendanceForm_{{ class_rollout.id }}" method="POST" action="{% url 'AttendanceSheet' %}">
                     {% csrf_token %}
                     <input type="hidden" name="weekpicker" value="{{ class_rollout.class_date|date:'Y-m-d' }}" />
@@ -603,13 +616,14 @@
     </div>
   </footer>
   <!-- Trigger Modal if QR Code Data is Present -->
-  {% if qr_code_data %}
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      $('#qrCodeModal').modal('show');
-    });
-  </script>
-  {% endif %}
+<!-- Trigger Modal if PIN Code Data is Present -->
+{% if pin_code %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    $('#pinCodeModal').modal('show');
+  });
+</script>
+{% endif %}
   <script src="{%static 'js/main.js'%}"></script>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>

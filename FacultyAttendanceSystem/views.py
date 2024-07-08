@@ -1,3 +1,4 @@
+import random
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
@@ -5,7 +6,7 @@ from django.utils.timezone import localtime, now
 from datetime import datetime, timedelta
 from django.http import HttpResponse, HttpResponseRedirect 
 from django.utils import timezone
-from .models import StudentsRollouts, TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift , Students, ActiveSession
+from .models import TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift , Students, ActiveSession, StudentsRollouts
 from datetime import timedelta
 import qrcode # type: ignore
 from io import BytesIO
@@ -36,8 +37,8 @@ from django.utils import timezone
 from geopy.distance import geodesic # type: ignore
 from .models import Students, AdminCredentials, ActiveSession
 # Constants for geographic authentication
-ALLOWED_LOCATION = (23.850872, 72.117408)
-MAX_DISTANCE_KM = 50  # Set your desired maximum distance in kilometers
+ALLOWED_LOCATION = (23.859500149431895, 72.13730130104388)
+MAX_DISTANCE_KM = 50000000  # Set your desired maximum distance in kilometers
 COOLDOWN_PERIOD = timezone.timedelta(minutes=1440)  # Adjust as needed
 
 class LoginView(View):
@@ -131,6 +132,56 @@ def logout(request):
         messages.success(request, "You have been logged out successfully.")
     return redirect('/') 
 
+
+class StudentInClassView(View):
+    def get(self, request, class_rollout):
+        print("Here.......", class_rollout)
+        # if request.POST.get('student_rollout'):
+        #     attendance = request.POST.get('studentAttendance') == 'true'
+        #     student_rollout = request.POST.get('student_rollout')
+        #     print(attendance)
+        #     print(student_rollout)
+        #     try:
+        #         student_rollout = StudentsRollouts.objects.get(id=student_rollout)
+        #         student_rollout.student_attedance = attendance
+        #         student_rollout.save()
+        #         messages.success(request, "Attendance has been marked")
+        #     except ObjectDoesNotExist as e:
+        #         messages.error(request, "Error occurred while marking attendance: " + str(e))
+        #     return HttpResponseRedirect(reverse('student-in-class'))
+
+
+        class_rollout_id = request.POST.get('class_rollout_id')
+        print("---------------------------------------------")
+        print(class_rollout_id)
+        students = StudentsRollouts.objects.filter(timetable_rollout__id=class_rollout)
+        present_students = students.filter(student_attendance=True)
+        print(present_students.count())
+        context = {
+            "students": students,
+            "present_students": present_students
+        }
+        return render(request, 'Students.html', context=context)
+
+    def post(self, request, class_rollout):
+        attendance = request.POST.get('studentAttendance')        
+        if attendance == "true":
+            attendance = True
+        else:
+            attendance = False
+        
+        student_rollout_id = request.POST.get('student_rollout')
+        try:
+            student_rollout = StudentsRollouts.objects.get(id=student_rollout_id)
+            student_rollout.student_attendance = attendance
+            student_rollout.save() 
+            messages.info(request, "Attendance has been updated!")
+        except Exception as e:
+            messages.error(request, "Error occurred while marking attendance: " + str(e))
+        return redirect('student-in-class', class_rollout=class_rollout)
+
+
+
 class Attendancesheet(View):
     def get(self, request):
         todays_date = timezone.localdate()
@@ -140,7 +191,7 @@ class Attendancesheet(View):
         end_date = start_date + timedelta(days=6)
         faculty_class_id = request.GET.get('classid')
         logged_user = request.session.get('logged_user')
-        
+
         total_classes = 0
         attended_classes = 0
         faculty = None
@@ -150,24 +201,23 @@ class Attendancesheet(View):
                 admin_credentials = AdminCredentials.objects.get(id=logged_user)
                 faculty = admin_credentials.faculty
                 total_classes = TimeTableRollouts.objects.filter(faculty=faculty).count()
-                
+                attended_classes = TimeTableRollouts.objects.filter(faculty=faculty, class_attedance=True).count()
             except AdminCredentials.DoesNotExist:
                 pass
-
-        qr_code_data = None
+        
+        pin_code = None
 
         if faculty_class_id:
-            qr_data = f'{faculty_class_id}'
-            encrypted_token = self.encrypt_data(qr_data)
-            qr_img = qrcode.make(encrypted_token)
-            buffer = BytesIO()
-            qr_img.save(buffer, format="PNG")
-            qr_code_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
+            # Generate a random 4-digit PIN
+            pin_code = random.randint(1000, 9999)
+            # Store the PIN with the current timestamp and faculty_class_id
+            request.session['pin_code'] = pin_code
+            request.session['pin_code_time'] = timezone.now().timestamp()
+            request.session['faculty_class_id'] = faculty_class_id
 
         class_rollouts = TimeTableRollouts.objects.filter(faculty=faculty, class_date__range=[start_date, end_date])
         holiday_today = HolidayScheduler.objects.filter(date=todays_date).first()
 
-        # Prepare dates for each day of the week
         monday_date = start_date
         tuesday_date = start_date + timedelta(days=1)
         wednesday_date = start_date + timedelta(days=2)
@@ -175,14 +225,6 @@ class Attendancesheet(View):
         friday_date = start_date + timedelta(days=4)
         saturday_date = start_date + timedelta(days=5)
         sunday_date = end_date
-
-        # for class_rollout in class_rollouts:
-        #     present_students_count = StudentsRollouts.objects.filter(
-        #         timetable_rollout=class_rollout,
-        #         student_attendance=True
-        #     ).count()
-        #     class_rollout.present_students_count = present_students_count
-        #     print(f"Class Rollout: {class_rollout}, Present Students Count: {present_students_count}")
 
         final_punch_time = None
         is_punch_out = False
@@ -213,7 +255,7 @@ class Attendancesheet(View):
             'friday_date': friday_date.strftime('%a %d %b, %Y'),
             'saturday_date': saturday_date.strftime('%a %d %b, %Y'),
             'sunday_date': sunday_date.strftime('%a %d %b, %Y'),
-            'monday_classes': class_rollouts.filter(class_date=monday_date), # 
+            'monday_classes': class_rollouts.filter(class_date=monday_date),
             'tuesday_classes': class_rollouts.filter(class_date=tuesday_date),
             'wednesday_classes': class_rollouts.filter(class_date=wednesday_date),
             'thursday_classes': class_rollouts.filter(class_date=thursday_date),
@@ -223,33 +265,11 @@ class Attendancesheet(View):
             'holiday_today': holiday_today,
             'total_classes': total_classes,
             'attended_classes': attended_classes,
-            'qr_code_data': qr_code_data
+            'pin_code': pin_code
         }
 
         return render(request, 'index.html', context)
-    
-    def encrypt_data(self, data):
-        # Ensure key is bytes and 32 bytes long for AES-256
-        key = settings.QR_SECRET_KEY
-        if len(key) != 32:
-            raise ValueError("Key must be 32 bytes (256 bits) for AES-256 encryption")
 
-        # Generate a random initialization vector (IV)
-        iv = bytes([0] * 16)  # Use all zeros for testing, replace with a proper random_bytes call
-
-        # Encrypt data with AES-256 in CBC mode
-        cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
-        encryptor = cipher.encryptor()
-        padder = padding.PKCS7(algorithms.AES.block_size).padder()
-        padded_data = padder.update(data.encode()) + padder.finalize()
-        encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
-
-        # Combine IV and encrypted data and encode in base64
-        iv_base64 = base64.b64encode(iv).decode()
-        encrypted_data_base64 = base64.b64encode(encrypted_data).decode()
-        encrypted_token = f"{iv_base64}:{encrypted_data_base64}"
-
-        return encrypted_token
     def post(self, request):
         attendance = request.POST.get('attendance') == 'true'
         class_rollout_id = request.POST.get('class_rollout_id')
@@ -353,4 +373,3 @@ class WorkShiftView(View):
         else:
             messages.error(request, "Faculty not logged in.")
         return redirect("AttendanceSheet")
-
