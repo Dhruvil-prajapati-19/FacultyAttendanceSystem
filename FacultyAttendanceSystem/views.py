@@ -85,7 +85,7 @@ class LoginView(View):
                         if active_session_same_device.last_logout:
                             cooldown_end = active_session_same_device.last_logout + COOLDOWN_PERIOD
                             if timezone.now() < cooldown_end:
-                                messages.error(request, f"Access Denied: Your are already associated  {active_session_same_device.enrollment_no},")
+                                messages.error(request, f"Access Denied: Your are already associated  {active_session_same_device.enrollment_no}")
                                 return render(request, 'login.html')
                         else:
                             messages.error(request, f"Access Denied: Your are already associated {active_session_same_device.enrollment_no}, If this is not your account , please contact your admin")
