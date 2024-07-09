@@ -197,5 +197,5 @@ class ActiveSession(models.Model):
     last_logout = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return f"ActiveSession for {self.enrollment_no} from {self.ip_address}"
+        return f"{self.enrollment_no} - {self.ip_address}"
 

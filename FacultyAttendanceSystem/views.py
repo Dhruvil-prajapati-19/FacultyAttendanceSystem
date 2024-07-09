@@ -3,14 +3,14 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import localtime, now
 from datetime import datetime, timedelta
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect 
+from django.http import HttpResponse, HttpResponseRedirect 
 from .models import TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift , Students, ActiveSession, StudentsRollouts
 from datetime import timedelta
 from django.urls import reverse
-from django.views import View
-from geopy.distance import geodesic # type: ignore
+from django.views import View 
 from django.core.cache import cache
 import random
+from django.utils import timezone
 
 def index_redirect(request):
     return redirect( request,'index/')
@@ -18,20 +18,11 @@ def index_redirect(request):
 def error_404_view(request):
     return render(request, 'pages-error-404.html')
 
-from django.utils import timezone
 from geopy.distance import geodesic # type: ignore
-
 # Constants for geographic authentication
-ALLOWED_LOCATION = (23.859500149431895, 72.13730130104388)
-MAX_DISTANCE_KM = 50000000  # Set your desired maximum distance in kilometers
-COOLDOWN_PERIOD = timezone.timedelta(hours=24)  # Adjust as needed
-
-from django.views import View
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import AdminCredentials, Students, ActiveSession
-from django.utils import timezone
-from ipware import get_client_ip # type: ignore
+ALLOWED_LOCATION = (23.58729073245821, 72.38227230632735) # 23.85947073496859, 72.13705990673165 for patan
+MAX_DISTANCE_KM = 25   # 1 for 
+COOLDOWN_PERIOD = timezone.timedelta(hours=24)  
 
 class LoginView(View):
     def get(self, request):
@@ -52,19 +43,23 @@ class LoginView(View):
                     return redirect('index/')
                 else:
                     messages.error(request, 'Invalid password')
-                    return render(request, 'login.html')
+                    return render(request, 'login.html', {'error_message': 'Invalid password'})
             except AdminCredentials.DoesNotExist:
                 messages.error(request, 'Invalid username or password')
-                return render(request, 'login.html')
+                return render(request, 'login.html', {'error_message': 'Invalid username or password'})
 
         # Handle Student login
         enrollment_no = request.POST.get('enrollment_no')
-        student_password = request.POST.get('student_password')
+        student_password = request.POST.get('student_password') 
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
 
         if enrollment_no and student_password:
+            if not latitude or not longitude:
+                messages.error(request, 'Location not provided')
+                return render(request, 'login.html')
             # Generate or retrieve device identifier from request
             device_identifier = request.COOKIES.get('device_identifier')
-            print(device_identifier)
             if not device_identifier:
                 device_identifier = request.META.get('HTTP_USER_AGENT', 'unknown_device')
                 response = render(request, 'login.html', {'error_message': "Please try again."})
@@ -74,6 +69,15 @@ class LoginView(View):
                 student = Students.objects.get(enrollment_no=enrollment_no)
 
                 if student.Student_password == student_password:
+
+                    # Check if the student is within the allowed location
+                    user_location = (float(latitude), float(longitude))
+                    distance = geodesic(ALLOWED_LOCATION, user_location).km
+
+                    if distance > MAX_DISTANCE_KM:
+                        messages.error(request, 'You are not within the allowed location')
+                        return render(request, 'login.html')  
+                    
                     # Check for existing active session for the same device identifier with a different enrollment number
                     active_session_same_device = ActiveSession.objects.filter(device_identifier=device_identifier).exclude(enrollment_no=enrollment_no).first()
                     if active_session_same_device:
@@ -81,9 +85,11 @@ class LoginView(View):
                         if active_session_same_device.last_logout:
                             cooldown_end = active_session_same_device.last_logout + COOLDOWN_PERIOD
                             if timezone.now() < cooldown_end:
-                                return HttpResponseForbidden(f"Access Denied: This device is already in use by enrollment number {active_session_same_device.enrollment_no}. Try again after {cooldown_end}.")
+                                messages.error(request, f"Access Denied: Your are already associated  {active_session_same_device.enrollment_no},")
+                                return render(request, 'login.html')
                         else:
-                            return HttpResponseForbidden(f"Access Denied: This device is already in use by enrollment number {active_session_same_device.enrollment_no}.")
+                            messages.error(request, f"Access Denied: Your are already associated {active_session_same_device.enrollment_no}, If this is not your account , please contact your admin")
+                            return render(request, 'login.html')
 
                     # Handle session without creating a Django user
                     request.session['student_id'] = student.id
@@ -106,9 +112,6 @@ class LoginView(View):
 
         # If neither student nor faculty login data is provided
         return render(request, 'login.html', {'error_message': "Please provide your credentials"})
-
-
-
 
 class Attendancesheet(View):
     def get(self, request):

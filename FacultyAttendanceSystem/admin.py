@@ -208,4 +208,5 @@ class StudentClassAdmin(admin.ModelAdmin):
 
 @admin.register(models.ActiveSession)
 class ActiveSessionAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('enrollment_no',  'last_logout')
+    search_fields = ('enrollment_no',)
