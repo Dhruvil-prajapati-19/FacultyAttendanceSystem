@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import localtime, now
 from datetime import datetime, timedelta
-from django.http import HttpResponse, HttpResponseRedirect 
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect 
 from .models import TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift , Students, ActiveSession, StudentsRollouts
 from datetime import timedelta
 from django.urls import reverse
@@ -62,37 +62,35 @@ class LoginView(View):
         student_password = request.POST.get('student_password')
 
         if enrollment_no and student_password:
-            # Get client IP address
-            client_ip, is_routable = get_client_ip(request)
-
-            if client_ip is None:
-                messages.error(request, 'Could not determine your IP address')
-                return render(request, 'login.html')
+            # Generate or retrieve device identifier from request
+            device_identifier = request.COOKIES.get('device_identifier')
+            print(device_identifier)
+            if not device_identifier:
+                device_identifier = request.META.get('HTTP_USER_AGENT', 'unknown_device')
+                response = render(request, 'login.html', {'error_message': "Please try again."})
+                response.set_cookie('device_identifier', device_identifier, max_age=None, expires=None)
 
             try:
                 student = Students.objects.get(enrollment_no=enrollment_no)
 
                 if student.Student_password == student_password:
-                    # Check for existing active session for the same IP with a different enrollment number
-                    active_session_same_ip = ActiveSession.objects.filter(ip_address=client_ip).exclude(enrollment_no=enrollment_no).first()
-
-                    if active_session_same_ip:
+                    # Check for existing active session for the same device identifier with a different enrollment number
+                    active_session_same_device = ActiveSession.objects.filter(device_identifier=device_identifier).exclude(enrollment_no=enrollment_no).first()
+                    if active_session_same_device:
                         # Check for cooldown period
-                        if active_session_same_ip.last_logout:
-                            cooldown_end = active_session_same_ip.last_logout + COOLDOWN_PERIOD
+                        if active_session_same_device.last_logout:
+                            cooldown_end = active_session_same_device.last_logout + COOLDOWN_PERIOD
                             if timezone.now() < cooldown_end:
-                                messages.error(request, f"Access Denied: This IP address is already in use by enrollment number {active_session_same_ip.enrollment_no} and is temporarily blocked. Try again after {cooldown_end}.")
-                                return render(request, 'login.html')
+                                return HttpResponseForbidden(f"Access Denied: This device is already in use by enrollment number {active_session_same_device.enrollment_no}. Try again after {cooldown_end}.")
                         else:
-                            messages.error(request, f"Access Denied: This IP address is already in use by enrollment number {active_session_same_ip.enrollment_no}.")
-                            return render(request, 'login.html')
+                            return HttpResponseForbidden(f"Access Denied: This device is already in use by enrollment number {active_session_same_device.enrollment_no}.")
 
                     # Handle session without creating a Django user
                     request.session['student_id'] = student.id
 
-                    # Update or create active session for the current IP
+                    # Update or create active session for the current device identifier
                     active_session, created = ActiveSession.objects.get_or_create(
-                        ip_address=client_ip,
+                        device_identifier=device_identifier,
                         defaults={'enrollment_no': enrollment_no}
                     )
                     if not created:
@@ -102,15 +100,13 @@ class LoginView(View):
 
                     return redirect('welcome')
                 else:
-                    messages.error(request, "Invalid password")
-                    return render(request, 'login.html')
+                    return render(request, 'login.html', {'error_message': "Invalid password"})
             except Students.DoesNotExist:
-                messages.error(request, "Invalid enrollment number or password")
-                return render(request, 'login.html')
+                return render(request, 'login.html', {'error_message': "Invalid enrollment number or password"})
 
         # If neither student nor faculty login data is provided
-        messages.error(request, "Please provide your credentials")
-        return render(request, 'login.html')
+        return render(request, 'login.html', {'error_message': "Please provide your credentials"})
+
 
 
 

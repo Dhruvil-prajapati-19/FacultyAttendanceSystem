@@ -191,9 +191,11 @@ class StudentsRollouts(models.Model):
 
 
 class ActiveSession(models.Model):
-    enrollment_no = models.CharField(max_length=20)
-    ip_address = models.GenericIPAddressField()
-    last_logout = models.DateTimeField(null=True, blank=True)
+    ip_address = models.CharField(max_length=50)  # Adjust max_length as per your needs
+    enrollment_no = models.CharField(max_length=50)  # Adjust max_length as per your needs
+    device_identifier = models.CharField(max_length=100, blank=True, null=True)
+    last_logout = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.enrollment_no} - {self.ip_address}"
+        return f"ActiveSession for {self.enrollment_no} from {self.ip_address}"
+
