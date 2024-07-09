@@ -54,9 +54,8 @@ class WelcomeView(View):
 
         return redirect("welcome")
 
-from django.contrib.auth import logout as auth_logout
-from django.utils import timezone
 
+from django.utils import timezone
 def student_logout_view(request):
     student_id = request.session.get('student_id')
     

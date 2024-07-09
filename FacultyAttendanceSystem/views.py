@@ -1,8 +1,8 @@
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import localtime, now
-from datetime import datetime, timedelta
+from datetime import  timedelta
 from django.http import HttpResponse, HttpResponseRedirect 
 from .models import TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift , Students, ActiveSession, StudentsRollouts
 from datetime import timedelta
@@ -313,7 +313,6 @@ def Download_WorkShift(request):
 
     return response
 
-from django.shortcuts import render, redirect
 class WorkShiftView(View):
     def punch(request):
         logged_user = request.session.get('logged_user')
