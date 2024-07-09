@@ -135,28 +135,10 @@ def logout(request):
 
 class StudentInClassView(View):
     def get(self, request, class_rollout):
-        print("Here.......", class_rollout)
-        # if request.POST.get('student_rollout'):
-        #     attendance = request.POST.get('studentAttendance') == 'true'
-        #     student_rollout = request.POST.get('student_rollout')
-        #     print(attendance)
-        #     print(student_rollout)
-        #     try:
-        #         student_rollout = StudentsRollouts.objects.get(id=student_rollout)
-        #         student_rollout.student_attedance = attendance
-        #         student_rollout.save()
-        #         messages.success(request, "Attendance has been marked")
-        #     except ObjectDoesNotExist as e:
-        #         messages.error(request, "Error occurred while marking attendance: " + str(e))
-        #     return HttpResponseRedirect(reverse('student-in-class'))
-
 
         class_rollout_id = request.POST.get('class_rollout_id')
-        print("---------------------------------------------")
-        print(class_rollout_id)
         students = StudentsRollouts.objects.filter(timetable_rollout__id=class_rollout)
         present_students = students.filter(student_attendance=True)
-        print(present_students.count())
         context = {
             "students": students,
             "present_students": present_students
