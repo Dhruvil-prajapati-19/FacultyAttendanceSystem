@@ -181,7 +181,12 @@ class StudentInClassView(View):
         return redirect('student-in-class', class_rollout=class_rollout)
 
 
-
+from django.core.cache import cache
+from django.shortcuts import render, redirect
+from django.utils import timezone
+from django.views import View
+from datetime import timedelta
+import random
 class Attendancesheet(View):
     def get(self, request):
         todays_date = timezone.localdate()
@@ -210,10 +215,8 @@ class Attendancesheet(View):
         if faculty_class_id:
             # Generate a random 4-digit PIN
             pin_code = random.randint(1000, 9999)
-            # Store the PIN with the current timestamp and faculty_class_id
-            request.session['pin_code'] = pin_code
-            request.session['pin_code_time'] = timezone.now().timestamp()
-            request.session['faculty_class_id'] = faculty_class_id
+            # Store the PIN and faculty_class_id in the cache for 300 seconds (5 minutes)
+            cache.set(f'pin_code_{pin_code}', faculty_class_id, timeout=300)
 
         class_rollouts = TimeTableRollouts.objects.filter(faculty=faculty, class_date__range=[start_date, end_date])
         holiday_today = HolidayScheduler.objects.filter(date=todays_date).first()
@@ -269,6 +272,7 @@ class Attendancesheet(View):
         }
 
         return render(request, 'index.html', context)
+
 
     def post(self, request):
         attendance = request.POST.get('attendance') == 'true'

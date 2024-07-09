@@ -25,10 +25,10 @@ SECRET_KEY = 'django-insecure-2^-98x+ue$mk%l-!ixdrw0aup2fm+^=s97dth_53x)^n84qg(z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '554c-103-148-164-105.ngrok-free.app']
+ALLOWED_HOSTS = ['localhost', 'bffb-103-159-201-166.ngrok-free.app']
 CSRF_TRUSTED_ORIGINS = ["https://*.ngrok.io"]
 CSRF_TRUSTED_ORIGINS = [
-  'https://554c-103-148-164-105.ngrok-free.app' 
+  'https://bffb-103-159-201-166.ngrok-free.app' 
 ]
 
 
@@ -88,6 +88,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+# Cache settings
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
     }
 }
 

@@ -14,6 +14,11 @@ class Studentsheet(View):
     def get(self, request):
         return render(request, 'Students.html')
 
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.utils import timezone
+from django.views import View
+from django.core.cache import cache
 class WelcomeView(View):
     def get(self, request):
         student_id = request.session.get('student_id')
@@ -37,19 +42,11 @@ class WelcomeView(View):
         pin_code = request.POST.get('pin_code')
 
         try:
-            stored_pin = request.session.get('pin_code')
-            stored_pin_time = request.session.get('pin_code_time')
-            faculty_class_id = request.session.get('faculty_class_id')
+            # Retrieve the faculty_class_id from the cache using the pin_code
+            faculty_class_id = cache.get(f'pin_code_{pin_code}')
 
-            if stored_pin is None or stored_pin_time is None or faculty_class_id is None:
+            if faculty_class_id is None:
                 raise ValueError("PIN code not found or expired")
-            
-            current_time = timezone.now().timestamp()
-            if current_time - stored_pin_time > 300:
-                raise ValueError("PIN code expired")
-            
-            if int(pin_code) != stored_pin:
-                raise ValueError("Invalid PIN code")
             
             student = Students.objects.get(enrollment_no=attendance_input)
             student_rollout = StudentsRollouts.objects.get(timetable_rollout__id=faculty_class_id, student=student)
@@ -68,7 +65,7 @@ class WelcomeView(View):
 
         return redirect("welcome")
 
-
+        return redirect("welcome")  
 from django.contrib.auth import logout as auth_logout
 from django.utils import timezone
 def student_logout_view(request):
