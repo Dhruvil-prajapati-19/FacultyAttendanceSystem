@@ -1,26 +1,16 @@
-import random
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import localtime, now
 from datetime import datetime, timedelta
 from django.http import HttpResponse, HttpResponseRedirect 
-from django.utils import timezone
 from .models import TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift , Students, ActiveSession, StudentsRollouts
 from datetime import timedelta
-import qrcode # type: ignore
-from io import BytesIO
-import base64
-from django.conf import settings
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives import padding
-from cryptography.hazmat.backends import default_backend
 from django.urls import reverse
-from django.utils import timezone
-from django.contrib.auth import login, logout as auth_logout
 from django.views import View
-from django.contrib.auth.models import User
 from geopy.distance import geodesic # type: ignore
+from django.core.cache import cache
+import random
 
 def index_redirect(request):
     return redirect( request,'index/')
@@ -28,14 +18,8 @@ def index_redirect(request):
 def error_404_view(request):
     return render(request, 'pages-error-404.html')
 
-
-
-from django.views import View
-from django.shortcuts import render, redirect
-from django.contrib import messages
 from django.utils import timezone
 from geopy.distance import geodesic # type: ignore
-from .models import Students, AdminCredentials, ActiveSession
 # Constants for geographic authentication
 ALLOWED_LOCATION = (23.859500149431895, 72.13730130104388)
 MAX_DISTANCE_KM = 50000000  # Set your desired maximum distance in kilometers
@@ -125,50 +109,6 @@ class LoginView(View):
         messages.error(request, "Please provide your credentials")
         return render(request, 'login.html')
 
-
-def logout(request):
-    if 'logged_user' in request.session:
-        del request.session['logged_user']
-        messages.success(request, "You have been logged out successfully.")
-    return redirect('/') 
-
-
-class StudentInClassView(View):
-    def get(self, request, class_rollout):
-
-        class_rollout_id = request.POST.get('class_rollout_id')
-        students = StudentsRollouts.objects.filter(timetable_rollout__id=class_rollout)
-        present_students = students.filter(student_attendance=True)
-        context = {
-            "students": students,
-            "present_students": present_students
-        }
-        return render(request, 'Students.html', context=context)
-
-    def post(self, request, class_rollout):
-        attendance = request.POST.get('studentAttendance')        
-        if attendance == "true":
-            attendance = True
-        else:
-            attendance = False
-        
-        student_rollout_id = request.POST.get('student_rollout')
-        try:
-            student_rollout = StudentsRollouts.objects.get(id=student_rollout_id)
-            student_rollout.student_attendance = attendance
-            student_rollout.save() 
-            messages.info(request, "Attendance has been updated!")
-        except Exception as e:
-            messages.error(request, "Error occurred while marking attendance: " + str(e))
-        return redirect('student-in-class', class_rollout=class_rollout)
-
-
-from django.core.cache import cache
-from django.shortcuts import render, redirect
-from django.utils import timezone
-from django.views import View
-from datetime import timedelta
-import random
 class Attendancesheet(View):
     def get(self, request):
         todays_date = timezone.localdate()
@@ -270,6 +210,42 @@ class Attendancesheet(View):
             messages.error(request, "Error occurred while marking attendance: " + str(e))
 
         return HttpResponseRedirect(reverse('index') + f'?weekpick={selected_date_str}')
+
+def logout(request):
+    if 'logged_user' in request.session:
+        del request.session['logged_user']
+        messages.success(request, "You have been logged out successfully.")
+    return redirect('/') 
+
+
+class StudentInClassView(View):
+    def get(self, request, class_rollout):
+
+        class_rollout_id = request.POST.get('class_rollout_id')
+        students = StudentsRollouts.objects.filter(timetable_rollout__id=class_rollout)
+        present_students = students.filter(student_attendance=True)
+        context = {
+            "students": students,
+            "present_students": present_students
+        }
+        return render(request, 'Students.html', context=context)
+
+    def post(self, request, class_rollout):
+        attendance = request.POST.get('studentAttendance')        
+        if attendance == "true":
+            attendance = True
+        else:
+            attendance = False
+        
+        student_rollout_id = request.POST.get('student_rollout')
+        try:
+            student_rollout = StudentsRollouts.objects.get(id=student_rollout_id)
+            student_rollout.student_attendance = attendance
+            student_rollout.save() 
+            messages.info(request, "Attendance has been updated!")
+        except Exception as e:
+            messages.error(request, "Error occurred while marking attendance: " + str(e))
+        return redirect('student-in-class', class_rollout=class_rollout)
 
 from openpyxl import Workbook # type: ignore
 def download_data(request):

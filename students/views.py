@@ -1,24 +1,14 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib import messages
-from django.http import HttpResponseRedirect
-from django.urls import reverse
-from datetime import datetime
-import base64
-from django.conf import settings
-from FacultyAttendanceSystem.models import ActiveSession, AdminCredentials, Faculty, Room, StudentsRollouts,Students, TimeTableRollouts
-from django.db.models import Count
-from datetime import datetime
+from FacultyAttendanceSystem.models import ActiveSession, AdminCredentials,  StudentsRollouts,Students
+from django.core.cache import cache
 
 class Studentsheet(View):
     def get(self, request):
         return render(request, 'Students.html')
 
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from django.utils import timezone
-from django.views import View
-from django.core.cache import cache
+
 class WelcomeView(View):
     def get(self, request):
         student_id = request.session.get('student_id')
@@ -65,7 +55,6 @@ class WelcomeView(View):
 
         return redirect("welcome")
 
-        return redirect("welcome")  
 from django.contrib.auth import logout as auth_logout
 from django.utils import timezone
 def student_logout_view(request):
