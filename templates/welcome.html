@@ -13,13 +13,16 @@
             font-family: "Open Sans", sans-serif;
             background: hsl(217, 50%, 97%);
             font-weight: bold;
+            display: flex;
+            margin: 20px;
         }
         .container {
             background: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
+            max-width: 400px;
+            width: 100%;
         }
         h2 {
             margin-bottom: 1rem;
@@ -67,51 +70,87 @@
             color: #666;
             margin-bottom: 10px;
         }
+
+        .footer {
+            padding: 20px 0;
+            font-size: 14px;
+            transition: all 0.3s;
+            border-top: 1px solid #cddfff;
+            height: auto;  
+        }
+        
+        .footer .copyright {
+            text-align: center;
+            color: #012970;
+        }
+        
+        .footer .credits {
+            padding-top: 5px;
+            text-align: center;
+            font-size: 13px;
+            color: #012970;
+        }
+        #top-of-site-pixel-anchor {
+            width: 1px;
+            height: 1px;
+            top: 15em;
+            left: 0;
+            margin: 20px;
+        }
+        
     </style>
 </head>
 <body>
-    <div class="container-fluid d-flex align-items-center justify-content-center">
-        <div class="row-justice-content-center">
-            <div class="col-lg-6 col-md-8 col-sm-10 col-12">
-                <div class="container">
-                    <h2 class="text-center">Welcome, {{ student_name }}</h2>
-                    <p class="text-center">Enrollment No: {{ enrollment_no }}</p>
-                    <p class="info-text text-center"><i class="bi bi-info-circle"></i> Enter the 4-digit PIN provided by the faculty to mark your attendance.</p>
+    <div class="container text-center">
+        <h2>Welcome, {{ student_name }}</h2>
+        <p>Enrollment No: {{ enrollment_no }}</p>
+        <p class="info-text"><i class="bi bi-info-circle"></i> Enter the 4-digit PIN provided by the faculty to mark your attendance.</p>
 
-                    <form id="attendanceForm" method="POST" action="{% url 'welcome' %}" class="mt-4">
-                        {% csrf_token %}
-                        <div class="form-group">
-                            <label for="pin_code">Enter 4-digit PIN:</label>
-                            <div class="pin-input-group">
-                                <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-key-fill"></i></span>
-                                <input type="number" class="form-control pin-input" maxlength="1" min="0" max="9" required>
-                                <input type="number" class="form-control pin-input" maxlength="1" min="0" max="9" required>
-                                <input type="number" class="form-control pin-input" maxlength="1" min="0" max="9" required>
-                                <input type="number" class="form-control pin-input" maxlength="1" min="0" max="9" required>
-                            </div>
-                        </div>
-                        <input type="hidden" id="pin_code" name="pin_code" required>
-                        <input type="hidden" id="attendanceInput" name="attendanceInput" value="{{ enrollment_no }}">
-                        <button type="submit" class="btn btn-primary btn-block d-none">Submit</button>
-                        
-                        {% if messages %}
-                        <div class="mt-3">
-                            {% for message in messages %}
-                                <div class="alert alert-danger alert-dismissible fade show {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                        
-                    </form>
+        <form id="attendanceForm" method="POST" action="{% url 'welcome' %}" class="mt-4">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="pin_code">Enter 4-digit PIN:</label>
+                <div class="pin-input-group">
+                    <span class="input-group-text" id="inputGroupPrepend"><i class="bi bi-key-fill"></i></span>
+                    <input type="number" class="form-control pin-input" maxlength="1" min="0" max="9" required>
+                    <input type="number" class="form-control pin-input" maxlength="1" min="0" max="9" required>
+                    <input type="number" class="form-control pin-input" maxlength="1" min="0" max="9" required>
+                    <input type="number" class="form-control pin-input" maxlength="1" min="0" max="9" required>
                 </div>
             </div>
+            <input type="hidden" id="pin_code" name="pin_code" required>
+            <input type="hidden" id="attendanceInput" name="attendanceInput" value="{{ enrollment_no }}">
+            <button type="submit" class="btn btn-primary btn-block d-none">Submit</button>
+            
+            {% if messages %}
+            <div class="mt-3">
+                {% for message in messages %}
+                    <div class="alert alert-dismissible fade show {% if 'error' in message.tags %}alert-danger{% elif 'success' in message.tags %}alert-success{% else %}alert-info{% endif %}" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}            
+        </form>
+        <div class="text-center">
+            <a href="{% url 'studentlogout' %}">
+                <button type="button" class="btn btn-outline-primary ml-2">Logout</button>
+            </a>
         </div>
+        <div id="top-of-site-pixel-anchor"></div>
+        <footer id="footer" class="footer">
+            <div class="copyright">
+              &copy; Copyright <strong><span>kdpp.cteguj</span></strong>. All Rights Reserved
+            </div>
+            <div class="credits">
+              Developed by Dhruvil
+            </div>
+          </footer>
     </div>
+    
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
