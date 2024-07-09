@@ -20,10 +20,18 @@ def error_404_view(request):
 
 from django.utils import timezone
 from geopy.distance import geodesic # type: ignore
+
 # Constants for geographic authentication
 ALLOWED_LOCATION = (23.859500149431895, 72.13730130104388)
 MAX_DISTANCE_KM = 50000000  # Set your desired maximum distance in kilometers
-COOLDOWN_PERIOD = timezone.timedelta(minutes=1440)  # Adjust as needed
+COOLDOWN_PERIOD = timezone.timedelta(hours=24)  # Adjust as needed
+
+from django.views import View
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import AdminCredentials, Students, ActiveSession
+from django.utils import timezone
+from ipware import get_client_ip # type: ignore
 
 class LoginView(View):
     def get(self, request):
@@ -52,49 +60,44 @@ class LoginView(View):
         # Handle Student login
         enrollment_no = request.POST.get('enrollment_no')
         student_password = request.POST.get('student_password')
-        latitude = request.POST.get('latitude')
-        longitude = request.POST.get('longitude')
 
         if enrollment_no and student_password:
-            if not latitude or not longitude:
-                messages.error(request, 'Location not provided')
+            # Get client IP address
+            client_ip, is_routable = get_client_ip(request)
+
+            if client_ip is None:
+                messages.error(request, 'Could not determine your IP address')
                 return render(request, 'login.html')
 
             try:
                 student = Students.objects.get(enrollment_no=enrollment_no)
 
-                if student.Student_password == student_password:  # Directly compare passwords
-                    user_ip = request.META['REMOTE_ADDR']
+                if student.Student_password == student_password:
+                    # Check for existing active session for the same IP with a different enrollment number
+                    active_session_same_ip = ActiveSession.objects.filter(ip_address=client_ip).exclude(enrollment_no=enrollment_no).first()
 
-                    # Check if the student is within the allowed location
-                    user_location = (float(latitude), float(longitude))
-                    distance = geodesic(ALLOWED_LOCATION, user_location).km
-
-                    if distance > MAX_DISTANCE_KM:
-                        messages.error(request, 'You are not within the allowed location')
-                        return render(request, 'login.html')
-
-                    active_session = ActiveSession.objects.filter(ip_address=user_ip).first()
-                    if active_session:
-                        if active_session.enrollment_no != enrollment_no:
-                            if active_session.last_logout:
-                                cooldown_end = active_session.last_logout + COOLDOWN_PERIOD
-                                if timezone.now() < cooldown_end:
-                                    messages.error(request, f"Access Denied: Your session is temporarily blocked for 24h from logging into another account and is associated with user {active_session.enrollment_no}. If this is not you, please contact your admin")
-                                    return render(request, 'login.html')
-                            else:
-                                messages.error(request, f"Access Denied: Your session is already associated with user {active_session.enrollment_no}. You can only login as {active_session.enrollment_no}. If this is not you, please contact your admin")
+                    if active_session_same_ip:
+                        # Check for cooldown period
+                        if active_session_same_ip.last_logout:
+                            cooldown_end = active_session_same_ip.last_logout + COOLDOWN_PERIOD
+                            if timezone.now() < cooldown_end:
+                                messages.error(request, f"Access Denied: This IP address is already in use by enrollment number {active_session_same_ip.enrollment_no} and is temporarily blocked. Try again after {cooldown_end}.")
                                 return render(request, 'login.html')
+                        else:
+                            messages.error(request, f"Access Denied: This IP address is already in use by enrollment number {active_session_same_ip.enrollment_no}.")
+                            return render(request, 'login.html')
 
                     # Handle session without creating a Django user
                     request.session['student_id'] = student.id
 
-                    # Update active session
-                    if active_session:
+                    # Update or create active session for the current IP
+                    active_session, created = ActiveSession.objects.get_or_create(
+                        ip_address=client_ip,
+                        defaults={'enrollment_no': enrollment_no}
+                    )
+                    if not created:
                         active_session.enrollment_no = enrollment_no
                         active_session.last_logout = None
-                    else:
-                        active_session = ActiveSession(enrollment_no=enrollment_no, ip_address=user_ip)
                     active_session.save()
 
                     return redirect('welcome')
@@ -108,6 +111,8 @@ class LoginView(View):
         # If neither student nor faculty login data is provided
         messages.error(request, "Please provide your credentials")
         return render(request, 'login.html')
+
+
 
 class Attendancesheet(View):
     def get(self, request):

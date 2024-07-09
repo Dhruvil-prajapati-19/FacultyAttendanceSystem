@@ -8,7 +8,6 @@ class Studentsheet(View):
     def get(self, request):
         return render(request, 'Students.html')
 
-
 class WelcomeView(View):
     def get(self, request):
         student_id = request.session.get('student_id')
