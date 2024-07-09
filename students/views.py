@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
 from django.contrib import messages
 from FacultyAttendanceSystem.models import ActiveSession, AdminCredentials,  StudentsRollouts,Students
@@ -56,16 +56,21 @@ class WelcomeView(View):
 
 from django.contrib.auth import logout as auth_logout
 from django.utils import timezone
+
 def student_logout_view(request):
-    if request.user.is_authenticated:
-        user_ip = request.META['REMOTE_ADDR']
-        active_session = ActiveSession.objects.filter(ip_address=user_ip).first()
-        if active_session:
-            active_session.last_logout = timezone.now()
-            active_session.save()
-        auth_logout(request)
+    student_id = request.session.get('student_id')
+    
+    if student_id:
+        active_session = get_object_or_404(ActiveSession, id=student_id)
+        active_session.last_logout = timezone.now()
+        active_session.save()
+        del request.session['student_id'] 
+        messages.success(request, "You have been logged out successfully.")
+    else:
+        print("No 'student' found in session")
+    
     return redirect('login')
-       
+
 from .forms import EnrollmentForm
 from django.http import HttpResponse
 from openpyxl import Workbook # type: ignore

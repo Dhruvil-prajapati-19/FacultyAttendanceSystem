@@ -188,14 +188,15 @@ class StudentsRollouts(models.Model):
         end_time_str = self.timetable_rollout.end_time.strftime("%H:%M") if self.timetable_rollout.end_time else ""
         return f"Class for: {subject_name} on {self.timetable_rollout.class_date} from {start_time_str} to {end_time_str}"
 
-
-
 class ActiveSession(models.Model):
-    ip_address = models.CharField(max_length=50)  # Adjust max_length as per your needs
-    enrollment_no = models.CharField(max_length=50)  # Adjust max_length as per your needs
-    device_identifier = models.CharField(max_length=100, blank=True, null=True)
+    enrollment_no = models.CharField(max_length=50, unique=True)
+    device_identifier = models.CharField(max_length=300, blank=True, null=True)
     last_logout = models.DateTimeField(blank=True, null=True)
 
+    class Meta:
+        unique_together = ['device_identifier', 'enrollment_no']
+
     def __str__(self):
-        return f"{self.enrollment_no} - {self.ip_address}"
+        return f"{self.enrollment_no}"
+
 

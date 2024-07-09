@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from FacultyAttendanceSystem import views as faculty_views 
 from students import views as students_views  
-from .decorators import Faculty_login_required  
+from .decorators import Faculty_login_required ,student_login_required
 
 admin.site.site_header = "KDPP  Attendance Administration"
 admin.site.site_title = "KDPP  Attendance Administration Portal"
@@ -19,8 +19,8 @@ urlpatterns = [
     path('download_all_attendance/', Faculty_login_required(students_views.download_all_attendance_data), name='download_all_attendance_data'),
     path('datawizard/', include('data_wizard.urls')),
     path('logout/', Faculty_login_required(faculty_views.logout), name='logout'),
-    path('student-logout/', students_views.student_logout_view, name='studentlogout'),  # Corrected path for student logout
-    path('welcome/', students_views.WelcomeView.as_view(), name='welcome'),
+    path('student-logout/', student_login_required(students_views.student_logout_view), name='studentlogout'),  # Corrected path for student logout
+    path('welcome/', student_login_required(students_views.WelcomeView.as_view()), name='welcome'),
     path('download/', Faculty_login_required(faculty_views.download_data), name='download_data'),
     path('index_redirect/', Faculty_login_required(faculty_views.index_redirect), name='index_redirect'),
     path('pages-error-404/', Faculty_login_required(faculty_views.error_404_view), name='pages-error-404'),
