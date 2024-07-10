@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import localtime, now
 from datetime import  timedelta
 from django.http import HttpResponse, HttpResponseRedirect 
-from .models import TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift , Students, ActiveSession, StudentsRollouts ,BannedStudent 
+from .models import TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift , Students, ActiveSession, StudentsRollouts ,BannedStudent ,Faculty
 from datetime import timedelta
 from django.urls import reverse
 from django.views import View 
@@ -64,10 +64,11 @@ class LoginView(View):
             try:
                 banned_student = BannedStudent.objects.get(enrollment_no=enrollment_no)
                 if banned_student.is_ban_active():
-                    faculty_name = banned_student.faculty.faculty.name  # Assuming the faculty model has a `name` field
+                    faculty_name = banned_student.faculty.name  # Correct reference to the Faculty model
                     remaining_ban_time = banned_student.banned_at + timedelta(hours=banned_student.duration_hours) - timezone.now()
                     hours_remaining = remaining_ban_time.seconds // 3600
-                    messages.error(request, f'You are banned by {faculty_name} for {hours_remaining} more hours.')
+                    minutes_remaining = (remaining_ban_time.seconds % 3600) // 60
+                    messages.error(request, f'You are banned by {faculty_name} for [{hours_remaining}H:{minutes_remaining}M.]')
                     return render(request, 'login.html')
             except BannedStudent.DoesNotExist:
                 pass

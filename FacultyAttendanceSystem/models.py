@@ -203,7 +203,7 @@ from datetime import timedelta
 
 class BannedStudent(models.Model):
     enrollment_no = models.CharField(max_length=20, unique=True, verbose_name='Enrollment Number')
-    faculty = models.ForeignKey(AdminCredentials, on_delete=models.CASCADE, verbose_name='Faculty')
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, verbose_name='Faculty')
     banned_at = models.DateTimeField(auto_now_add=True, verbose_name='Banned At')
     duration_hours = models.PositiveIntegerField(default=0, verbose_name='Duration (Hours)')
 
