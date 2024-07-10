@@ -154,7 +154,18 @@
             </section>
         </div>
     </main>
-
+    {% if debug %}
+    if (typeof window.htmx !== "undefined") {
+        htmx.on("htmx:afterSettle", function(detail) {
+            if (
+                typeof window.djdt !== "undefined"
+                && detail.target instanceof HTMLBodyElement
+            ) {
+                djdt.show_toolbar();
+            }
+        });
+    }
+{% endif %}
     <!-- Vendor JS Files -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>

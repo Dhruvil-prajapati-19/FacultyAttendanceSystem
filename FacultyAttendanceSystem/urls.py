@@ -3,6 +3,7 @@ from django.urls import path, include
 from FacultyAttendanceSystem import views as faculty_views 
 from students import views as students_views  
 from .decorators import Faculty_login_required ,student_login_required
+from debug_toolbar.toolbar import debug_toolbar_urls # type: ignore
 
 admin.site.site_header = "KDPP  Attendance Administration"
 admin.site.site_title = "KDPP  Attendance Administration Portal"
@@ -28,4 +29,4 @@ urlpatterns = [
     path('download_work_shift/', Faculty_login_required(faculty_views.Download_WorkShift), name='download_work_shift'),  # Corrected for function-based view
     path('<int:class_rollout>/student-in-class/', Faculty_login_required(faculty_views.StudentInClassView.as_view()), name='student-in-class'),
     
-]
+]+ debug_toolbar_urls()

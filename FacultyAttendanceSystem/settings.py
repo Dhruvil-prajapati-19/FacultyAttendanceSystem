@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'data_wizard.sources',
     'students',  # Ensure this is in the correct order based on dependencies
     'django_user_agents',
+    "debug_toolbar",
 ]
 
 
@@ -57,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_user_agents.middleware.UserAgentMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
@@ -99,7 +101,11 @@ CACHES = {
     }
 }
 
-
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
