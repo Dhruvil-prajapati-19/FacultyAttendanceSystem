@@ -24,7 +24,6 @@ ALLOWED_LOCATION = (23.58729073245821, 72.38227230632735) # 23.85947073496859, 7
 MAX_DISTANCE_KM = 25   # 1 for 
 COOLDOWN_PERIOD = timezone.timedelta(hours=24)  
 
- # Import the BannedStudent model
 class LoginView(View):
     def get(self, request):
         return render(request, 'login.html')
