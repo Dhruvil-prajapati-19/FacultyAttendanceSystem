@@ -210,3 +210,8 @@ class StudentClassAdmin(admin.ModelAdmin):
 class ActiveSessionAdmin(admin.ModelAdmin):
     list_display = ('enrollment_no','last_logout')
     search_fields = ('enrollment_no',)
+
+@admin.register(models.BannedStudent)
+class BannedStudentAdmin(admin.ModelAdmin):
+    list_display = ('enrollment_no', 'faculty', 'banned_at' , 'duration_hours')
+    search_fields = ('enrollment_no',)

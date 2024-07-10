@@ -197,3 +197,19 @@ class ActiveSession(models.Model):
     def __str__(self):
         return f"{self.enrollment_no}"
 
+from django.db import models
+from django.utils import timezone
+from datetime import timedelta
+
+class BannedStudent(models.Model):
+    enrollment_no = models.CharField(max_length=20, unique=True, verbose_name='Enrollment Number')
+    faculty = models.ForeignKey(AdminCredentials, on_delete=models.CASCADE, verbose_name='Faculty')
+    banned_at = models.DateTimeField(auto_now_add=True, verbose_name='Banned At')
+    duration_hours = models.PositiveIntegerField(default=0, verbose_name='Duration (Hours)')
+
+    def is_ban_active(self):
+        ban_end_time = self.banned_at + timedelta(hours=self.duration_hours)
+        return timezone.now() < ban_end_time
+
+    def __str__(self):
+        return f'{self.enrollment_no} banned by {self.faculty}'
