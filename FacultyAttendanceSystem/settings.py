@@ -25,12 +25,11 @@ SECRET_KEY = 'django-insecure-2^-98x+ue$mk%l-!ixdrw0aup2fm+^=s97dth_53x)^n84qg(z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'bffb-103-159-201-166.ngrok-free.app']
+ALLOWED_HOSTS = ['localhost', '3cb3-103-159-201-166.ngrok-free.app']
 CSRF_TRUSTED_ORIGINS = ["https://*.ngrok.io"]
 CSRF_TRUSTED_ORIGINS = [
-  'https://bffb-103-159-201-166.ngrok-free.app' 
+  'https://3cb3-103-159-201-166.ngrok-free.app' 
 ]
-
 
 # Application definition
 
@@ -45,6 +44,7 @@ INSTALLED_APPS = [
     'data_wizard',
     'data_wizard.sources',
     'students',  # Ensure this is in the correct order based on dependencies
+    'django_user_agents',
 ]
 
 
@@ -56,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_user_agents.middleware.UserAgentMiddleware',
 ]
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 

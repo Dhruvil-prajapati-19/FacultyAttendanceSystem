@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
@@ -58,26 +59,27 @@ class LoginView(View):
             if not latitude or not longitude:
                 messages.error(request, 'Location not provided')
                 return render(request, 'login.html')
+            
             # Generate or retrieve device identifier from request
             device_identifier = request.COOKIES.get('device_identifier')
             if not device_identifier:
-                device_identifier = request.META.get('HTTP_USER_AGENT', 'unknown_device')
+                device_identifier = request.META.get('HTTP_USER_AGENT')
                 response = render(request, 'login.html', {'error_message': "Please try again."})
                 response.set_cookie('device_identifier', device_identifier, max_age=None, expires=None)
+                return response
 
             try:
                 student = Students.objects.get(enrollment_no=enrollment_no)
 
                 if student.Student_password == student_password:
-
                     # Check if the student is within the allowed location
                     user_location = (float(latitude), float(longitude))
                     distance = geodesic(ALLOWED_LOCATION, user_location).km
 
                     if distance > MAX_DISTANCE_KM:
                         messages.error(request, 'You are not within the allowed location')
-                        return render(request, 'login.html')  
-                    
+                        return render(request, 'login.html')
+
                     # Check for existing active session for the same device identifier with a different enrollment number
                     active_session_same_device = ActiveSession.objects.filter(device_identifier=device_identifier).exclude(enrollment_no=enrollment_no).first()
                     if active_session_same_device:
@@ -85,34 +87,38 @@ class LoginView(View):
                         if active_session_same_device.last_logout:
                             cooldown_end = active_session_same_device.last_logout + COOLDOWN_PERIOD
                             if timezone.now() < cooldown_end:
-                                messages.error(request, f"Access Denied: Your are already associated  {active_session_same_device.enrollment_no}")
+                                messages.error(request, f"Access Denied: You are already associated with {active_session_same_device.enrollment_no}")
                                 return render(request, 'login.html')
                         else:
-                            messages.error(request, f"Access Denied: Your are already associated {active_session_same_device.enrollment_no}, If this is not your account , please contact your admin")
+                            messages.error(request, f"Access Denied: You are already associated with {active_session_same_device.enrollment_no}, If this is not your account, please contact your admin")
                             return render(request, 'login.html')
 
                     # Handle session without creating a Django user
                     request.session['student_id'] = student.id
 
-                    # Update or create active session for the current device identifier
-                    active_session, created = ActiveSession.objects.get_or_create(
-                        device_identifier=device_identifier,
-                        defaults={'enrollment_no': enrollment_no}
-                    )
-                    if not created:
-                        active_session.enrollment_no = enrollment_no
-                        active_session.last_logout = None
-                    active_session.save()
+                    try:
+                        # Update or create active session for the current device identifier
+                        active_session, created = ActiveSession.objects.get_or_create(
+                            device_identifier=device_identifier,
+                            defaults={'enrollment_no': enrollment_no}
+                        )
+                        if not created:
+                            active_session.enrollment_no = enrollment_no
+                            active_session.last_logout = None
+                        active_session.save()
+
+                    except IntegrityError:
+                        messages.error(request, f"This enrollment number is already associated with another device. If this is not you, please contact your admin.")
+                        return render(request, 'login.html')
 
                     return redirect('welcome')
                 else:
                     return render(request, 'login.html', {'error_message': "Invalid password"})
             except Students.DoesNotExist:
-                return render(request, 'login.html', {'error_message': "Invalid enrollment number or password"})
+                return render(request, 'login.html', {'error_message': "there is no such Studnet exist with this enrollment number"})
 
         # If neither student nor faculty login data is provided
         return render(request, 'login.html', {'error_message': "Please provide your credentials"})
-
 class Attendancesheet(View):
     def get(self, request):
         todays_date = timezone.localdate()
@@ -251,6 +257,33 @@ class StudentInClassView(View):
             messages.error(request, "Error occurred while marking attendance: " + str(e))
         return redirect('student-in-class', class_rollout=class_rollout)
 
+
+class WorkShiftView(View):
+    def punch(request):
+        logged_user = request.session.get('logged_user')
+        if logged_user:
+            try:
+                faculty = AdminCredentials.objects.get(id=logged_user).faculty
+                current_time = localtime(now())
+                try:
+                    existing_entry = WorkShift.objects.get(faculty=faculty, date=current_time.date())
+                    if existing_entry.punch_in and existing_entry.punch_out is not None:
+                        messages.info(request, "Punch already exist for today!")
+                        return redirect("AttendanceSheet")
+                    
+                    if existing_entry.punch_in is not None and existing_entry.punch_out is None:
+                        existing_entry.punch_out = current_time.time()
+                        existing_entry.save()
+                except WorkShift.DoesNotExist as e:
+                    WorkShift.objects.create(faculty=faculty, date=current_time.date(), punch_in=current_time.time())
+                    messages.success(request, "Punch in successful")
+    
+            except ObjectDoesNotExist:
+                messages.error(request, "Faculty not found.")
+        else:
+            messages.error(request, "Faculty not logged in.")
+        return redirect("AttendanceSheet")
+
 from openpyxl import Workbook # type: ignore
 def download_data(request):
     logged_user = request.session.get('logged_user')
@@ -312,29 +345,3 @@ def Download_WorkShift(request):
     wb.save(response)
 
     return response
-
-class WorkShiftView(View):
-    def punch(request):
-        logged_user = request.session.get('logged_user')
-        if logged_user:
-            try:
-                faculty = AdminCredentials.objects.get(id=logged_user).faculty
-                current_time = localtime(now())
-                try:
-                    existing_entry = WorkShift.objects.get(faculty=faculty, date=current_time.date())
-                    if existing_entry.punch_in and existing_entry.punch_out is not None:
-                        messages.info(request, "Punch already exist for today!")
-                        return redirect("AttendanceSheet")
-                    
-                    if existing_entry.punch_in is not None and existing_entry.punch_out is None:
-                        existing_entry.punch_out = current_time.time()
-                        existing_entry.save()
-                except WorkShift.DoesNotExist as e:
-                    WorkShift.objects.create(faculty=faculty, date=current_time.date(), punch_in=current_time.time())
-                    messages.success(request, "Punch in successful")
-    
-            except ObjectDoesNotExist:
-                messages.error(request, "Faculty not found.")
-        else:
-            messages.error(request, "Faculty not logged in.")
-        return redirect("AttendanceSheet")

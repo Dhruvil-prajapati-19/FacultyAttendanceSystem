@@ -56,19 +56,42 @@ class WelcomeView(View):
 
 
 from django.utils import timezone
+from django.utils import timezone
+
 def student_logout_view(request):
-    student_id = request.session.get('student_id')
-    
-    if student_id:
-        active_session = get_object_or_404(ActiveSession, id=student_id)
-        active_session.last_logout = timezone.now()
-        active_session.save()
-        del request.session['student_id'] 
-        messages.success(request, "You have been logged out successfully.")
+    if 'student_id' in request.session:
+        student_id = request.session['student_id']
+        
+        # Retrieve the enrollment number of the student
+        try:
+            student = Students.objects.get(id=student_id)
+            enrollment_no = student.enrollment_no
+        except Students.DoesNotExist:
+            enrollment_no = None
+
+        if enrollment_no:
+            # Update ActiveSession for the logged-out student
+            active_session = ActiveSession.objects.filter(enrollment_no=enrollment_no).first()
+            if active_session:
+                active_session.last_logout = timezone.now()
+                active_session.save()
+            else:
+                # Handle case where no ActiveSession is found
+                del request.session['student_id']
+                return redirect('login')
+                # Example: redirect to login or display an error message
+
+            # Clear session data after updating ActiveSession
+            del request.session['student_id']
+            messages.success(request, "You have been logged out successfully.")
+        else:
+            messages.error(request, "No active session found for the student.")
     else:
-        print("No 'student' found in session")
-    
+        messages.error(request, "No enrollment number found ")
+        return redirect('login')
+
     return redirect('login')
+
 
 from .forms import EnrollmentForm
 from django.http import HttpResponse

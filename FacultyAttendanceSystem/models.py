@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-# Models definitions
-
 class Faculty(models.Model):
     name = models.CharField(max_length=200)
     short_name = models.CharField(max_length=50)
@@ -198,5 +196,4 @@ class ActiveSession(models.Model):
 
     def __str__(self):
         return f"{self.enrollment_no}"
-
 
