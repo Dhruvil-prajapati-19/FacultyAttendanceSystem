@@ -29,107 +29,109 @@ class LoginView(View):
         return render(request, 'login.html')
 
     def post(self, request):
+        # Handle Faculty login
         username = request.POST.get('username')
         password = request.POST.get('password')
+
+        if username and password:
+            try:
+                admin_credentials = AdminCredentials.objects.get(username=username)
+                if admin_credentials.password == password:
+                    logged_user = admin_credentials.faculty.id
+                    request.session['logged_user'] = logged_user
+                    messages.success(request, f'You have successfully logged in as {admin_credentials.faculty}')
+                    return redirect('index/')
+                else:
+                    messages.error(request, 'Invalid password')
+                    return render(request, 'login.html', {'error_message': 'Invalid password'})
+            except AdminCredentials.DoesNotExist:
+                messages.error(request, 'Invalid username or password')
+                return render(request, 'login.html', {'error_message': 'Invalid username or password'})
+
+        # Handle Student login
         enrollment_no = request.POST.get('enrollment_no')
-        student_password = request.POST.get('student_password')
+        student_password = request.POST.get('student_password') 
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
 
-        if username and password:
-            return self.handle_faculty_login(request, username, password)
-
         if enrollment_no and student_password:
-            return self.handle_student_login(request, enrollment_no, student_password, latitude, longitude)
+            if not latitude or not longitude:
+                messages.error(request, 'Location not provided')
+                return render(request, 'login.html')
 
-        return render(request, 'login.html', {'error_message': "Please provide your credentials"})
+            # Check if the student is banned
+            try:
+                banned_student = BannedStudent.objects.get(enrollment_no=enrollment_no)
+                if banned_student.is_ban_active():
+                    faculty_name = banned_student.faculty.name  # Correct reference to the Faculty model
+                    remaining_ban_time = banned_student.banned_at + timedelta(hours=banned_student.duration_hours) - timezone.now()
+                    hours_remaining = remaining_ban_time.seconds // 3600
+                    minutes_remaining = (remaining_ban_time.seconds % 3600) // 60
+                    messages.error(request, f'You are banned by {faculty_name} for [{hours_remaining}H:{minutes_remaining}M.]')
+                    return render(request, 'login.html')
+            except BannedStudent.DoesNotExist:
+                pass
 
-    def handle_faculty_login(self, request, username, password):
-        try:
-            admin_credentials = AdminCredentials.objects.get(username=username)
-            if admin_credentials.password == password:
-                logged_user = admin_credentials.faculty.id
-                request.session['logged_user'] = logged_user
-                messages.success(request, f'You have successfully logged in as {admin_credentials.faculty}')
-                return redirect('index')
-            else:
-                messages.error(request, 'Invalid password')
-        except AdminCredentials.DoesNotExist:
-            messages.error(request, 'Invalid username or password')
-        return render(request, 'login.html', {'error_message': 'Invalid username or password'})
+            # Generate or retrieve device identifier from request
+            device_identifier = request.COOKIES.get('device_identifier')
+            if not device_identifier:
+                device_identifier = request.META.get('HTTP_USER_AGENT')
+                response = render(request, 'login.html', {'error_message': "Please try again."})
+                response.set_cookie('device_identifier', device_identifier, max_age=None, expires=None)
+                return response
 
-    def handle_student_login(self, request, enrollment_no, student_password, latitude, longitude):
-        if not latitude or not longitude:
-            messages.error(request, 'Location not provided')
-            return render(request, 'login.html')
+            try:
+                student = Students.objects.get(enrollment_no=enrollment_no)
 
-        if self.is_student_banned(request, enrollment_no):
-            return render(request, 'login.html')
+                if student.Student_password == student_password:
+                    # Check if the student is within the allowed location
+                    user_location = (float(latitude), float(longitude))
+                    distance = geodesic(ALLOWED_LOCATION, user_location).km
 
-        device_identifier = self.get_device_identifier(request)
-        if not device_identifier:
-            response = render(request, 'login.html', {'error_message': "Please try again."})
-            response.set_cookie('device_identifier', request.META.get('HTTP_USER_AGENT'))
-            return response
-
-        try:
-            student = Students.objects.get(enrollment_no=enrollment_no)
-            if student.Student_password == student_password:
-                if self.is_within_allowed_location(latitude, longitude):
-                    if self.is_device_in_cooldown(device_identifier, enrollment_no):
-                        messages.error(request, f"Access Denied: You are already associated with another account")
+                    if distance > MAX_DISTANCE_KM:
+                        messages.error(request, 'You are not within the allowed location')
                         return render(request, 'login.html')
 
+                    # Check for existing active session for the same device identifier with a different enrollment number
+                    active_session_same_device = ActiveSession.objects.filter(device_identifier=device_identifier).exclude(enrollment_no=enrollment_no).first()
+                    if active_session_same_device:
+                        # Check for cooldown period
+                        if active_session_same_device.last_logout:
+                            cooldown_end = active_session_same_device.last_logout + COOLDOWN_PERIOD
+                            if timezone.now() < cooldown_end:
+                                messages.error(request, f"Access Denied: You are already associated with {active_session_same_device.enrollment_no}")
+                                return render(request, 'login.html')
+                        else:
+                            messages.error(request, f"Access Denied: You are already associated with {active_session_same_device.enrollment_no}, If this is not your account, please contact your admin")
+                            return render(request, 'login.html')
+
+                    # Handle session without creating a Django user
                     request.session['student_id'] = student.id
-                    self.update_active_session(request, device_identifier, enrollment_no)  # Pass enrollment_no here
+
+                    try:
+                        # Update or create active session for the current device identifier
+                        active_session, created = ActiveSession.objects.get_or_create(
+                            device_identifier=device_identifier,
+                            defaults={'enrollment_no': enrollment_no}
+                        )
+                        if not created:
+                            active_session.enrollment_no = enrollment_no
+                            active_session.last_logout = None
+                        active_session.save()
+
+                    except IntegrityError:
+                        messages.error(request, f"This enrollment number is already associated with another device. If this is not you, please contact your admin.")
+                        return render(request, 'login.html')
+
                     return redirect('welcome')
                 else:
-                    messages.error(request, 'You are not within the allowed location')
-            else:
-                messages.error(request, "Invalid password")
-        except Students.DoesNotExist:
-            messages.error(request, "No such student exists with this enrollment number")
+                    return render(request, 'login.html', {'error_message': "Invalid password"})
+            except Students.DoesNotExist:
+                return render(request, 'login.html', {'error_message': "There is no such student exist with this enrollment number"})
 
-        return render(request, 'login.html')
+        # If neither student nor faculty login data is provided
+        return render(request, 'login.html', {'error_message': "Please provide your credentials"})
 
-    def is_student_banned(self, request, enrollment_no):
-        try:
-            banned_student = BannedStudent.objects.get(enrollment_no=enrollment_no)
-            if banned_student.is_ban_active():
-                remaining_ban_time = banned_student.banned_at + timedelta(hours=banned_student.duration_hours) - timezone.now()
-                hours_remaining = remaining_ban_time.seconds // 3600
-                minutes_remaining = (remaining_ban_time.seconds % 3600) // 60
-                messages.error(request, f'You are banned by {banned_student.faculty.name} for [{hours_remaining}H:{minutes_remaining}M.]')
-                return True
-        except BannedStudent.DoesNotExist:
-            return False
-
-    def get_device_identifier(self, request):
-        return request.COOKIES.get('device_identifier') or request.META.get('HTTP_USER_AGENT')
-
-    def is_within_allowed_location(self, latitude, longitude):
-        user_location = (float(latitude), float(longitude))
-        distance = geodesic(ALLOWED_LOCATION, user_location).km
-        return distance <= MAX_DISTANCE_KM
-
-    def is_device_in_cooldown(self, device_identifier, enrollment_no):
-        active_session_same_device = ActiveSession.objects.filter(device_identifier=device_identifier).exclude(enrollment_no=enrollment_no).first()
-        if active_session_same_device:
-            if active_session_same_device.last_logout:
-                cooldown_end = active_session_same_device.last_logout + COOLDOWN_PERIOD
-                if timezone.now() < cooldown_end:
-                    return True
-        return False
-
-    def update_active_session(self, request, device_identifier, enrollment_no):  # Ensure enrollment_no is passed
-        try:
-            active_session, created = ActiveSession.objects.get_or_create(device_identifier=device_identifier, defaults={'enrollment_no': enrollment_no})
-            if not created:
-                active_session.enrollment_no = enrollment_no
-                active_session.last_logout = None
-            active_session.save()
-        except IntegrityError:
-            messages.error(request, "This enrollment number is already associated with another device. If this is not you, please contact your admin.")
 class Attendancesheet(View):
     def get(self, request):
         todays_date = timezone.localdate()
