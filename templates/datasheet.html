@@ -136,16 +136,63 @@
                 <input type="submit" style="height: 29px; font-size: 15px; line-height: 24px; padding: 0 6px;" class="btn btn-outline-dark" value="Submit">
               </div>
           </form>
-          <div class="container-fluid" style="margin-top: 10px;">
-            <a href="{% url 'download_data' %}">
-              <button type="submit" class="btn btn-outline-dark">Download Faculty Attendance Data</button>
-            </a>
-            <a href="{% url 'download_work_shift' %}">
-              <button type="submit" class="btn btn-outline-dark">Download Work Shift Data</button>
-            </a>
+        </div>
+
+
+        <div class="container-fluid" style="margin-top: 10px;">
+          <div class="row">
+            <div class="col-md-6">
+              <h5>Student Downloads</h5>
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <tbody>
+                    <tr>
+                      <td>
+                        <a href="{% url 'download_all_attendance_data' %}">
+                          <button type="submit" class="btn btn-outline-dark btn-sm">Download All Attendance Data</button>
+                        </a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <a href="{% url 'download_attendance_data' %}">
+                          <button type="submit" class="btn btn-outline-dark btn-sm">Download Class Room Data</button>
+                        </a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <h5>Faculty Downloads</h5>
+              <div class="table-responsive">
+                <table class="table table-sm">
+                  <tbody>
+                    <tr>
+                      <td>
+                        <a href="{% url 'download_data' %}">
+                          <button type="submit" class="btn btn-outline-dark btn-sm">Download Faculty Attendance Data</button>
+                        </a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <a href="{% url 'download_work_shift' %}">
+                          <button type="submit" class="btn btn-outline-dark btn-sm">Download Work Shift Data</button>
+                        </a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
-          
+        
+        
+        
+        
     
           {% if student %}
           <div class="d-flex align-items-center">
