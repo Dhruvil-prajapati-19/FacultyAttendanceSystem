@@ -1,5 +1,3 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import View
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import AdminCredentials, Students, ActiveSession
@@ -35,14 +33,14 @@ class StudentLoginMixin:
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
 
-        if enrollment_no and student_password:
-            if not latitude or not longitude:
-                messages.error(request, 'Location not provided')
-                return render(request, 'login.html')
+        if not latitude or not longitude:
+            messages.error(request, 'Location not provided')
+            return render(request, 'login.html')
 
+        if enrollment_no and student_password:
             try:
                 student = Students.objects.get(enrollment_no=enrollment_no)
-                if student.Student_password == student_password:
+                if student.Student_password == student_password: 
                     user_location = (float(latitude), float(longitude))
                     distance = geodesic(ALLOWED_LOCATION, user_location).km
                     if distance > MAX_DISTANCE_KM:
@@ -53,12 +51,9 @@ class StudentLoginMixin:
                         messages.error(request, 'You are deactivated by admin. Please contact the administration for assistance.')
                         return render(request, 'login.html')
 
-                    device_identifier = request.COOKIES.get('device_identifier')
-                    if not device_identifier:
-                        device_identifier = request.META.get('HTTP_USER_AGENT')
-                        response = render(request, 'login.html', {'error_message': "Please try again."})
-                        response.set_cookie('device_identifier', device_identifier, max_age=None, expires=None)
-                        return response
+                    device_identifier = request.COOKIES.get('device_identifier') or request.META.get('HTTP_USER_AGENT')
+                    response = render(request, 'login.html', {'error_message': "Please try again."})
+                    response.set_cookie('device_identifier', device_identifier, max_age=None, expires=None)
 
                     active_session_same_device = ActiveSession.objects.filter(device_identifier=device_identifier).exclude(enrollment_no=enrollment_no).first()
                     if active_session_same_device:
@@ -89,8 +84,10 @@ class StudentLoginMixin:
 
                     return redirect('welcome')
                 else:
-                    return render(request, 'login.html', {'error_message': "Invalid password"})
+                    messages.error(request, 'Invalid password')
+                    return render(request, 'login.html')
             except Students.DoesNotExist:
-                return render(request, 'login.html', {'error_message': "There is no such student exist with this enrollment number"})
+                messages.error(request, 'There is no such student exist with this enrollment number')
+                return render(request, 'login.html')
 
         return render(request, 'login.html', {'error_message': "Please provide your credentials"})
