@@ -39,7 +39,7 @@ class LoginView(View):
                 if admin_credentials.password == password:
                     logged_user = admin_credentials.faculty.id
                     request.session['logged_user'] = logged_user
-                    messages.success(request, f'You have successfully logged in as {admin_credentials.faculty}')
+                    # messages.success(request, f'You have successfully logged in as {admin_credentials.faculty}')
                     return redirect('index/')
                 else:
                     messages.error(request, 'Invalid password')
