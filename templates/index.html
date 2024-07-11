@@ -1,7 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,19 +11,23 @@
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
-  <link
-    href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
-  <!-- Vendor CSS Files -->
-  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-  <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css?family=Courgette" rel="stylesheet" />
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap-reboot.css" />
-  <link href="{% static 'css/styles.css' %}" rel="stylesheet">
-  <link href="{% static 'css/template.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap-reboot.css" />
+    <link href="https://fonts.googleapis.com/css?family=Courgette" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap-reboot.css"/>
+
+{% block link %}
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+{% endblock %}
+<link href="{% static 'css/template.css' %}" rel="stylesheet">
+   
+{% block style %} 
+
   <style>
     .container {
       margin-top: 20px;
@@ -88,6 +91,8 @@
       /* Add scroll if needed */
     }
   </style>
+
+{% endblock %}
 </head>
 
 <body>
@@ -95,6 +100,7 @@
   <header id="header" class="header fixed-top d-flex align-items-center">
     <div class="d-flex align-items-center justify-content-between">
       <a class="logo d-flex align-items-center">
+        
         <img src="{% static 'img/logoX.ico' %}" alt="Logo" class="img-fluid">
         <span class="d-none d-lg-block">Kdpp. Attendance management</span>
       </a>
@@ -161,7 +167,8 @@
     </ul>
   </aside>
   <!-- End Sidebar-->
-
+  
+{% block content %}
   <main id="main" class="main">
     <div class="pagetitle">
       <nav>
@@ -597,6 +604,14 @@
     </div>
   </main>
 
+  {% if pin_code %}
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      $('#pinCodeModal').modal('show');
+    });
+  </script>
+  {% endif %}
+
 
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
@@ -607,19 +622,27 @@
       Developed by Dhruvil
     </div>
   </footer>
-  <!-- Trigger Modal if QR Code Data is Present -->
-<!-- Trigger Modal if PIN Code Data is Present -->
-{% if pin_code %}
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    $('#pinCodeModal').modal('show');
-  });
-</script>
-{% endif %}
+{% endblock %}
+<!-- same js script -->
+
   <script src="{%static 'js/main.js'%}"></script>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="{% static 'vendor/apexcharts/apexcharts.min.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+  integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+  crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+  integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+  crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+  integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+  crossorigin="anonymous"></script>
+
+{% block jx %}
   <script>
     function submitForm(class_rollout_id) {
       document.getElementById("attendanceForm_" + class_rollout_id).submit();
@@ -646,15 +669,8 @@
       document.getElementById("pendingStatus").style.backgroundColor = "#86f250";
     }, 2000);
   </script>
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
-    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
-    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
-    crossorigin="anonymous"></script>
-</body>
+
+{% endblock %}
+  </body>
 
 </html>

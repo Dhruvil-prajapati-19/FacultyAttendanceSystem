@@ -144,9 +144,10 @@ class MidexamschedulerAdmin(admin.ModelAdmin):
 
 @admin.register(Students)
 class StudentsAdmin(admin.ModelAdmin):
-    list_display = ('enrollment_no', 'student_name', 'get_students_class_name', 'Student_password')
+    list_display = ('enrollment_no', 'student_name', 'get_students_class_name', 'Student_password' , 'is_active')
     list_filter = ('Student_Class__Students_class_name',)
     search_fields = ('enrollment_no', 'student_name')
+    list_editable = ('is_active',)
     ordering = ('enrollment_no',)
 
     def get_students_class_name(self, obj):
@@ -211,7 +212,3 @@ class ActiveSessionAdmin(admin.ModelAdmin):
     list_display = ('enrollment_no','last_logout')
     search_fields = ('enrollment_no',)
 
-@admin.register(models.BannedStudent)
-class BannedStudentAdmin(admin.ModelAdmin):
-    list_display = ('enrollment_no', 'faculty', 'banned_at' , 'duration_hours')
-    search_fields = ('enrollment_no',)

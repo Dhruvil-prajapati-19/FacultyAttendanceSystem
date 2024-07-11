@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import localtime, now
 from datetime import  timedelta
 from django.http import HttpResponse, HttpResponseRedirect 
-from .models import TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift , Students, ActiveSession, StudentsRollouts ,BannedStudent ,Faculty
+from .models import TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift , Students, ActiveSession, StudentsRollouts 
 from datetime import timedelta
 from django.urls import reverse
 from django.views import View 
@@ -39,7 +39,6 @@ class LoginView(View):
                 if admin_credentials.password == password:
                     logged_user = admin_credentials.faculty.id
                     request.session['logged_user'] = logged_user
-                    # messages.success(request, f'You have successfully logged in as {admin_credentials.faculty}')
                     return redirect('index/')
                 else:
                     messages.error(request, 'Invalid password')
@@ -59,27 +58,6 @@ class LoginView(View):
                 messages.error(request, 'Location not provided')
                 return render(request, 'login.html')
 
-            # Check if the student is banned
-            try:
-                banned_student = BannedStudent.objects.get(enrollment_no=enrollment_no)
-                if banned_student.is_ban_active():
-                    faculty_name = banned_student.faculty.name  # Correct reference to the Faculty model
-                    remaining_ban_time = banned_student.banned_at + timedelta(hours=banned_student.duration_hours) - timezone.now()
-                    hours_remaining = remaining_ban_time.seconds // 3600
-                    minutes_remaining = (remaining_ban_time.seconds % 3600) // 60
-                    messages.error(request, f'You are banned by {faculty_name} for [{hours_remaining}H:{minutes_remaining}M.]')
-                    return render(request, 'login.html')
-            except BannedStudent.DoesNotExist:
-                pass
-
-            # Generate or retrieve device identifier from request
-            device_identifier = request.COOKIES.get('device_identifier')
-            if not device_identifier:
-                device_identifier = request.META.get('HTTP_USER_AGENT')
-                response = render(request, 'login.html', {'error_message': "Please try again."})
-                response.set_cookie('device_identifier', device_identifier, max_age=None, expires=None)
-                return response
-
             try:
                 student = Students.objects.get(enrollment_no=enrollment_no)
 
@@ -91,6 +69,19 @@ class LoginView(View):
                     if distance > MAX_DISTANCE_KM:
                         messages.error(request, 'You are not within the allowed location')
                         return render(request, 'login.html')
+
+                    # Check if the student is banned
+                    if not student.is_active:
+                        messages.error(request, 'You are deactivated by admin. Please contact the administration for assistance.')
+                        return render(request, 'login.html')
+
+                    # Generate or retrieve device identifier from request
+                    device_identifier = request.COOKIES.get('device_identifier')
+                    if not device_identifier:
+                        device_identifier = request.META.get('HTTP_USER_AGENT')
+                        response = render(request, 'login.html', {'error_message': "Please try again."})
+                        response.set_cookie('device_identifier', device_identifier, max_age=None, expires=None)
+                        return response
 
                     # Check for existing active session for the same device identifier with a different enrollment number
                     active_session_same_device = ActiveSession.objects.filter(device_identifier=device_identifier).exclude(enrollment_no=enrollment_no).first()
@@ -131,7 +122,7 @@ class LoginView(View):
 
         # If neither student nor faculty login data is provided
         return render(request, 'login.html', {'error_message': "Please provide your credentials"})
-
+    
 class Attendancesheet(View):
     def get(self, request):
         todays_date = timezone.localdate()

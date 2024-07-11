@@ -95,11 +95,12 @@ class StudentClass(models.Model):
         return f"{self.Students_class_name} - {self.semester}"
 
 class Students(models.Model):
-    enrollment_no = models.CharField(max_length=20, unique=True, verbose_name='Enrollment Number' ,null=True, blank=True)
-    student_name = models.CharField(max_length=100, verbose_name='Student Name' , null=True, blank=True)
+    enrollment_no = models.CharField(max_length=20, unique=True, verbose_name='Enrollment Number', null=True, blank=True)
+    student_name = models.CharField(max_length=100, verbose_name='Student Name', null=True, blank=True)
     Student_Class = models.ForeignKey(StudentClass, on_delete=models.SET_NULL, blank=True, null=True, verbose_name='Student Class')
     Student_password = models.CharField(max_length=50, verbose_name='Student Password', blank=True, null=True)
-    
+    is_active = models.BooleanField(default=True, verbose_name='Is Active')
+
     def __str__(self):
         return f'{self.student_name} ({self.enrollment_no}) - {self.Student_Class.Students_class_name if self.Student_Class else ""}'
 
@@ -199,15 +200,3 @@ class ActiveSession(models.Model):
         return f"{self.enrollment_no}"
 
 
-class BannedStudent(models.Model):
-    enrollment_no = models.CharField(max_length=20, unique=True, verbose_name='Enrollment Number')
-    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE, verbose_name='Faculty')
-    banned_at = models.DateTimeField(auto_now_add=True, verbose_name='Banned At')
-    duration_hours = models.PositiveIntegerField(default=0, verbose_name='Duration (Hours)')
-
-    def is_ban_active(self):
-        ban_end_time = self.banned_at + timedelta(hours=self.duration_hours)
-        return timezone.now() < ban_end_time
-
-    def __str__(self):
-        return f'{self.enrollment_no} banned by {self.faculty}'
