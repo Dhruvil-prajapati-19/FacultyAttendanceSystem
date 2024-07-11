@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from datetime import timedelta
 
 class Faculty(models.Model):
     name = models.CharField(max_length=200)
@@ -197,9 +198,6 @@ class ActiveSession(models.Model):
     def __str__(self):
         return f"{self.enrollment_no}"
 
-from django.db import models
-from django.utils import timezone
-from datetime import timedelta
 
 class BannedStudent(models.Model):
     enrollment_no = models.CharField(max_length=20, unique=True, verbose_name='Enrollment Number')
