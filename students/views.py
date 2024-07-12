@@ -1,7 +1,7 @@
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import  render, redirect
 from django.views import View
 from django.contrib import messages
-from FacultyAttendanceSystem.models import ActiveSession, AdminCredentials,  StudentsRollouts,Students, Subject, TimeTableRollouts
+from FacultyAttendanceSystem.models import ActiveSession, AdminCredentials,  StudentsRollouts,Students
 from django.core.cache import cache
 
 class Studentsheet(View):
@@ -56,8 +56,6 @@ class WelcomeView(View):
 
 
 from django.utils import timezone
-from django.utils import timezone
-
 def student_logout_view(request):
     if 'student_id' in request.session:
         student_id = request.session['student_id']
@@ -96,6 +94,7 @@ def student_logout_view(request):
 from .forms import EnrollmentForm
 from django.http import HttpResponse
 from openpyxl import Workbook # type: ignore
+from io import BytesIO
 class Datasheet(View):
     def get(self, request):
         form = EnrollmentForm()
@@ -206,15 +205,6 @@ def download_all_attendance_data(request):
     response['Content-Disposition'] = 'attachment; filename=AttendanceData.xlsx'
 
     return response
-
-
-from openpyxl import Workbook  # type: ignore
-from django.http import HttpResponse
-from FacultyAttendanceSystem.models import StudentsRollouts
-from django.shortcuts import render
-from django.http import HttpResponse
-from io import BytesIO
-from io import BytesIO
 
 def download_attendance_data(request):
     # Fetch the unique subjects, faculties, start times, and end times

@@ -1,11 +1,11 @@
+# mixing.py
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import AdminCredentials, Students, ActiveSession
 from django.db import IntegrityError
-from geopy.distance import geodesic # type: ignore
 from django.utils import timezone
 from django.db import IntegrityError
-
+from geopy.distance import geodesic # type: ignore
 ALLOWED_LOCATION = (23.58729073245821, 72.38227230632735) # 23.85947073496859, 72.13705990673165 for patan
 MAX_DISTANCE_KM = 25   # 1 for 
 COOLDOWN_PERIOD = timezone.timedelta(hours=24)  
@@ -91,3 +91,4 @@ class StudentLoginMixin:
                 return render(request, 'login.html')
 
         return render(request, 'login.html', {'error_message': "Please provide your credentials"})
+

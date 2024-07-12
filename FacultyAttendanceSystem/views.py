@@ -3,14 +3,15 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import localtime, now
 from datetime import  timedelta
-from django.http import HttpResponse, HttpResponseRedirect 
-from .models import TimeTableRollouts, AdminCredentials, HolidayScheduler, WorkShift , Students, ActiveSession, StudentsRollouts 
+from django.http import HttpResponse, HttpResponseRedirect
+from .models import AdminCredentials, TimeTableRollouts, HolidayScheduler, WorkShift , StudentsRollouts 
 from datetime import timedelta
 from django.urls import reverse
-from django.views import View 
 from django.core.cache import cache
 import random
 from django.utils import timezone
+from .mixins import FacultyLoginMixin,StudentLoginMixin
+
 def index_redirect(request):
     return redirect( request,'index/')
 
@@ -18,14 +19,6 @@ def error_404_view(request):
     return render(request, 'pages-error-404.html')
 
 from django.views import View
-from .mixins import FacultyLoginMixin, StudentLoginMixin
-
-from django.views import View
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import AdminCredentials
-from .mixins import FacultyLoginMixin, StudentLoginMixin
-
 class LoginView(FacultyLoginMixin, StudentLoginMixin, View):
     def get(self, request):
         return render(request, 'login.html')
@@ -131,7 +124,6 @@ class Attendancesheet(View):
 
         return render(request, 'index.html', context)
 
-
     def post(self, request):
         attendance = request.POST.get('attendance') == 'true'
         class_rollout_id = request.POST.get('class_rollout_id')
@@ -153,11 +145,10 @@ def logout(request):
         messages.success(request, "You have been logged out successfully.")
     return redirect('/') 
 
-
 class StudentInClassView(View):
     def get(self, request, class_rollout):
 
-        class_rollout_id = request.POST.get('class_rollout_id')
+        # class_rollout_id = request.POST.get('class_rollout_id')
         students = StudentsRollouts.objects.filter(timetable_rollout__id=class_rollout)
         present_students = students.filter(student_attendance=True)
         context = {
@@ -182,7 +173,6 @@ class StudentInClassView(View):
         except Exception as e:
             messages.error(request, "Error occurred while marking attendance: " + str(e))
         return redirect('student-in-class', class_rollout=class_rollout)
-
 
 class WorkShiftView(View):
     def punch(request):
@@ -213,10 +203,7 @@ class WorkShiftView(View):
 from openpyxl import Workbook # type: ignore
 def download_data(request):
     logged_user = request.session.get('logged_user')
-
-
     class_rollouts = TimeTableRollouts.objects.filter(faculty__id=logged_user)
-
     # Create a new workbook
     wb = Workbook()
     ws = wb.active
