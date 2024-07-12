@@ -278,12 +278,18 @@ p {
     transform: scaleX(-1);
   }
   
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
   
   #top-of-site-pixel-anchor {
-    position: absolute;
+   
+    position: relative;
     width: 1px;
-    height: 1px;
-    top: 15em;
+    height: 300px;
+   
     left: 0;
   }
   
