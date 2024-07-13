@@ -65,7 +65,7 @@ class WorkshiftAdmin(admin.ModelAdmin):
 @admin.register(models.Timetable)
 class TimetableAdmin(admin.ModelAdmin):
     list_display = ('faculty', 'class_type', 'formatted_Student_Class', 'formatted_semester', 'subject', 'room', 'formatted_first_class_date', 'duration', 'start_time', 'end_time' )
-    list_filter = ('class_type', 'semester', 'faculty', 'subject', 'room', 'create_date', 'modified_date')
+    list_filter = ('class_type', 'semester', 'faculty', 'subject', 'room', 'create_date', 'modified_date', 'first_class_date', 'start_time', 'end_time')
     search_fields = ('semester__name', 'faculty__name', 'subject__name', 'room__room_name', 'faculty__short_name')
 
     def formatted_semester(self, obj):
@@ -101,7 +101,7 @@ class TimetableAdmin(admin.ModelAdmin):
 @admin.register(models.TimeTableRollouts)
 class TimeTableRolloutsAdmin(admin.ModelAdmin):
     list_display = ('subject', 'faculty', 'room', 'duration', 'class_status', 'formatted_class_date', 'start_time', 'end_time', 'class_attedance')
-    list_filter = ('subject', 'faculty', 'room', 'class_status', 'class_attedance', 'class_date')
+    list_filter = ('subject', 'faculty', 'room', 'class_status', 'class_attedance', 'class_date', 'start_time', 'end_time')
     search_fields = ('subject__name', 'faculty__name', 'room__room_name', 'class_date', 'short_name', 'faculty__short_name')
     list_editable = ('class_attedance',)
 
@@ -145,7 +145,7 @@ class MidexamschedulerAdmin(admin.ModelAdmin):
 @admin.register(Students)
 class StudentsAdmin(admin.ModelAdmin):
     list_display = ('enrollment_no', 'student_name', 'get_students_class_name', 'Student_password' , 'is_active')
-    list_filter = ('Student_Class__Students_class_name',)
+    list_filter = ('Student_Class', 'is_active',    )
     search_fields = ('enrollment_no', 'student_name')
     list_editable = ('is_active',)
     ordering = ('enrollment_no',)
@@ -156,50 +156,78 @@ class StudentsAdmin(admin.ModelAdmin):
 
 @admin.register(models.StudentsRollouts)
 class StudentsRolloutsAdmin(admin.ModelAdmin):
-    list_display = ('timetable_rollout','get_student_name', 'get_faculty_name', 'get_subject_name', 'get_room_name',
-                    'get_start_time', 'get_end_time', 'formatted_class_date', 'get_class_status', 'student_attendance')
+    list_display = (
+        'timetable_rollout', 
+        'get_student_name', 
+        'get_faculty_name', 
+        'get_subject_name', 
+        'get_room_name',
+        'get_start_time', 
+        'get_end_time', 
+        'formatted_class_date', 
+        'get_class_status', 
+        'student_attendance'
+    )
 
-    
-    list_filter = ('student__enrollment_no',  'timetable_rollout__subject', 'timetable_rollout__room')
+    # Add more filters based on related fields
+    list_filter = (
+        'timetable_rollout__subject', 
+        'timetable_rollout__faculty', 
+        'timetable_rollout__room',
+        'timetable_rollout__class_status', 
+        'student_attendance',
+        # Add additional filters based on the TimeTableRollouts model
+        ('timetable_rollout__start_time', admin.AllValuesFieldListFilter),
+        ('timetable_rollout__end_time', admin.AllValuesFieldListFilter),
+        ('timetable_rollout__class_date', admin.AllValuesFieldListFilter),
+    )
+
     list_editable = ('student_attendance',)
-    search_fields = ('student__enrollment_no', 'student__student_name', 'timetable_rollout__subject__name','timetable_rollout__faculty')
+    
+    search_fields = (
+        'student__enrollment_no', 
+        'student__student_name', 
+        'timetable_rollout__subject__name',
+        'timetable_rollout__faculty__name',
+        'timetable_rollout__room__room_name',
+        'timetable_rollout__class_date',
+        'timetable_rollout__start_time',
+        'timetable_rollout__end_time',
+    )
+    
     readonly_fields = ('timetable_rollout', 'student', 'created_by', 'modified_by', 'create_date', 'modified_date')
-    search_fields = ('student__enrollment_no', 'student__student_name')
+    
     def get_student_name(self, obj):
-        if obj.student:
-            return f"{obj.student.student_name} ({obj.student.enrollment_no})"
-        return ''
-
+        return f"{obj.student.student_name} ({obj.student.enrollment_no})" if obj.student else ''
     get_student_name.short_description = 'Student'
 
     def get_faculty_name(self, obj):
-        return obj.timetable_rollout.faculty.name if obj.timetable_rollout.faculty else ''
+        return obj.timetable_rollout.faculty.name if obj.timetable_rollout and obj.timetable_rollout.faculty else ''
     get_faculty_name.short_description = 'Faculty'
 
     def get_subject_name(self, obj):
-        return obj.timetable_rollout.subject.name if obj.timetable_rollout.subject else ''
+        return obj.timetable_rollout.subject.name if obj.timetable_rollout and obj.timetable_rollout.subject else ''
     get_subject_name.short_description = 'Subject'
 
     def get_room_name(self, obj):
-        return obj.timetable_rollout.room.room_name if obj.timetable_rollout.room else ''
+        return obj.timetable_rollout.room.room_name if obj.timetable_rollout and obj.timetable_rollout.room else ''
     get_room_name.short_description = 'Room'
 
     def get_start_time(self, obj):
-        return obj.timetable_rollout.start_time.strftime('%I:%M %p') if obj.timetable_rollout.start_time else ''
+        return obj.timetable_rollout.start_time.strftime('%I:%M %p') if obj.timetable_rollout and obj.timetable_rollout.start_time else ''
     get_start_time.short_description = 'Start time'
 
     def get_end_time(self, obj):
-        return obj.timetable_rollout.end_time.strftime('%I:%M %p') if obj.timetable_rollout.end_time else ''
+        return obj.timetable_rollout.end_time.strftime('%I:%M %p') if obj.timetable_rollout and obj.timetable_rollout.end_time else ''
     get_end_time.short_description = 'End time'
 
     def formatted_class_date(self, obj):
-        return obj.timetable_rollout.class_date.strftime("%d/%m/%Y") if obj.timetable_rollout.class_date else ''
+        return obj.timetable_rollout.class_date.strftime("%d/%m/%Y") if obj.timetable_rollout and obj.timetable_rollout.class_date else ''
     formatted_class_date.short_description = 'Formatted class date'
 
     def get_class_status(self, obj):
-        return obj.timetable_rollout.get_class_status_display() if obj.timetable_rollout.class_status else ''
+        return obj.timetable_rollout.get_class_status_display() if obj.timetable_rollout and obj.timetable_rollout.class_status else ''
     get_class_status.short_description = 'Class status'
-
     # pass
 
 @admin.register(models.StudentClass)

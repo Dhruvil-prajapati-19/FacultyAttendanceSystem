@@ -27,6 +27,8 @@
    
 {% block link %}
     <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 {% endblock %}
 <link href="{% static 'css/template.css' %}" rel="stylesheet">
    
@@ -51,10 +53,10 @@
 
     .top-left-modal .qr-code-dialog {
       position: absolute;
-      top: 5%;
-      left: 3%;
+      top: 10%;
+      left: 4%;
       max-width: 100%;
-      width: 340px;
+      width: 300px;
       height: auto;
     }
 
@@ -256,33 +258,34 @@
       </div>
     </div>
 
-  <!-- PIN Display Modal -->
-  <div class="modal fade top-left-modal" id="pinCodeModal" tabindex="-1" role="dialog"
-    aria-labelledby="pinCodeModalLabel" aria-hidden="true">
-    <div class="modal-dialog pin-code-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header" style="cursor: move;" draggable="true">
-          <h5 class="modal-title" id="pinModalLabel">PIN Code Generate</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          {% if pin_code %}
-          <div class="mt-4">
-            <p id="pinCode">{{ pin_code }}</p>
-          </div>
-          {% else %}
-          <p>No PIN code data available.</p>
-          {% endif %}
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
+<!-- PIN Display Modal -->
+<div class="modal fade top-left-modal" id="pinCodeModal" tabindex="-1" role="dialog" aria-labelledby="pinCodeModalLabel" aria-hidden="true">
+  <div class="modal-dialog qr-code-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header" style="cursor: move;">
+              <h5 class="modal-title" id="pinModalLabel">PIN Code Generate</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body text-center">
+              <p class="alert alert-light"><i class="bi bi-info-circle"></i> vaild for 5 minutes</p>
+              {% if pin_code %}
+              <div class="mt-4">
+                  <p id="pinCode" class="display-4 font-weight-bold">{{ pin_code }}</p>
+              </div>
+              {% else %}
+              <p>No PIN code data available.</p>
+              {% endif %}
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
+<!--Attedance Sheet-->
     <div class="wrapper">
       <div class="table">
         <div class="headers">
@@ -619,9 +622,12 @@
   </script>
   {% endif %}
 
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-  integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-  crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
 {% endblock %}
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
@@ -657,6 +663,14 @@
     function submitForm(class_rollout_id) {
       document.getElementById("qrForm_" + class_rollout_id).submit();
     }
+  </script>
+  <script>
+    $(document).ready(function() {
+    $("#pinCodeModal").draggable({
+        handle: ".modal-header"
+    });
+});
+
   </script>
   <script>
     // Disable buttons after click
