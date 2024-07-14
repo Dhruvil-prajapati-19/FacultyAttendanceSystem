@@ -44,8 +44,6 @@ INSTALLED_APPS = [
     'data_wizard',
     'data_wizard.sources',
     'students',  # Ensure this is in the correct order based on dependencies
-    'django_user_agents',
-    "debug_toolbar",
 ]
 
 
@@ -57,9 +55,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_user_agents.middleware.UserAgentMiddleware',
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
+
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 ROOT_URLCONF = 'FacultyAttendanceSystem.urls'
