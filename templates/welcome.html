@@ -107,7 +107,6 @@
         <h2>Welcome, {{ student_name }}</h2>
         <p>Enrollment No: {{ enrollment_no }}</p>
         <p class="info-text"><i class="bi bi-info-circle"></i> Enter the 4-digit PIN provided by the faculty to mark your attendance.</p>
-
         <form id="attendanceForm" method="POST" action="{% url 'welcome' %}" class="mt-4">
             {% csrf_token %}
             <div class="form-group">

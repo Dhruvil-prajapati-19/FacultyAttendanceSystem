@@ -143,7 +143,7 @@ def download_all_attendance_data(request):
     ws.title = "Attendance Data"
 
     # Add the headers
-    headers = ["Enrollment No", "Student Name", "Total Attendance", "Total Present", "Attendance Percentage"]
+    headers = ["Enrollment No", "Student Name", "Total lectures", "Total Present", "Attendance Percentage"]
     ws.append(headers)
 
     # Loop through each student to calculate attendance data

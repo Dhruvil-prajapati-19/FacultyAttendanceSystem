@@ -1,4 +1,5 @@
 # mixing.py
+import uuid
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import AdminCredentials, Students
@@ -51,8 +52,15 @@ class StudentLoginMixin:
                     if not student.is_active:
                         messages.error(request, 'You are deactivated by admin. Please contact the administration for assistance.')
                         return render(request, 'login.html')
-
-                    device_identifier = request.META.get('HTTP_USER_AGENT')
+                    
+                    # Retrieve device identifier from cookies
+                    device_identifier = request.COOKIES.get('device_identifier')
+                    if not device_identifier:
+                        # Generate a new UUID as the device identifier
+                        device_identifier = str(uuid.uuid4())
+                        response = render(request, 'login.html', {'error_message': "Please try again."})
+                        response.set_cookie('device_identifier', device_identifier, max_age=None, expires=None)
+                        return response
 
                     # Check if the current device identifier is already used by another student
                     active_session_same_device = Students.objects.filter(device_identifier=device_identifier).exclude(enrollment_no=enrollment_no).first()
@@ -66,10 +74,12 @@ class StudentLoginMixin:
                         messages.error(request, f"This enrollment number is already associated with another device. If this is not by you, please contact your admin.")
                         return render(request, 'login.html')
 
+                    # Update student's device identifier and save the record
                     student.device_identifier = device_identifier
                     student.last_login = timezone.now()
                     student.save()
 
+                    # Store the student ID in the session
                     request.session['student_id'] = student.id
 
                     return redirect('welcome')
