@@ -1,7 +1,7 @@
 from django.shortcuts import  render, redirect
 from django.views import View
 from django.contrib import messages
-from FacultyAttendanceSystem.models import ActiveSession, AdminCredentials,  StudentsRollouts,Students
+from FacultyAttendanceSystem.models import  AdminCredentials,  StudentsRollouts,Students
 from django.core.cache import cache
 
 class Studentsheet(View):
@@ -58,38 +58,11 @@ class WelcomeView(View):
 from django.utils import timezone
 def student_logout_view(request):
     if 'student_id' in request.session:
-        student_id = request.session['student_id']
-        
-        # Retrieve the enrollment number of the student
-        try:
-            student = Students.objects.get(id=student_id)
-            enrollment_no = student.enrollment_no
-        except Students.DoesNotExist:
-            enrollment_no = None
-
-        if enrollment_no:
-            # Update ActiveSession for the logged-out student
-            active_session = ActiveSession.objects.filter(enrollment_no=enrollment_no).first()
-            if active_session:
-                active_session.last_logout = timezone.now()
-                active_session.save()
-            else:
-                # Handle case where no ActiveSession is found
-                del request.session['student_id']
-                return redirect('login')
-                # Example: redirect to login or display an error message
-
-            # Clear session data after updating ActiveSession
-            del request.session['student_id']
-            messages.success(request, "You have been logged out successfully.")
-        else:
-            messages.error(request, "No active session found for the student.")
+        del request.session['student_id']
+        messages.success(request, 'You have successfully logged out.')
     else:
-        messages.error(request, "No enrollment number found ")
-        return redirect('login')
-
+        messages.error(request, 'Studnent does not exist')
     return redirect('login')
-
 
 from .forms import EnrollmentForm
 from django.http import HttpResponse
@@ -317,72 +290,3 @@ def download_attendance_data(request):
             zip_file.writestr(filename, file_buffer.getvalue())
 
     return response
-
-#----------------------------------------------------------------
-# def download_all_attendance_data(request):
-#     # Create a workbook and a sheet
-#     wb = Workbook()
-#     ws = wb.active
-#     ws.title = "StudentRollouts"
-
-#     # Define the headers (excluding the dynamic date columns for now)
-#     static_headers = ["semester", "faculty", "student_class", "enrollment_no", "student_name", "subject"]
-    
-#     # Fetch all unique class_dates from the StudentsRollouts
-#     class_dates = StudentsRollouts.objects.values_list('timetable_rollout__class_date', flat=True).distinct().order_by('timetable_rollout__class_date')
-
-#     # Add the dynamic date headers
-#     dynamic_headers = [date.strftime('%Y-%m-%d') for date in class_dates]
-#     headers = static_headers + dynamic_headers
-#     ws.append(headers)
-
-#     # Fetch the data from the database
-#     student_rollouts = StudentsRollouts.objects.select_related(
-#         'student',
-#         'timetable_rollout__subject',
-#         'timetable_rollout__class_id__semester',
-#         'timetable_rollout__faculty',
-#         'timetable_rollout__class_id__Student_Class',
-#     )
-
-#     # Create a dictionary to store attendance by student, subject, and date
-#     attendance_data = {}
-#     for rollout in student_rollouts:
-#         key = (rollout.student.enrollment_no, rollout.timetable_rollout.subject.name)
-#         if key not in attendance_data:
-#             attendance_data[key] = {
-#                 'semester': rollout.timetable_rollout.class_id.semester.name,
-#                 'faculty': rollout.timetable_rollout.faculty.name,
-#                 'student_class': rollout.timetable_rollout.class_id.Student_Class.Students_class_name,
-#                 'student_name': rollout.student.student_name,
-#                 'subject': rollout.timetable_rollout.subject.name,
-#                 'attendance': {}
-#             }
-#         class_date = rollout.timetable_rollout.class_date.strftime('%Y-%m-%d')
-#         attendance_data[key]['attendance'][class_date] = "Present" if rollout.student_attendance else "AB"
-
-#     # Fill the Excel sheet with data
-#     for key, data in attendance_data.items():
-#         row = [
-#             data['semester'],
-#             data['faculty'],
-#             data['student_class'],
-#             key[0],  # enrollment_no
-#             data['student_name'],
-#             data['subject'],
-#         ]
-#         for date in dynamic_headers:
-#             row.append(data['attendance'].get(date, "A"))  # Default to "A" if no record for the date
-#         ws.append(row)
-
-#     # Save the workbook to a bytes buffer
-#     from io import BytesIO
-#     response = BytesIO()
-#     wb.save(response)
-#     response.seek(0)
-
-#     # Create a HTTP response with the Excel file
-#     http_response = HttpResponse(response, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-#     http_response['Content-Disposition'] = 'attachment; filename=StudentRollouts.xlsx'
-
-#     return http_response

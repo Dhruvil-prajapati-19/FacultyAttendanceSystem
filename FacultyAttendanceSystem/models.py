@@ -95,11 +95,16 @@ class StudentClass(models.Model):
         return f"{self.Students_class_name} - {self.semester}"
 
 class Students(models.Model):
-    enrollment_no = models.CharField(max_length=20, unique=True, verbose_name='Enrollment Number', null=True, blank=True)
+    enrollment_no = models.CharField(max_length=20, verbose_name='Enrollment Number', null=True, blank=True)
     student_name = models.CharField(max_length=100, verbose_name='Student Name', null=True, blank=True)
     Student_Class = models.ForeignKey(StudentClass, on_delete=models.SET_NULL, blank=True, null=True, verbose_name='Student Class')
     Student_password = models.CharField(max_length=50, verbose_name='Student Password', blank=True, null=True)
+    device_identifier = models.CharField(max_length=300, blank=True, null=True)
+    last_login = models.DateTimeField(blank=True, null=True)
     is_active = models.BooleanField(default=True, verbose_name='Is Active')
+
+    class Meta:
+        unique_together = ['device_identifier', 'enrollment_no']
 
     def __str__(self):
         return f'{self.student_name} ({self.enrollment_no}) - {self.Student_Class.Students_class_name if self.Student_Class else ""}'
@@ -183,20 +188,10 @@ class StudentsRollouts(models.Model):
     modified_date = models.DateTimeField(default=timezone.now, null=True)
 
     def __str__(self):
-        subject_name = self.timetable_rollout.subject.name if self.timetable_rollout.subject else ""
-        start_time_str = self.timetable_rollout.start_time.strftime("%H:%M") if self.timetable_rollout.start_time else ""
-        end_time_str = self.timetable_rollout.end_time.strftime("%H:%M") if self.timetable_rollout.end_time else ""
-        return f"Class for: {subject_name} on {self.timetable_rollout.class_date} from {start_time_str} to {end_time_str}"
-
-class ActiveSession(models.Model):
-    enrollment_no = models.CharField(max_length=50, unique=True)
-    device_identifier = models.CharField(max_length=300, blank=True, null=True)
-    last_logout = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        unique_together = ['device_identifier', 'enrollment_no']
-
-    def __str__(self):
-        return f"{self.enrollment_no}"
+        subject_name = self.timetable_rollout.subject.name if self.timetable_rollout and self.timetable_rollout.subject else "No Subject"
+        class_date = self.timetable_rollout.class_date if self.timetable_rollout and self.timetable_rollout.class_date else "No Date"
+        start_time_str = self.timetable_rollout.start_time.strftime("%H:%M") if self.timetable_rollout and self.timetable_rollout.start_time else "No Start Time"
+        end_time_str = self.timetable_rollout.end_time.strftime("%H:%M") if self.timetable_rollout and self.timetable_rollout.end_time else "No End Time"
+        return f"Class for: {subject_name} on {class_date} from {start_time_str} to {end_time_str}"
 
 

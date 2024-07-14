@@ -26,8 +26,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap-reboot.css"/>
    
 {% block link %}
-    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
-    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> -->
+   <!-- <script src="{% static 'js/index.js' %}"></script> -->
+   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 {% endblock %}
 <link href="{% static 'css/template.css' %}" rel="stylesheet">
@@ -329,8 +329,8 @@
                 <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();"
                   style="cursor: pointer;">
                   <h3 class="d-flex align-items-center">
-                    {{ class_rollout.room.room_name }} ({{ class_rollout.start_time }}) <i style="font-size: 25px;"
-                      class="bi bi-key custom-icon-size mr-2"></i>
+                    {{ class_rollout.room.room_name }} <br>({{ class_rollout.start_time }}) <i style="font-size: 25px;"
+                      class="bi bi-key custom-icon-size pl-4"></i>
                   </h3>
                 </div>
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
@@ -371,8 +371,8 @@
                 <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();"
                   style="cursor: pointer;">
                   <h3 class="d-flex align-items-center">
-                    {{ class_rollout.room.room_name }} ({{ class_rollout.start_time }}) <i style="font-size: 25px;"
-                      class="bi bi-key custom-icon-size mr-2"></i>
+                    {{ class_rollout.room.room_name }} <br>({{ class_rollout.start_time }}) <i style="font-size: 25px;"
+                      class="bi bi-key custom-icon-size pl-4"></i>
                   </h3>
                 </div>
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
@@ -534,7 +534,9 @@
               <div class="details">
                 <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();"
                   style="cursor: pointer;">
-                  <h3 class="bi bi-key"> {{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})
+                  <h3 class="d-flex align-items-center">
+                    {{ class_rollout.room.room_name }} <br>({{ class_rollout.start_time }}) <i style="font-size: 25px;"
+                      class="bi bi-key custom-icon-size pl-4"></i>
                   </h3>
                 </div>
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
@@ -574,7 +576,9 @@
               <div class="details">
                 <div class="clickable-area" onclick="document.getElementById('qrForm_{{ class_rollout.id }}').submit();"
                   style="cursor: pointer;">
-                  <h3 class="bi bi-key"> {{ class_rollout.room.room_name }} - ({{ class_rollout.start_time }})
+                  <h3 class="d-flex align-items-center">
+                    {{ class_rollout.room.room_name }} <br>({{ class_rollout.start_time }}) <i style="font-size: 25px;"
+                      class="bi bi-key custom-icon-size pl-4"></i>
                   </h3>
                 </div>
                 <p>{{ class_rollout.start_time }} - {{ class_rollout.end_time }} </p>
@@ -672,6 +676,7 @@
 });
 
   </script>
+  
   <script>
     // Disable buttons after click
     document.getElementById("punchInForm").addEventListener("submit", function () {
