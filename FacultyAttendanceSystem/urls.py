@@ -17,7 +17,7 @@ urlpatterns = [
     path('Students/', Faculty_login_required(students_views.Studentsheet.as_view()), name='Students'),
     path('datasheet/', Faculty_login_required(students_views.Datasheet.as_view()), name='datasheet'),
     path('download_attendance', Faculty_login_required(students_views.download_attendance_data), name='download_attendance_data'),
-    path('download_all_attendance/', Faculty_login_required(students_views.download_all_attendance_data), name='download_all_attendance_data'),
+    path('download_all_attendance/', Faculty_login_required(students_views.Classattendance.as_view()), name='download_all_attendance_data'),
     path('datawizard/', include('data_wizard.urls')),
     path('logout/', Faculty_login_required(faculty_views.logout), name='logout'),
     path('student-logout/', student_login_required(students_views.student_logout_view), name='studentlogout'),  # Corrected path for student logout

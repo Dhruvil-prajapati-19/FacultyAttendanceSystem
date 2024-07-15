@@ -1,7 +1,8 @@
+from zipfile import ZipFile
 from django.shortcuts import  render, redirect
 from django.views import View
 from django.contrib import messages
-from FacultyAttendanceSystem.models import  AdminCredentials,  StudentsRollouts,Students
+from FacultyAttendanceSystem.models import  AdminCredentials, Semester,  StudentsRollouts,Students
 from django.core.cache import cache
 
 class Studentsheet(View):
@@ -78,9 +79,11 @@ class Datasheet(View):
                 faculty = AdminCredentials.objects.get(id=logged_user).faculty
             except AdminCredentials.DoesNotExist:
                 pass
+        sem = Semester.objects.all()    
         context = {
             'form': form,
             'faculty_name': faculty
+            , 'semesters': sem
         }
         return render(request, 'datasheet.html', context)
 
@@ -130,58 +133,90 @@ class Datasheet(View):
         # If form is invalid, render the form again with validation errors
         return render(request, 'datasheet.html', {'form': form})
 
-def download_all_attendance_data(request):
-    # Fetch all unique students
-    students = StudentsRollouts.objects.values(
-        'student__enrollment_no',
-        'student__student_name'
-    ).distinct()
+class Classattendance(View):
 
-    # Initialize the workbook and active sheet
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Attendance Data"
+    def post(self, request):
+        semester_id = request.POST.get('semester_id')
+        if not semester_id:
+            messages.error(request, 'Semester is required.')
+            return render(request, 'datasheet.html', {'semesters': Semester.objects.all()})
 
-    # Add the headers
-    headers = ["Enrollment No", "Student Name", "Total lectures", "Total Present", "Attendance Percentage"]
-    ws.append(headers)
+        # Fetch the selected semester
+        try:
+            selected_semester = Semester.objects.get(id=semester_id)
+        except Semester.DoesNotExist:
+            messages.error(request, 'Selected semester does not exist.')
+            return render(request, 'datasheet.html', {'semesters': Semester.objects.all()})
 
-    # Loop through each student to calculate attendance data
-    for student in students:
-        enrollment_no = student['student__enrollment_no']
-        student_name = student['student__student_name']
+        # Fetch all unique students filtered by the selected semester
+        students = StudentsRollouts.objects.filter(
+            timetable_rollout__class_id__semester_id=semester_id
+        ).values(
+            'student__enrollment_no',
+            'student__student_name'
+        ).distinct()
 
-        # Calculate total attendance and total present
-        total_attendance = StudentsRollouts.objects.filter(student__enrollment_no=enrollment_no).count()
-        total_present = StudentsRollouts.objects.filter(student__enrollment_no=enrollment_no, student_attendance=True).count()
+        # Initialize the workbook and active sheet
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Attendance Data"
 
-        # Calculate attendance percentage
-        attendance_percentage = (total_present / total_attendance) * 100 if total_attendance > 0 else 0
+        # Add the headers
+        headers = ["Enrollment No", "Student Name", "Total Lectures", "Total Present", "Attendance Percentage"]
+        ws.append(headers)
 
-        # Append the data to the sheet
-        row = [
-            enrollment_no,
-            student_name,
-            total_attendance,
-            total_present,
-            f"{attendance_percentage:.2f}%"
-        ]
-        ws.append(row)
+        # Loop through each student to calculate attendance data
+        for student in students:
+            enrollment_no = student['student__enrollment_no']
+            student_name = student['student__student_name']
 
-    # Save the workbook to a bytes buffer
-    buffer = BytesIO()
-    wb.save(buffer)
-    buffer.seek(0)
+            # Calculate total attendance and total present for the selected semester
+            total_attendance = StudentsRollouts.objects.filter(
+                student__enrollment_no=enrollment_no,
+                timetable_rollout__class_id__semester_id=semester_id
+            ).count()
+            total_present = StudentsRollouts.objects.filter(
+                student__enrollment_no=enrollment_no,
+                timetable_rollout__class_id__semester_id=semester_id,
+                student_attendance=True
+            ).count()
 
-    # Create a HTTP response with the Excel file
-    response = HttpResponse(buffer, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=AttendanceData.xlsx'
+            # Calculate attendance percentage
+            attendance_percentage = (total_present / total_attendance) * 100 if total_attendance > 0 else 0
 
-    return response
+            # Append the data to the sheet
+            row = [
+                enrollment_no,
+                student_name,
+                total_attendance,
+                total_present,
+                f"{attendance_percentage:.2f}%"
+            ]
+            ws.append(row)
+
+        # Save the workbook to a bytes buffer
+        buffer = BytesIO()
+        wb.save(buffer)
+        buffer.seek(0)
+
+        # Create an HTTP response with the Excel file
+        filename = f"AttendanceData_{selected_semester.name}_{selected_semester.term_date}.xlsx"
+        response = HttpResponse(buffer, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+        return response
+
+    def get(self, request):
+        # Handle GET requests here if needed
+        semesters = Semester.objects.all()
+        return render(request, 'datasheet.html', {'semesters': semesters})
 
 def download_attendance_data(request):
-    # Fetch the unique subjects, faculties, start times, and end times
-    subject_faculty_pairs = StudentsRollouts.objects.values(
+    logged_user = request.session.get('logged_user')
+    # Fetch the unique subjects, faculties, start times, and end times for the logged-in user
+    subject_faculty_pairs = StudentsRollouts.objects.filter(
+        timetable_rollout__faculty__id=logged_user
+    ).values(
         'timetable_rollout__subject__name',
         'timetable_rollout__faculty__name',
         'timetable_rollout__class_id__Student_Class__Students_class_name',
@@ -192,7 +227,7 @@ def download_attendance_data(request):
 
     # Initialize a dictionary to hold the Excel files
     excel_files = {}
-
+    
     for pair in subject_faculty_pairs:
         subject_name = pair['timetable_rollout__subject__name']
         faculty_name = pair['timetable_rollout__faculty__name']
@@ -282,8 +317,6 @@ def download_attendance_data(request):
     # Create a HTTP response with the Excel files
     response = HttpResponse(content_type='application/zip')
     response['Content-Disposition'] = 'attachment; filename=StudentRollouts.zip'
-
-    from zipfile import ZipFile
 
     with ZipFile(response, 'w') as zip_file:
         for filename, file_buffer in excel_files.items():

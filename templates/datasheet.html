@@ -40,8 +40,24 @@
                   <tbody>
                     <tr>
                       <td>
-                        <a href="{% url 'download_all_attendance_data' %}">
-                          <button type="submit" class="btn btn-outline-dark btn-sm btn-block">Download All Attendance Data</button>
+                        <div class="row justify-content-center">
+                          <div>
+                              <form id="semester-form" method="post" action="{% url 'download_all_attendance_data' %}">
+                                  {% csrf_token %}
+                                  <div class="input-group">
+                                    <select style="width: auto ;"  class="form-control" name="semester_id" id="semester">
+                                        {% for semester in semesters %}
+                                            <option value="{{ semester.id }}">{{ semester.name }} - [{{ semester.term_date }}]</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="input-group-append">
+                                      <button class="btn btn-outline-dark" type="submit" data-bs-toggle="tooltip" title="all Students Attendance Record ">
+                                          Download 
+                                      </button>
+                                  </div>                                  
+                                </div>
+                            </form>
+                          </div>
                         </a>
                       </td>
                       <td>
@@ -119,7 +135,15 @@
       </div>
       <div id="top-of-site-pixel-anchor"></div>
     </main>
-    
+
+    <script>
+      // Initialize tooltips
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl)
+      });
+  </script>
+  
     <script>
     document.addEventListener("DOMContentLoaded", function() {
       const percentageElements = document.querySelectorAll('.attendance-percentage');
