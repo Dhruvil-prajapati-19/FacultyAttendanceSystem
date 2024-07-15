@@ -34,14 +34,25 @@ class StudentLoginMixin:
         student_password = request.POST.get('student_password')
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
+        device_fingerprint = request.POST.get('device_fingerprint')
 
         if not latitude or not longitude:
             messages.error(request, 'Location not provided')
             return render(request, 'login.html')
 
-        if enrollment_no and student_password:
+        if enrollment_no and student_password and device_fingerprint:
             try:
                 student = Students.objects.get(enrollment_no=enrollment_no)
+
+                # Check if the current device fingerprint matches the stored one
+                if student.device_identifier and student.device_identifier != device_fingerprint:
+                    messages.error(request, f"This enrollment number is already associated with another device. If this is not by you, please contact your admin.")
+                    return render(request, 'login.html')
+
+                # Update student's device identifier if not already set
+                if not student.device_identifier:
+                    student.device_identifier = device_fingerprint
+
                 if student.Student_password == student_password:
                     user_location = (float(latitude), float(longitude))
                     distance = geodesic(ALLOWED_LOCATION, user_location).km
@@ -52,34 +63,11 @@ class StudentLoginMixin:
                     if not student.is_active:
                         messages.error(request, 'You are deactivated by admin. Please contact the administration for assistance.')
                         return render(request, 'login.html')
-                    
-                    # Retrieve device identifier from cookies
-                    device_identifier = request.COOKIES.get('device_identifier')
-                    if not device_identifier:
-                        # Generate a new UUID as the device identifier
-                        device_identifier = str(uuid.uuid4())
-                        response = render(request, 'login.html', {'error_message': "Please try again."})
-                        response.set_cookie('device_identifier', device_identifier, max_age=None, expires=None)
-                        return response
 
-                    # Check if the current device identifier is already used by another student
-                    active_session_same_device = Students.objects.filter(device_identifier=device_identifier).exclude(enrollment_no=enrollment_no).first()
-
-                    if active_session_same_device:
-                        messages.error(request, f"Access Denied: You are already associated with {active_session_same_device.enrollment_no}. If this is not your account, please contact your admin")
-                        return render(request, 'login.html')
-
-                    # Check if the student's enrollment number is already associated with a different device
-                    if student.device_identifier and student.device_identifier != device_identifier:
-                        messages.error(request, f"This enrollment number is already associated with another device. If this is not by you, please contact your admin.")
-                        return render(request, 'login.html')
-
-                    # Update student's device identifier and save the record
-                    student.device_identifier = device_identifier
                     student.last_login = timezone.now()
                     student.save()
 
-                    # Store the student ID in the session
+                    # Store the student ID in the session (optional)
                     request.session['student_id'] = student.id
 
                     return redirect('welcome')

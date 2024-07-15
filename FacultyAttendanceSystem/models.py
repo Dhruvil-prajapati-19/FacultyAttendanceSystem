@@ -99,7 +99,7 @@ class Students(models.Model):
     student_name = models.CharField(max_length=100, verbose_name='Student Name', null=True, blank=True)
     Student_Class = models.ForeignKey(StudentClass, on_delete=models.SET_NULL, blank=True, null=True, verbose_name='Student Class')
     Student_password = models.CharField(max_length=50, verbose_name='Student Password', blank=True, null=True)
-    device_identifier = models.CharField(max_length=300, blank=True, null=True)
+    device_identifier = models.CharField(max_length=300, blank=True, null=True, unique=True)  # Unique device identifier
     last_login = models.DateTimeField(blank=True, null=True)
     is_active = models.BooleanField(default=True, verbose_name='Is Active')
 
@@ -108,6 +108,7 @@ class Students(models.Model):
 
     def __str__(self):
         return f'{self.student_name} ({self.enrollment_no}) - {self.Student_Class.Students_class_name if self.Student_Class else ""}'
+
 
 class Timetable(models.Model):
     CLASS_TYPE_CHOICES = (
