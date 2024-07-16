@@ -144,7 +144,7 @@ class MidexamschedulerAdmin(admin.ModelAdmin):
 
 @admin.register(Students)
 class StudentsAdmin(admin.ModelAdmin):
-    list_display = ('enrollment_no', 'student_name', 'get_students_class_name', 'Student_password' , 'is_active' , 'device_identifier','last_login')
+    list_display = ('enrollment_no', 'student_name', 'get_students_class_name', 'Student_password' , 'is_active' ,'last_login')
     list_filter = ('Student_Class', 'is_active',    )
     search_fields = ('enrollment_no', 'student_name')
     list_editable = ('is_active',)

@@ -13,7 +13,6 @@
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
   <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
-  <link href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
   <link href="{% static 'vendor/boxicons/css/boxicons.min.css' %}" rel="stylesheet">
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
 
@@ -23,10 +22,8 @@
     />
     <link href="https://fonts.googleapis.com/css?family=Courgette" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap-reboot.css" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap-reboot.css"/>
-   
+
 {% block link %}
-   <!-- <script src="{% static 'js/index.js' %}"></script> -->
    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 {% endblock %}
@@ -247,10 +244,8 @@
           <form class="form-inline" method="GET" action="{% url 'AttendanceSheet' %}" style="margin: 10px auto;">
             <div class="input-group">
               <input type="date" id="weekpicker" class="form-control form-control-sm" name="weekpicker">
-              <!-- Added form-control-sm class for smaller input -->
               <div class="input-group-append">
                 <button type="submit" class="btn btn-sm btn-outline-primary">Selete Date </button>
-                <!-- Added btn-sm class for smaller button -->
               </div>
             </div>
           </form>
@@ -289,7 +284,6 @@
     <div class="wrapper">
       <div class="table">
         <div class="headers">
-          {% if success %}
           <div class="scroller syncscroll" name="myElements">
             <div class="track">
               <div class="heading">{{ monday_date }}</div>
@@ -314,11 +308,6 @@
             </div>
           </div>
         </div>
-        {% else %}
-        <div class="alert alert-primary" role="alert">
-          if you find this message then this page is not gonna work properly error !1 ^_^
-        </div>
-        {% endif %}
 
         <div class="tracks syncscroll" name="myElements">
           <div class="track yellow">

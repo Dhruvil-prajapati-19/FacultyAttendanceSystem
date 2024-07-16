@@ -3,9 +3,7 @@ import uuid
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import AdminCredentials, Students
-from django.db import IntegrityError
 from django.utils import timezone
-from django.db import IntegrityError
 from geopy.distance import geodesic # type: ignore
 
 
@@ -34,36 +32,33 @@ class StudentLoginMixin:
         student_password = request.POST.get('student_password')
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
-        device_fingerprint = request.POST.get('device_fingerprint')
 
+        # Check if location is provided
         if not latitude or not longitude:
             messages.error(request, 'Location not provided')
             return render(request, 'login.html')
 
-        if enrollment_no and student_password and device_fingerprint:
+        # Check if enrollment number and password are provided
+        if enrollment_no and student_password:
             try:
+                # Retrieve the student by enrollment number
                 student = Students.objects.get(enrollment_no=enrollment_no)
 
-                # Check if the current device fingerprint matches the stored one
-                if student.device_identifier and student.device_identifier != device_fingerprint:
-                    messages.error(request, f"This enrollment number is already associated with another device. If this is not by you, please contact your admin.")
-                    return render(request, 'login.html')
-
-                # Update student's device identifier if not already set
-                if not student.device_identifier:
-                    student.device_identifier = device_fingerprint
-
+                # Validate the password
                 if student.Student_password == student_password:
+                    # Calculate the distance from the allowed location
                     user_location = (float(latitude), float(longitude))
                     distance = geodesic(ALLOWED_LOCATION, user_location).km
                     if distance > MAX_DISTANCE_KM:
                         messages.error(request, 'You are not within the allowed location')
                         return render(request, 'login.html')
 
+                    # Check if the student is active
                     if not student.is_active:
                         messages.error(request, 'You are deactivated by admin. Please contact the administration for assistance.')
                         return render(request, 'login.html')
 
+                    # Update the student's last login time
                     student.last_login = timezone.now()
                     student.save()
 
@@ -76,9 +71,6 @@ class StudentLoginMixin:
                     return render(request, 'login.html')
             except Students.DoesNotExist:
                 messages.error(request, 'There is no such student exist with this enrollment number')
-                return render(request, 'login.html')
-            except IntegrityError:
-                messages.error(request, f"This enrollment number is already associated with another device. If this is not you, please contact your admin.")
                 return render(request, 'login.html')
 
         return render(request, 'login.html', {'error_message': "Please provide your credentials"})

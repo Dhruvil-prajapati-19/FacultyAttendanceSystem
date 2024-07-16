@@ -98,13 +98,10 @@ class Students(models.Model):
     enrollment_no = models.CharField(max_length=20, verbose_name='Enrollment Number', null=True, blank=True)
     student_name = models.CharField(max_length=100, verbose_name='Student Name', null=True, blank=True)
     Student_Class = models.ForeignKey(StudentClass, on_delete=models.SET_NULL, blank=True, null=True, verbose_name='Student Class')
-    Student_password = models.CharField(max_length=50, verbose_name='Student Password', blank=True, null=True)
-    device_identifier = models.CharField(max_length=300, blank=True, null=True, unique=True)  # Unique device identifier
+    Student_password = models.CharField(max_length=50, verbose_name='Student Password', blank=True, null=True) # Unique device identifier
     last_login = models.DateTimeField(blank=True, null=True)
     is_active = models.BooleanField(default=True, verbose_name='Is Active')
 
-    class Meta:
-        unique_together = ['device_identifier', 'enrollment_no']
 
     def __str__(self):
         return f'{self.student_name} ({self.enrollment_no}) - {self.Student_Class.Students_class_name if self.Student_Class else ""}'
@@ -161,7 +158,7 @@ class TimeTableRollouts(models.Model):
     room = models.ForeignKey(Room, null=True, blank=True, on_delete=models.SET_NULL)
     subject = models.ForeignKey(Subject, null=True, blank=True, verbose_name='Subject', on_delete=models.SET_NULL)
     duration = models.ForeignKey(ClassDuration, null=True, blank=True, related_name='class_rollout', on_delete=models.SET_NULL)
-    class_id = models.ForeignKey(Timetable, null=True, blank=True, related_name='class_rollout', on_delete=models.SET_NULL, verbose_name='Class definition')
+    class_id = models.ForeignKey(Timetable, null=True, blank=True, related_name='class_rollout', on_delete=models.CASCADE, verbose_name='Class definition')
     class_status = models.CharField('Class status', max_length=200, null=True, blank=True, choices=STATUSES_CHOICES, default='scheduled')
     class_attedance = models.BooleanField(default=False, verbose_name='Faculty Attendance')
     created_by = models.ForeignKey(User, related_name='class_created_by', null=True, on_delete=models.SET_NULL)
@@ -180,7 +177,7 @@ class TimeTableRollouts(models.Model):
 
 class StudentsRollouts(models.Model):
 
-    timetable_rollout = models.ForeignKey(TimeTableRollouts, related_name='student_rollouts', on_delete=models.SET_NULL, null=True, verbose_name='Timetable Rollout')
+    timetable_rollout = models.ForeignKey(TimeTableRollouts, related_name='student_rollouts', on_delete=models.CASCADE, null=True, verbose_name='Timetable Rollout')
     student = models.ForeignKey(Students, verbose_name='Student', null=True, on_delete=models.SET_NULL)
     student_attendance = models.BooleanField(default=False, verbose_name='Student Attendance')
     created_by = models.ForeignKey(User, related_name='student_class_created_by', null=True, on_delete=models.SET_NULL)

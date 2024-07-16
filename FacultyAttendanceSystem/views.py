@@ -100,7 +100,6 @@ class Attendancesheet(View):
             'punch_time': punch_date_time,
             'is_punch_out': is_punch_out,
             'todays_date': todays_date,
-            'success': True,
             'selected_date': selected_date.strftime('%Y-%m-%d'),
             'monday_date': monday_date.strftime('%a %d %b, %Y'),
             'tuesday_date': tuesday_date.strftime('%a %d %b, %Y'),
