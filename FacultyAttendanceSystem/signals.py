@@ -1,10 +1,9 @@
 from datetime import timedelta
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from django.utils import timezone
 from .models import (
     Timetable, TimeTableRollouts, Students, StudentsRollouts,
-    EventScheduler, HolidayScheduler, Midexamscheduler
+    HolidayScheduler, Midexamscheduler
 )
 
 @receiver(post_save, sender=Timetable)
@@ -96,23 +95,6 @@ def update_students_rollouts(instance):
         rollout.modified_by = instance.modified_by_user
         rollout.save()
 
-
-@receiver(post_save, sender=EventScheduler)
-@receiver(post_delete, sender=EventScheduler)
-def handle_event_scheduler(sender, instance, **kwargs):
-    event_date = instance.date
-    event_start_time = instance.start_time
-    event_end_time = instance.end_time
-    event_faculty = instance.faculty.all()
-
-    # Remove classes for the specified faculty within the event time
-    for faculty in event_faculty:
-        TimeTableRollouts.objects.filter(
-            faculty=faculty,
-            class_date=event_date,
-            start_time__gte=event_start_time,
-            end_time__lte=event_end_time
-        ).delete()
 
 @receiver(post_save, sender=HolidayScheduler)
 @receiver(post_delete, sender=HolidayScheduler)

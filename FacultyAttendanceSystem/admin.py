@@ -115,16 +115,6 @@ class SemesterAdmin(admin.ModelAdmin):
     search_fields = ('name',)
     list_filter = ('term_date', 'start_date', 'end_date')
 
-@admin.register(models.EventScheduler)
-class EventSchedulerAdmin(admin.ModelAdmin):
-    list_display = ('get_faculty_names', 'date', 'start_time', 'end_time', 'Title', 'Description')
-    list_filter = ('date', 'start_time', 'end_time', 'Title')
-    search_fields = ('Title', 'Description')
-    filter_horizontal = ('faculty',)
-
-    def get_faculty_names(self, obj):
-        return ", ".join([faculty.name for faculty in obj.faculty.all()])
-    get_faculty_names.short_description = 'Faculty'
 
 @admin.register(models.HolidayScheduler)
 class HolidaySchedulerAdmin(admin.ModelAdmin):

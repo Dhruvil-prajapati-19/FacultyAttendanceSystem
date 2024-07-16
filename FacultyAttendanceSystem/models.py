@@ -61,17 +61,6 @@ class WorkShift(models.Model):
     def __str__(self):
         return f"{self.faculty.name} - {self.date} - {self.punch_in} - {self.punch_out}"
 
-class EventScheduler(models.Model):
-    faculty = models.ManyToManyField(Faculty, blank=True, verbose_name='Faculty')
-    date = models.DateField(null=True, blank=True, verbose_name="Event Date")
-    start_time = models.TimeField(verbose_name='start event')
-    end_time = models.TimeField(verbose_name='end event')
-    Title = models.CharField(max_length=255, blank=True, null=True, verbose_name="Event Title")
-    Description = models.CharField(max_length=400, blank=True, null=True, verbose_name="Event Description")
-
-    def __str__(self):
-        return f'{self.date} - {self.Title} - {self.Description}'
-    
 class HolidayScheduler(models.Model):
     date = models.DateField(null=True, blank=True, verbose_name="Holiday event")
     Title = models.CharField(max_length=255, blank=True, null=True, verbose_name="Title")
@@ -138,7 +127,7 @@ class Timetable(models.Model):
     modified_by_user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='class_definition_modifier')
     start_time = models.TimeField(null=True, blank=True, verbose_name="Class Start Time")
     end_time = models.TimeField(null=True, blank=True, verbose_name="Class End Time")
-    
+
     def __str__(self):
         semester_name = self.semester.name if self.semester else ""
         subject_short_name = self.subject.short_name if self.subject else ""
@@ -176,7 +165,6 @@ class TimeTableRollouts(models.Model):
         return f"Class for: {subject} at {self.class_date} from {start_time_str} to {end_time_str}"
 
 class StudentsRollouts(models.Model):
-
     timetable_rollout = models.ForeignKey(TimeTableRollouts, related_name='student_rollouts', on_delete=models.CASCADE, null=True, verbose_name='Timetable Rollout')
     student = models.ForeignKey(Students, verbose_name='Student', null=True, on_delete=models.SET_NULL)
     student_attendance = models.BooleanField(default=False, verbose_name='Student Attendance')
