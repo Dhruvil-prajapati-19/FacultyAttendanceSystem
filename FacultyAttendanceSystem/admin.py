@@ -1,7 +1,12 @@
+from django.urls import path
 from django.contrib import admin
 from . import models
 from .models import Subject, Timetable, HolidayScheduler, Midexamscheduler,Students, Room
 import data_wizard # type: ignore
+import shutil
+import os
+from django.shortcuts import redirect
+from django.contrib import messages
 
 data_wizard.register(Subject)
 data_wizard.register(Students)
@@ -67,6 +72,29 @@ class TimetableAdmin(admin.ModelAdmin):
     list_display = ('faculty', 'class_type', 'formatted_Student_Class', 'formatted_semester', 'subject', 'room', 'formatted_first_class_date', 'duration', 'start_time', 'end_time' )
     list_filter = ('class_type', 'semester', 'faculty', 'subject', 'room', 'create_date', 'modified_date', 'first_class_date', 'start_time', 'end_time')
     search_fields = ('semester__name', 'faculty__name', 'subject__name', 'room__room_name', 'faculty__short_name')
+
+    change_list_template = "admin/timetable_changelist.html"  # Custom template for the change list view
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('delete-datawizard/', self.admin_site.admin_view(self.delete_datawizard), name='delete-datawizard')
+        ]
+        return custom_urls + urls
+    def delete_datawizard(self, request):
+            datawizard_path = os.path.join( 'media', 'datawizard')
+            print(datawizard_path)
+            try:
+                shutil.rmtree(datawizard_path)
+                self.message_user(request, "datawizard directory deleted successfully!", messages.SUCCESS)
+            except Exception as e:
+                self.message_user(request, f"Error deleting directory: {str(e)}", messages.ERROR)
+            return redirect('admin:FacultyAttendanceSystem_timetable_changelist')
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['custom_button'] = True
+        return super().changelist_view(request, extra_context=extra_context) 
 
     def formatted_semester(self, obj):
         if obj.semester:

@@ -16,17 +16,17 @@ urlpatterns = [
     path('Attendancesheet/', Faculty_login_required(faculty_views.Attendancesheet.as_view()), name='AttendanceSheet'),
     path('Students/', Faculty_login_required(students_views.Studentsheet.as_view()), name='Students'),
     path('datasheet/', Faculty_login_required(students_views.Datasheet.as_view()), name='datasheet'),
-    path('download_attendance', Faculty_login_required(students_views.download_attendance_data), name='download_attendance_data'),
+    path('download_attendance', Faculty_login_required(students_views.AttendanceDownloadView.as_view()), name='download_attendance_data'),
     path('download_all_attendance/', Faculty_login_required(students_views.Classattendance.as_view()), name='download_all_attendance_data'),
     path('datawizard/', include('data_wizard.urls')),
     path('logout/', Faculty_login_required(faculty_views.logout), name='logout'),
-    path('student-logout/', student_login_required(students_views.student_logout_view), name='studentlogout'),  # Corrected path for student logout
+    path('student-logout/', student_login_required(students_views.student_logout_view), name='studentlogout'), 
     path('welcome/', student_login_required(students_views.WelcomeView.as_view()), name='welcome'),
     path('download/', Faculty_login_required(faculty_views.download_data), name='download_data'),
     path('index_redirect/', Faculty_login_required(faculty_views.index_redirect), name='index_redirect'),
     path('pages-error-404/', Faculty_login_required(faculty_views.error_404_view), name='pages-error-404'),
     path('punch/', Faculty_login_required(faculty_views.WorkShiftView.punch), name='punch'),
-    path('download_work_shift/', Faculty_login_required(faculty_views.Download_WorkShift), name='download_work_shift'),  # Corrected for function-based view
+    path('download_work_shift/', Faculty_login_required(faculty_views.Download_WorkShift), name='download_work_shift'), 
     path('<int:class_rollout>/student-in-class/', Faculty_login_required(faculty_views.StudentInClassView.as_view()), name='student-in-class'),
     
 ]

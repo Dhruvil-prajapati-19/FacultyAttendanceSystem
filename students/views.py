@@ -82,8 +82,8 @@ class Datasheet(View):
         sem = Semester.objects.all()    
         context = {
             'form': form,
-            'faculty_name': faculty
-            , 'semesters': sem
+            'faculty_name': faculty,
+            'semesters': sem
         }
         return render(request, 'datasheet.html', context)
 
@@ -96,8 +96,7 @@ class Datasheet(View):
             try:
                 student = Students.objects.get(enrollment_no=enrollment_no)
             except Students.DoesNotExist:
-                messages.error(request, 'Student does not exist for the given enrollment number.')
-                return render(request, 'datasheet.html', {'form': form})
+                return redirect('datasheet')  # Redirect back to the same view
             
             # Fetch all rollouts for the student
             rollouts = StudentsRollouts.objects.filter(student=student)
@@ -211,115 +210,133 @@ class Classattendance(View):
         semesters = Semester.objects.all()
         return render(request, 'datasheet.html', {'semesters': semesters})
 
-def download_attendance_data(request):
-    logged_user = request.session.get('logged_user')
-    # Fetch the unique subjects, faculties, start times, and end times for the logged-in user
-    subject_faculty_pairs = StudentsRollouts.objects.filter(
-        timetable_rollout__faculty__id=logged_user
-    ).values(
-        'timetable_rollout__subject__name',
-        'timetable_rollout__faculty__name',
-        'timetable_rollout__class_id__Student_Class__Students_class_name',
-        'timetable_rollout__class_id__semester__name',
-        'timetable_rollout__start_time',
-        'timetable_rollout__end_time'
-    ).distinct()
+class AttendanceDownloadView(View):
+    template_name = 'attendance_download.html'
 
-    # Initialize a dictionary to hold the Excel files
-    excel_files = {}
-    
-    for pair in subject_faculty_pairs:
-        subject_name = pair['timetable_rollout__subject__name']
-        faculty_name = pair['timetable_rollout__faculty__name']
-        student_class_name = pair['timetable_rollout__class_id__Student_Class__Students_class_name']
-        semester_name = pair['timetable_rollout__class_id__semester__name']
-        start_time = pair['timetable_rollout__start_time'].strftime('%H-%M')  # Replacing colon with hyphen
-        end_time = pair['timetable_rollout__end_time'].strftime('%H-%M')  # Replacing colon with hyphen
+    def get(self, request):
+        # Fetch all Semester objects to send to the template
+        semesters = Semester.objects.all()
+        context = {'semesters': semesters}
+        return render(request, self.template_name, context)
 
-        # Fetch all unique class_dates for the current subject, faculty, start time, and end time
-        class_dates = StudentsRollouts.objects.filter(
-            timetable_rollout__subject__name=subject_name,
-            timetable_rollout__faculty__name=faculty_name,
-            timetable_rollout__class_id__Student_Class__Students_class_name=student_class_name,
-            timetable_rollout__class_id__semester__name=semester_name,
-            timetable_rollout__start_time=pair['timetable_rollout__start_time'],
-            timetable_rollout__end_time=pair['timetable_rollout__end_time']
-        ).values_list('timetable_rollout__class_date', flat=True).distinct().order_by('timetable_rollout__class_date')
+    def post(self, request):
+        logged_user = request.session.get('logged_user')
+        selected_semester_id = request.POST.get('semester')
 
-        # Create a workbook and a sheet
-        wb = Workbook()
-        sheet_title = f"{subject_name} - {faculty_name} ({start_time}-{end_time})"
-        sheet_title = sheet_title.replace(":", "-")  # Replace invalid characters in sheet title
-        ws = wb.active
-        ws.title = sheet_title
+        # Fetch the selected semester
+        try:
+            selected_semester = Semester.objects.get(id=selected_semester_id)
+        except Semester.DoesNotExist:
+            return HttpResponse("Selected semester does not exist", status=400)
 
-        # Add the header information
-        header_info = [
-            f"Subject: {subject_name}",
-            f"Faculty: {faculty_name}",
-            f"Class: {student_class_name}",
-            f"Semester: {semester_name}",
-            f"Time: {start_time} - {end_time}"
-        ]
-        for info in header_info:
-            ws.append([info])
-        ws.append([])  # Add an empty row for separation
+        # Fetch the unique subjects, faculties, start times, and end times for the logged-in user and selected semester
+        subject_faculty_pairs = StudentsRollouts.objects.filter(
+            timetable_rollout__faculty__id=logged_user,
+            timetable_rollout__class_id__semester=selected_semester
+        ).values(
+            'timetable_rollout__subject__name',
+            'timetable_rollout__faculty__name',
+            'timetable_rollout__class_id__Student_Class__Students_class_name',
+            'timetable_rollout__class_id__semester__name',
+            'timetable_rollout__start_time',
+            'timetable_rollout__end_time'
+        ).distinct()
 
-        # Define the headers (excluding the dynamic date columns for now)
-        static_headers = ["enrollment_no", "student_name"]
+        # Initialize a dictionary to hold the Excel files
+        excel_files = {}
 
-        # Add the dynamic date headers
-        dynamic_headers = [date.strftime('%Y-%m-%d') for date in class_dates]
-        headers = static_headers + dynamic_headers
-        ws.append(headers)
+        for pair in subject_faculty_pairs:
+            subject_name = pair['timetable_rollout__subject__name']
+            faculty_name = pair['timetable_rollout__faculty__name']
+            student_class_name = pair['timetable_rollout__class_id__Student_Class__Students_class_name']
+            semester_name = pair['timetable_rollout__class_id__semester__name']
+            start_time = pair['timetable_rollout__start_time'].strftime('%H-%M')
+            end_time = pair['timetable_rollout__end_time'].strftime('%H-%M')
 
-        # Fetch the data for the current subject, faculty, and time with correct date filtering
-        student_rollouts = StudentsRollouts.objects.select_related(
-            'student',
-            'timetable_rollout__subject',
-            'timetable_rollout__class_id__semester',
-            'timetable_rollout__class_id__Student_Class'
-        ).filter(
-            timetable_rollout__subject__name=subject_name,
-            timetable_rollout__faculty__name=faculty_name,
-            timetable_rollout__class_id__Student_Class__Students_class_name=student_class_name,
-            timetable_rollout__class_id__semester__name=semester_name,
-            timetable_rollout__start_time=pair['timetable_rollout__start_time'],
-            timetable_rollout__end_time=pair['timetable_rollout__end_time'],
-            timetable_rollout__class_date__in=class_dates  # Filter by the fetched class_dates
-        )
+            # Fetch all unique class_dates for the current subject, faculty, start time, and end time
+            class_dates = StudentsRollouts.objects.filter(
+                timetable_rollout__subject__name=subject_name,
+                timetable_rollout__faculty__name=faculty_name,
+                timetable_rollout__class_id__Student_Class__Students_class_name=student_class_name,
+                timetable_rollout__class_id__semester=selected_semester,
+                timetable_rollout__start_time=pair['timetable_rollout__start_time'],
+                timetable_rollout__end_time=pair['timetable_rollout__end_time']
+            ).values_list('timetable_rollout__class_date', flat=True).distinct().order_by('timetable_rollout__class_date')
 
-        # Create a dictionary to store attendance by student and date
-        attendance_data = {}
-        for rollout in student_rollouts:
-            key = (rollout.student.enrollment_no, rollout.student.student_name)
-            if key not in attendance_data:
-                attendance_data[key] = {'attendance': {}}
-            class_date = rollout.timetable_rollout.class_date.strftime('%Y-%m-%d')
-            attendance_data[key]['attendance'][class_date] = "Present" if rollout.student_attendance else "AB"
+            # Create a workbook and a sheet
+            wb = Workbook()
+            sheet_title = f"{subject_name} - {faculty_name} ({start_time}-{end_time})"
+            sheet_title = sheet_title.replace(":", "-")
+            ws = wb.active
+            ws.title = sheet_title
 
-        # Fill the Excel sheet with data
-        for key, data in attendance_data.items():
-            row = [
-                key[0],  # enrollment_no
-                key[1],  # student_name
+            # Add the header information
+            header_info = [
+                f"Subject: {subject_name}",
+                f"Faculty: {faculty_name}",
+                f"Class: {student_class_name}",
+                f"Semester: {semester_name}",
+                f"Time: {start_time} - {end_time}"
             ]
-            for date in dynamic_headers:
-                row.append(data['attendance'].get(date, "A"))  # Default to "A" if no record for the date
-            ws.append(row)
+            for info in header_info:
+                ws.append([info])
+            ws.append([])  # Add an empty row for separation
 
-        # Save the workbook to a bytes buffer
-        buffer = BytesIO()
-        wb.save(buffer)
-        buffer.seek(0)
-        excel_files[f"{subject_name}_{faculty_name}_{start_time}_{end_time}.xlsx"] = buffer
+            # Define the headers (excluding the dynamic date columns for now)
+            static_headers = ["enrollment_no", "student_name"]
 
-    # Create a HTTP response with the Excel files
-    response = HttpResponse(content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename=StudentRollouts.zip'
+            # Add the dynamic date headers
+            dynamic_headers = [date.strftime('%Y-%m-%d') for date in class_dates]
+            headers = static_headers + dynamic_headers
+            ws.append(headers)
 
-    with ZipFile(response, 'w') as zip_file:
-        for filename, file_buffer in excel_files.items():
-            zip_file.writestr(filename, file_buffer.getvalue())
+            # Fetch the data for the current subject, faculty, and time with correct date filtering
+            student_rollouts = StudentsRollouts.objects.select_related(
+                'student',
+                'timetable_rollout__subject',
+                'timetable_rollout__class_id__semester',
+                'timetable_rollout__class_id__Student_Class'
+            ).filter(
+                timetable_rollout__subject__name=subject_name,
+                timetable_rollout__faculty__name=faculty_name,
+                timetable_rollout__class_id__Student_Class__Students_class_name=student_class_name,
+                timetable_rollout__class_id__semester=selected_semester,
+                timetable_rollout__start_time=pair['timetable_rollout__start_time'],
+                timetable_rollout__end_time=pair['timetable_rollout__end_time'],
+                timetable_rollout__class_date__in=class_dates  # Filter by the fetched class_dates
+            )
 
-    return response
+            # Create a dictionary to store attendance by student and date
+            attendance_data = {}
+            for rollout in student_rollouts:
+                key = (rollout.student.enrollment_no, rollout.student.student_name)
+                if key not in attendance_data:
+                    attendance_data[key] = {'attendance': {}}
+                class_date = rollout.timetable_rollout.class_date.strftime('%Y-%m-%d')
+                attendance_data[key]['attendance'][class_date] = "Present" if rollout.student_attendance else "AB"
+
+            # Fill the Excel sheet with data
+            for key, data in attendance_data.items():
+                row = [
+                    key[0],  # enrollment_no
+                    key[1],  # student_name
+                ]
+                for date in dynamic_headers:
+                    row.append(data['attendance'].get(date, "A"))  # Default to "A" if no record for the date
+                ws.append(row)
+
+            # Save the workbook to a bytes buffer
+            buffer = BytesIO()
+            wb.save(buffer)
+            buffer.seek(0)
+            excel_files[f"{subject_name}_{faculty_name}_{start_time}_{end_time}.xlsx"] = buffer
+
+        # Create a HTTP response with the Excel files
+        response = HttpResponse(content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename=StudentRollouts.zip'
+
+        with ZipFile(response, 'w') as zip_file:
+            for filename, file_buffer in excel_files.items():
+                zip_file.writestr(filename, file_buffer.getvalue())
+
+        return response
