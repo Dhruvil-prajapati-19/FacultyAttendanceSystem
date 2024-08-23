@@ -4,7 +4,6 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Faculty, Students
 from django.utils import timezone
-from geopy.distance import geodesic # type: ignore
 
 
 class FacultyLoginMixin:
