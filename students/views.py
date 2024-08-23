@@ -2,7 +2,7 @@ from zipfile import ZipFile
 from django.shortcuts import  render, redirect
 from django.views import View
 from django.contrib import messages
-from FacultyAttendanceSystem.models import  AdminCredentials, Semester,  StudentsRollouts,Students
+from FacultyAttendanceSystem.models import Semester,  StudentsRollouts,Students,Faculty
 from django.core.cache import cache
 
 class Studentsheet(View):
@@ -76,14 +76,14 @@ class Datasheet(View):
         faculty = None
         if logged_user:
             try:
-                faculty = AdminCredentials.objects.get(id=logged_user).faculty
-            except AdminCredentials.DoesNotExist:
+                faculty = Faculty.objects.get(id=logged_user).faculty
+            except Faculty.DoesNotExist:
                 pass
         sem = Semester.objects.all()    
         context = {
             'form': form,
-            'faculty_name': faculty,
-            'semesters': sem
+            'faculty_name': faculty
+            , 'semesters': sem
         }
         return render(request, 'datasheet.html', context)
 
@@ -96,7 +96,8 @@ class Datasheet(View):
             try:
                 student = Students.objects.get(enrollment_no=enrollment_no)
             except Students.DoesNotExist:
-                return redirect('datasheet')  # Redirect back to the same view
+                messages.error(request, 'Student does not exist for the given enrollment number.')
+                return render(request, 'datasheet.html', {'form': form})
             
             # Fetch all rollouts for the student
             rollouts = StudentsRollouts.objects.filter(student=student)
@@ -161,7 +162,16 @@ class Classattendance(View):
         ws.title = "Attendance Data"
 
         # Add the headers
-        headers = ["Enrollment No", "Student Name", "Total Lectures", "Total Present", "Attendance Percentage"]
+        headers = [
+            "Enrollment No", 
+            "Student Name", 
+            "Total Lectures", 
+            "Total Labs", 
+            "Total Present in Lectures", 
+            "Total Present in Labs", 
+            "Lecture Attendance Percentage", 
+            "Lab Attendance Percentage"
+        ]
         ws.append(headers)
 
         # Loop through each student to calculate attendance data
@@ -169,27 +179,49 @@ class Classattendance(View):
             enrollment_no = student['student__enrollment_no']
             student_name = student['student__student_name']
 
-            # Calculate total attendance and total present for the selected semester
-            total_attendance = StudentsRollouts.objects.filter(
-                student__enrollment_no=enrollment_no,
-                timetable_rollout__class_id__semester_id=semester_id
-            ).count()
-            total_present = StudentsRollouts.objects.filter(
+            # Calculate total lectures and labs for the selected semester
+            total_lectures = StudentsRollouts.objects.filter(
                 student__enrollment_no=enrollment_no,
                 timetable_rollout__class_id__semester_id=semester_id,
+                timetable_rollout__class_id__class_type='lecture'
+            ).count()
+
+            total_labs = StudentsRollouts.objects.filter(
+                student__enrollment_no=enrollment_no,
+                timetable_rollout__class_id__semester_id=semester_id
+            ).exclude(
+                timetable_rollout__class_id__class_type='lecture'
+            ).count()
+
+            # Calculate total present in lectures and labs
+            total_present_lectures = StudentsRollouts.objects.filter(
+                student__enrollment_no=enrollment_no,
+                timetable_rollout__class_id__semester_id=semester_id,
+                timetable_rollout__class_id__class_type='lecture',
                 student_attendance=True
             ).count()
 
-            # Calculate attendance percentage
-            attendance_percentage = (total_present / total_attendance) * 100 if total_attendance > 0 else 0
+            total_present_labs = StudentsRollouts.objects.filter(
+                student__enrollment_no=enrollment_no,
+                timetable_rollout__class_id__semester_id=semester_id
+            ).exclude(
+                timetable_rollout__class_id__class_type='lecture'
+            ).filter(student_attendance=True).count()
+
+            # Calculate attendance percentages
+            lecture_attendance_percentage = (total_present_lectures / total_lectures) * 100 if total_lectures > 0 else 0
+            lab_attendance_percentage = (total_present_labs / total_labs) * 100 if total_labs > 0 else 0
 
             # Append the data to the sheet
             row = [
                 enrollment_no,
                 student_name,
-                total_attendance,
-                total_present,
-                f"{attendance_percentage:.2f}%"
+                total_lectures,
+                total_labs,
+                total_present_lectures,
+                total_present_labs,
+                f"{lecture_attendance_percentage:.2f}%",
+                f"{lab_attendance_percentage:.2f}%"
             ]
             ws.append(row)
 
@@ -204,24 +236,25 @@ class Classattendance(View):
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
         return response
-
+    
     def get(self, request):
         # Handle GET requests here if needed
         semesters = Semester.objects.all()
         return render(request, 'datasheet.html', {'semesters': semesters})
 
-class AttendanceDownloadView(View):
-    template_name = 'attendance_download.html'
-
-    def get(self, request):
+def download_attendance_data(request):
+    if request.method == 'GET':
         # Fetch all Semester objects to send to the template
         semesters = Semester.objects.all()
         context = {'semesters': semesters}
-        return render(request, self.template_name, context)
+        return render(request, 'datasheet.html', context)
 
-    def post(self, request):
+    elif request.method == 'POST':
         logged_user = request.session.get('logged_user')
         selected_semester_id = request.POST.get('semester')
+
+        if not selected_semester_id:
+            return HttpResponse("No semester was selected", status=400)
 
         # Fetch the selected semester
         try:
@@ -266,7 +299,6 @@ class AttendanceDownloadView(View):
             # Create a workbook and a sheet
             wb = Workbook()
             sheet_title = f"{subject_name} - {faculty_name} ({start_time}-{end_time})"
-            sheet_title = sheet_title.replace(":", "-")
             ws = wb.active
             ws.title = sheet_title
 
@@ -303,7 +335,7 @@ class AttendanceDownloadView(View):
                 timetable_rollout__class_id__semester=selected_semester,
                 timetable_rollout__start_time=pair['timetable_rollout__start_time'],
                 timetable_rollout__end_time=pair['timetable_rollout__end_time'],
-                timetable_rollout__class_date__in=class_dates  # Filter by the fetched class_dates
+                timetable_rollout__class_date__in=class_dates
             )
 
             # Create a dictionary to store attendance by student and date

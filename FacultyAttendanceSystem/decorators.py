@@ -14,6 +14,6 @@ def student_login_required(view_func):
     @wraps(view_func)
     def wrapped_view(request, *args, **kwargs):
         if not request.session.get('student_id'):
-            return redirect('/')  # Redirect to the login page if student is not logged in
+            return redirect('/') 
         return view_func(request, *args, **kwargs)
     return wrapped_view

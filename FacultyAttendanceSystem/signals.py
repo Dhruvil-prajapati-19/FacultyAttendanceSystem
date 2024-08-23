@@ -71,7 +71,7 @@ def update_timetable_rollouts(instance):
 def create_students_rollouts(instance, first_class_date):
     students = Students.objects.filter(Student_Class=instance.Student_Class)
     if not students.exists():
-        return  # Handle case where no students are found for the class
+        return False  # Handle case where no students are found for the class
 
     for student in students:
         student_rollout = StudentsRollouts(

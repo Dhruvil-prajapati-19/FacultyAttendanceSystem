@@ -1,9 +1,0 @@
-{# templates/admin/yourmodel_changelist.html #}
-{% extends "admin/change_list.html" %}
-
-{% block object-tools %}
-    <div class="object-tools">
-        <a style="margin:3px 140px ; height: 15px;" class="button" title="use after all Faculty timetable data  import via excel files " href="{% url 'admin:delete-datawizard' %}">Delete datawizard Directory</a>
-    </div>
-    {{ block.super }}
-{% endblock %}

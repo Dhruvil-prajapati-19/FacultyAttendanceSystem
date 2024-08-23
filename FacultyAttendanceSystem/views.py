@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import localtime, now
 from datetime import  timedelta
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import AdminCredentials, TimeTableRollouts, HolidayScheduler, WorkShift , StudentsRollouts 
+from .models import  Faculty, TimeTableRollouts, HolidayScheduler, WorkShift , StudentsRollouts 
 from datetime import timedelta
 from django.urls import reverse
 from django.core.cache import cache
@@ -38,6 +38,7 @@ class LoginView(FacultyLoginMixin, StudentLoginMixin, View):
             return render(request, 'login.html', {'error_message': 'Invalid form submission'})
 
 
+
 class Attendancesheet(View):
     def get(self, request):
         todays_date = timezone.localdate()
@@ -54,11 +55,11 @@ class Attendancesheet(View):
 
         if logged_user:
             try:
-                admin_credentials = AdminCredentials.objects.get(id=logged_user)
-                faculty = admin_credentials.faculty
+                # Fetch the Faculty object using the logged user ID
+                faculty = Faculty.objects.get(id=logged_user)
                 total_classes = TimeTableRollouts.objects.filter(faculty=faculty).count()
                 attended_classes = TimeTableRollouts.objects.filter(faculty=faculty, class_attedance=True).count()
-            except AdminCredentials.DoesNotExist:
+            except Faculty.DoesNotExist:
                 pass
         
         pin_code = None
@@ -69,9 +70,11 @@ class Attendancesheet(View):
             # Store the PIN and faculty_class_id in the cache for 300 seconds (5 minutes)
             cache.set(f'pin_code_{pin_code}', faculty_class_id, timeout=300)
 
+        # Get the class rollouts for the selected week
         class_rollouts = TimeTableRollouts.objects.filter(faculty=faculty, class_date__range=[start_date, end_date])
         holiday_today = HolidayScheduler.objects.filter(date=todays_date).first()
 
+        # Calculate dates for each day of the week
         monday_date = start_date
         tuesday_date = start_date + timedelta(days=1)
         wednesday_date = start_date + timedelta(days=2)
@@ -83,7 +86,9 @@ class Attendancesheet(View):
         final_punch_time = None
         is_punch_out = False
         punch_date_time = None
+
         try:
+            # Get the last work shift for the faculty
             punch_time = WorkShift.objects.filter(faculty=faculty).last()
             if punch_time:
                 if punch_time.punch_in and not punch_time.punch_out:
@@ -178,7 +183,7 @@ class WorkShiftView(View):
         logged_user = request.session.get('logged_user')
         if logged_user:
             try:
-                faculty = AdminCredentials.objects.get(id=logged_user).faculty
+                faculty = Faculty.objects.get(id=logged_user).faculty
                 current_time = localtime(now())
                 try:
                     existing_entry = WorkShift.objects.get(faculty=faculty, date=current_time.date())

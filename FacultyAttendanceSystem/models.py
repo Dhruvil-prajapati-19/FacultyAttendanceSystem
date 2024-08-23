@@ -6,17 +6,11 @@ from datetime import timedelta
 class Faculty(models.Model):
     name = models.CharField(max_length=200)
     short_name = models.CharField(max_length=50)
+    username = models.CharField(max_length=50,null=True, blank=True,unique=True,verbose_name='Username')
+    password = models.CharField(max_length=50,null=True, blank=True,verbose_name='Password')
 
     def __str__(self):
         return self.name
-
-class AdminCredentials(models.Model):
-    faculty = models.OneToOneField(Faculty, on_delete=models.SET_NULL, null=True)
-    username = models.CharField(max_length=50)
-    password = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.faculty.name if self.faculty else "No Faculty Assigned"        
 
 class Semester(models.Model):
     term_date = models.CharField(max_length=100, null=True, verbose_name='Term Date')
@@ -87,8 +81,7 @@ class Students(models.Model):
     enrollment_no = models.CharField(max_length=20, verbose_name='Enrollment Number', null=True, blank=True)
     student_name = models.CharField(max_length=100, verbose_name='Student Name', null=True, blank=True)
     Student_Class = models.ForeignKey(StudentClass, on_delete=models.SET_NULL, blank=True, null=True, verbose_name='Student Class')
-    Student_password = models.CharField(max_length=50, verbose_name='Student Password', blank=True, null=True) # Unique device identifier
-    last_login = models.DateTimeField(blank=True, null=True)
+    Student_password = models.CharField(max_length=50, verbose_name='Student Password', blank=True, null=True) 
     is_active = models.BooleanField(default=True, verbose_name='Is Active')
 
 

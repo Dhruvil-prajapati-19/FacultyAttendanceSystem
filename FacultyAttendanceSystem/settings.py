@@ -26,10 +26,6 @@ SECRET_KEY = 'django-insecure-2^-98x+ue$mk%l-!ixdrw0aup2fm+^=s97dth_53x)^n84qg(z
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '3fbb-103-159-201-229.ngrok-free.app' ]
-CSRF_TRUSTED_ORIGINS = ["https://*.ngrok.io"]
-CSRF_TRUSTED_ORIGINS = [
-  'https://3fbb-103-159-201-229.ngrok-free.app' 
-]
 
 # Application definition
 
@@ -43,7 +39,7 @@ INSTALLED_APPS = [
     'FacultyAttendanceSystem.apps.FacultyAttendanceSystemConfig',
     'data_wizard',
     'data_wizard.sources',
-    'students',  # Ensure this is in the correct order based on dependencies
+    'students', 
 ]
 
 
