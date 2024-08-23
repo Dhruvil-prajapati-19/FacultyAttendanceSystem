@@ -1,6 +1,5 @@
 asgiref==3.8.1
 certifi==2024.6.2
-cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
 data-wizard==2.0.0
@@ -13,10 +12,8 @@ idna==3.7
 itertable==2.2.0
 natural-keys==2.1.1
 openpyxl==3.1.2
-pycparser==2.22
 python-dateutil==2.9.0.post0
 requests==2.32.3
 six==1.16.0
 sqlparse==0.5.1
-typing_extensions==4.12.2
 urllib3==2.2.2
